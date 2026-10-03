@@ -1,0 +1,513 @@
+{% extends "app_layout.html" %}
+
+
+{% block sidebar_nav %}
+
+<a
+    href="{{ url_for('student.dashboard') }}"
+    class="sidebar-link"
+>
+    <span>📊</span>
+    Dashboard
+</a>
+
+<a
+    href="{{ url_for('student.profile') }}"
+    class="sidebar-link"
+>
+    <span>👤</span>
+    Profile
+</a>
+
+<a
+    href="{{ url_for('student.companies') }}"
+    class="sidebar-link"
+>
+    <span>💼</span>
+    Find Internship
+</a>
+
+<a
+    href="{{ url_for('student.applications') }}"
+    class="sidebar-link"
+>
+    <span>📋</span>
+    My Applications
+</a>
+
+<a
+    href="{{ url_for('student.reports') }}"
+    class="sidebar-link"
+>
+    <span>📄</span>
+    Reports
+</a>
+
+<a
+    href="{{ url_for('student.certificate') }}"
+    class="sidebar-link active"
+>
+    <span>🎓</span>
+    Certificate
+</a>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Certificate</h1>
+
+        <p>
+            View your internship certificate and completion status.
+        </p>
+
+    </div>
+
+</div>
+
+
+{% if not internship %}
+
+<div class="content-card">
+
+    <div class="empty-state">
+
+        <h2>No Internship Record</h2>
+
+        <p>
+            You do not have an internship placement yet.
+        </p>
+
+    </div>
+
+</div>
+
+
+{% else %}
+
+
+<!-- =====================================================
+     INTERNSHIP COMPLETION SUMMARY
+====================================================== -->
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>Internship Completion Summary</h2>
+
+    </div>
+
+
+    <div class="details-grid">
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Company
+            </span>
+
+            <strong>
+
+                {% if internship.company %}
+                    {{ internship.company.company_name }}
+                {% else %}
+                    —
+                {% endif %}
+
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Required Hours
+            </span>
+
+            <strong>
+                {{ required_hours }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Completed Hours
+            </span>
+
+            <strong>
+                {{ completed_hours }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Remaining Hours
+            </span>
+
+            <strong>
+                {{ remaining_hours }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Progress
+            </span>
+
+            <strong>
+                {{ progress_percent }}%
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Internship Status
+            </span>
+
+            <strong>
+                {{ internship.status }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CERTIFICATE REQUIREMENTS
+====================================================== -->
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>Certificate Requirements</h2>
+
+    </div>
+
+
+    {% if cert %}
+
+    <div class="requirements-list">
+
+
+        <!-- =================================================
+             HOURS
+        ================================================== -->
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Required Internship Hours
+                </strong>
+
+                <p>
+                    {{ completed_hours }}
+                    /
+                    {{ required_hours }}
+                    hours completed
+                </p>
+
+            </div>
+
+
+            {% if cert.hours_met %}
+
+                <span class="status-badge status-success">
+                    Complete
+                </span>
+
+            {% else %}
+
+                <span class="status-badge status-warning">
+                    Incomplete
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             WEEKLY REPORTS
+        ================================================== -->
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Weekly Reports
+                </strong>
+
+                <p>
+                    All weekly reports must be approved.
+                </p>
+
+            </div>
+
+
+            {% if cert.reports_met %}
+
+                <span class="status-badge status-success">
+                    Complete
+                </span>
+
+            {% else %}
+
+                <span class="status-badge status-warning">
+                    Incomplete
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             EVALUATION
+        ================================================== -->
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Adviser Evaluation
+                </strong>
+
+                <p>
+                    Your internship evaluation must be completed.
+                </p>
+
+            </div>
+
+
+            {% if cert.evaluations_met %}
+
+                <span class="status-badge status-success">
+                    Complete
+                </span>
+
+            {% else %}
+
+                <span class="status-badge status-warning">
+                    Incomplete
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             CERTIFICATE UPLOAD
+        ================================================== -->
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Certificate Upload
+                </strong>
+
+                <p>
+                    Your OJT Adviser must upload the completed certificate.
+                </p>
+
+            </div>
+
+
+            {% if cert.pdf_path %}
+
+                <span class="status-badge status-success">
+                    Uploaded
+                </span>
+
+            {% else %}
+
+                <span class="status-badge status-warning">
+                    Pending
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h3>Certificate Record Not Created</h3>
+
+            <p>
+                Your certificate record will appear once your
+                internship certificate process begins.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     MY CERTIFICATE
+====================================================== -->
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>My Certificate</h2>
+
+    </div>
+
+
+    {% if cert and cert.pdf_path %}
+
+
+        <!-- =================================================
+             UPLOAD SUCCESS MESSAGE
+        ================================================== -->
+
+        <div class="success-box">
+
+            <strong>
+                Certificate Uploaded
+            </strong>
+
+            <p>
+                Your completed certificate has been uploaded
+                by your OJT Adviser.
+            </p>
+
+
+            {% if cert.date_issued %}
+
+                <p>
+
+                    Date Issued:
+
+                    {{ cert.date_issued.strftime("%B %d, %Y") }}
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             CERTIFICATE IMAGE
+        ================================================== -->
+
+        <div class="certificate-preview">
+
+            <img
+                src="{{ url_for('student.view_certificate') }}"
+                alt="Certificate of Completion"
+                class="certificate-image"
+            >
+
+        </div>
+
+
+        <!-- =================================================
+             BUTTONS
+        ================================================== -->
+
+        <div class="button-group">
+
+            <a
+                href="{{ url_for('student.view_certificate') }}"
+                target="_blank"
+                class="btn btn-secondary"
+            >
+                View Certificate
+            </a>
+
+
+            {% if cert.is_ready %}
+
+            <a
+                href="{{ url_for('student.download_certificate') }}"
+                class="btn btn-primary"
+            >
+                Download Certificate
+            </a>
+
+            {% else %}
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                disabled
+            >
+                Certificate Not Ready
+            </button>
+
+            {% endif %}
+
+        </div>
+
+
+    {% else %}
+
+
+        <!-- =================================================
+             NOT YET UPLOADED
+        ================================================== -->
+
+        <div class="empty-state">
+
+            <h3>
+                Certificate Not Uploaded Yet
+            </h3>
+
+            <p>
+                Your certificate will appear here once your
+                OJT Adviser completes the official certificate
+                and uploads the image.
+            </p>
+
+        </div>
+
+
+    {% endif %}
+
+</div>
+
+
+{% endif %}
+
+{% endblock %}

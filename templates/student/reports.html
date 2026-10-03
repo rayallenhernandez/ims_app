@@ -1,0 +1,845 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Reports
+{% endblock %}
+
+{% block sidebar_nav %}
+{% include "partials/student_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Reports</h1>
+
+        <p>
+            Submit and monitor your weekly and narrative internship reports.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Student / Reports
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     INTERNSHIP INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128188; Internship Information
+    </h3>
+
+    {% if internship %}
+
+    <div class="form-grid">
+
+        <div class="form-group">
+
+            <label>
+                Company
+            </label>
+
+            <div class="readonly-field">
+
+                {% if internship.company %}
+
+                    {{ internship.company.company_name }}
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Department
+            </label>
+
+            <div class="readonly-field">
+
+                {{ internship.department or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Supervisor
+            </label>
+
+            <div class="readonly-field">
+
+                {{ internship.supervisor_name or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Internship Status
+            </label>
+
+            <div class="readonly-field">
+
+                {% if internship.status == 'Active' %}
+
+                    <span class="badge badge-success">
+                        Active
+                    </span>
+
+                {% elif internship.status == 'Completed' %}
+
+                    <span class="badge badge-success">
+                        Completed
+                    </span>
+
+                {% elif internship.status == 'On Hold' %}
+
+                    <span class="badge badge-warning">
+                        On Hold
+                    </span>
+
+                {% else %}
+
+                    <span class="badge">
+                        {{ internship.status or '—' }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128188;
+        </div>
+
+        <h3>
+            No Internship Placement
+        </h3>
+
+        <p>
+            You need an internship placement before submitting reports.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+{% if internship %}
+
+
+<!-- =====================================================
+     WEEKLY REPORT SUBMISSION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128196; Submit Weekly Report
+    </h3>
+
+
+    {% if next_available_week %}
+
+    <div
+        style="
+            margin-bottom:20px;
+            padding:15px;
+            border-radius:8px;
+            border:1px solid var(--border);
+            background:var(--bg);
+        "
+    >
+
+        <strong>
+            Current available week:
+        </strong>
+
+        <span
+            style="
+                font-size:16px;
+                margin-left:6px;
+            "
+        >
+            Week {{ next_available_week }}
+        </span>
+
+        <p
+            style="
+                margin:8px 0 0;
+                font-size:13px;
+                color:var(--muted);
+            "
+        >
+            You must submit the current week before the next week
+            becomes available.
+        </p>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('student.reports') }}"
+        enctype="multipart/form-data"
+    >
+
+        <input
+            type="hidden"
+            name="report_kind"
+            value="weekly"
+        >
+
+
+        <div class="form-grid">
+
+
+            <!-- WEEK -->
+
+            <div class="form-group">
+
+                <label for="week_number">
+                    Week Number
+                </label>
+
+                <select
+                    id="week_number"
+                    name="week_number"
+                    required
+                >
+
+                    <option value="">
+                        Select Week
+                    </option>
+
+
+                    {% for week in range(1, 21) %}
+
+                        {% if week in available_weeks %}
+
+                            <option value="{{ week }}">
+                                Week {{ week }} — Available
+                            </option>
+
+                        {% elif week in submitted_week_numbers %}
+
+                            <option
+                                value="{{ week }}"
+                                disabled
+                            >
+                                Week {{ week }} — Already Submitted
+                            </option>
+
+                        {% else %}
+
+                            <option
+                                value="{{ week }}"
+                                disabled
+                            >
+                                Week {{ week }} — Locked
+                            </option>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </select>
+
+
+                <div class="form-help">
+
+                    Only the current week is available.
+                    Future weeks are locked until the previous
+                    week has been submitted.
+
+                </div>
+
+            </div>
+
+
+            <!-- FILE -->
+
+            <div class="form-group">
+
+                <label for="weekly_file">
+                    Report File
+                </label>
+
+                <input
+                    type="file"
+                    id="weekly_file"
+                    name="file"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    required
+                >
+
+                <div class="form-help">
+
+                    Accepted formats:
+                    PDF, DOC, DOCX, JPG, JPEG, PNG.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NOTES -->
+
+        <div class="form-group">
+
+            <label for="notes">
+                Notes
+            </label>
+
+            <textarea
+                id="notes"
+                name="notes"
+                rows="6"
+                placeholder="Enter your activities, accomplishments, or notes for this week..."
+            ></textarea>
+
+        </div>
+
+
+        <div class="action-buttons">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                &#128190; Submit Weekly Report
+            </button>
+
+        </div>
+
+    </form>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#10003;
+        </div>
+
+        <h3>
+            All Weekly Reports Completed
+        </h3>
+
+        <p>
+            You have already submitted all 20 weekly reports.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =====================================================
+     SUBMIT NARRATIVE REPORT
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128221; Submit Narrative Report
+    </h3>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('student.reports') }}"
+        enctype="multipart/form-data"
+    >
+
+        <input
+            type="hidden"
+            name="report_kind"
+            value="narrative"
+        >
+
+
+        <div class="form-group">
+
+            <label for="title">
+                Report Title
+            </label>
+
+            <input
+                type="text"
+                id="title"
+                name="title"
+                placeholder="Enter your narrative report title"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="narrative_file">
+                Report File
+            </label>
+
+            <input
+                type="file"
+                id="narrative_file"
+                name="file"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                required
+            >
+
+        </div>
+
+
+        <div class="action-buttons">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                &#128190; Submit Narrative Report
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endif %}
+
+
+
+<!-- =====================================================
+     WEEKLY REPORT HISTORY
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128203; Weekly Report History
+    </h3>
+
+
+    {% if weekly_reports %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Week
+                    </th>
+
+                    <th>
+                        Date Covered
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Submitted
+                    </th>
+
+                    <th>
+                        File
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for report in weekly_reports %}
+
+                <tr>
+
+
+                    <!-- WEEK -->
+
+                    <td>
+
+                        <strong>
+                            Week {{ report.week_number }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        {% if report.date_covered_start and report.date_covered_end %}
+
+                            {{ report.date_covered_start.strftime('%b %d, %Y') }}
+
+                            -
+
+                            {{ report.date_covered_end.strftime('%b %d, %Y') }}
+
+                        {% elif report.date_covered_start %}
+
+                            {{ report.date_covered_start.strftime('%b %d, %Y') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if report.status == 'Approved' %}
+
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+
+                        {% elif report.status == 'Submitted' %}
+
+                            <span class="badge badge-warning">
+                                Submitted
+                            </span>
+
+                        {% elif report.status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                For Correction
+                            </span>
+
+                        {% elif report.status == 'Draft' %}
+
+                            <span class="badge">
+                                Draft
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ report.status or '—' }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- SUBMITTED -->
+
+                    <td>
+
+                        {% if report.submitted_at %}
+
+                            {{ report.submitted_at.strftime('%b %d, %Y %I:%M %p') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- FILE -->
+
+                    <td>
+
+                        {% if report.file_path %}
+
+                            <a
+                                href="{{ url_for(
+                                    'student.uploaded_file',
+                                    filepath=report.file_path
+                                ) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-outline"
+                            >
+                                View File
+                            </a>
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128196;
+        </div>
+
+        <h3>
+            No Weekly Reports Yet
+        </h3>
+
+        <p>
+            Your submitted weekly reports will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =====================================================
+     NARRATIVE REPORT HISTORY
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128221; Narrative Report History
+    </h3>
+
+
+    {% if narrative_reports %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Title
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Submitted
+                    </th>
+
+                    <th>
+                        File
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for report in narrative_reports %}
+
+                <tr>
+
+
+                    <td>
+
+                        <strong>
+                            {{ report.title }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.status == 'Approved' %}
+
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+
+                        {% elif report.status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ report.status or '—' }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.submitted_at %}
+
+                            {{ report.submitted_at.strftime('%b %d, %Y %I:%M %p') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.file_path %}
+
+                            <a
+                                href="{{ url_for(
+                                    'student.uploaded_file',
+                                    filepath=report.file_path
+                                ) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-outline"
+                            >
+                                View File
+                            </a>
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128221;
+        </div>
+
+        <h3>
+            No Narrative Reports Yet
+        </h3>
+
+        <p>
+            Your submitted narrative reports will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div class="card">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('student.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Student Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

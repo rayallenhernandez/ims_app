@@ -1,0 +1,153 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Students
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Students</h1>
+
+        <p>
+            View registered students and their internship information.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Admin / Students
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128101; Registered Students
+    </h3>
+
+
+    {% if students %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Student</th>
+                    <th>Student ID</th>
+                    <th>Course</th>
+                    <th>Year Level</th>
+                    <th>Section</th>
+                    <th>School Year</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for student in students %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ student.user.full_name }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+                        {{ student.student_id_number or '—' }}
+                    </td>
+
+
+                    <td>
+                        {{ student.course or '—' }}
+                    </td>
+
+
+                    <td>
+                        {{ student.year_level or '—' }}
+                    </td>
+
+
+                    <td>
+                        {{ student.section or '—' }}
+                    </td>
+
+
+                    <td>
+                        {{ student.school_year or '—' }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128101;
+        </div>
+
+        <h3>
+            No Students
+        </h3>
+
+        <p>
+            No student profiles have been registered yet.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Admin Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

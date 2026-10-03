@@ -1,0 +1,326 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Internship Placement Details
+{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/partner_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Internship Placement Details</h1>
+
+        <p>
+            Enter the placement information before accepting the application.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Partner / Application / Placement Details
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =====================================================
+     STUDENT INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Student Information
+    </h3>
+
+    <div class="form-grid">
+
+        <div class="form-group">
+
+            <label>
+                Student Name
+            </label>
+
+            <div class="readonly-field">
+
+                {% if student and student.user %}
+                    {{ student.user.full_name }}
+                {% else %}
+                    —
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Student ID
+            </label>
+
+            <div class="readonly-field">
+                {{ student.student_id_number or '—' }}
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Course
+            </label>
+
+            <div class="readonly-field">
+                {{ student.course or '—' }}
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Year Level
+            </label>
+
+            <div class="readonly-field">
+                {{ student.year_level or '—' }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     COMPANY INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#127970; Company Information
+    </h3>
+
+    <div class="form-grid">
+
+        <div class="form-group">
+
+            <label>
+                Company
+            </label>
+
+            <div class="readonly-field">
+                {{ company.company_name }}
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Industry
+            </label>
+
+            <div class="readonly-field">
+                {{ company.industry or '—' }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PLACEMENT FORM
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128188; Internship Placement
+    </h3>
+
+    <form
+        method="POST"
+        action="{{ url_for(
+            'partner.accept_application',
+            application_id=application.id
+        ) }}"
+    >
+
+        <div class="form-grid">
+
+            <!-- DEPARTMENT -->
+
+            <div class="form-group">
+
+                <label for="department">
+                    Department
+                </label>
+
+                <input
+                    type="text"
+                    id="department"
+                    name="department"
+                    value="{{ request.form.get('department', '') }}"
+                    placeholder="e.g. Information Technology"
+                    required
+                >
+
+            </div>
+
+
+            <!-- SUPERVISOR -->
+
+            <div class="form-group">
+
+                <label for="supervisor_name">
+                    Supervisor Name
+                </label>
+
+                <input
+                    type="text"
+                    id="supervisor_name"
+                    name="supervisor_name"
+                    value="{{ request.form.get('supervisor_name', '') }}"
+                    placeholder="e.g. Juan Dela Cruz"
+                    required
+                >
+
+            </div>
+
+
+            <!-- START DATE -->
+
+            <div class="form-group">
+
+                <label for="start_date">
+                    Start Date
+                </label>
+
+                <input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    value="{{ request.form.get('start_date', '') }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- END DATE -->
+
+            <div class="form-group">
+
+                <label for="end_date">
+                    End Date
+                </label>
+
+                <input
+                    type="date"
+                    id="end_date"
+                    name="end_date"
+                    value="{{ request.form.get('end_date', '') }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- REQUIRED HOURS -->
+
+            <div class="form-group">
+
+                <label for="required_hours">
+                    Required OJT Hours
+                </label>
+
+                <input
+                    type="number"
+                    id="required_hours"
+                    name="required_hours"
+                    value="{{ request.form.get('required_hours', '240') }}"
+                    min="1"
+                    max="9999"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- NOTICE -->
+
+        <div
+            style="
+                margin-top:20px;
+                padding:15px;
+                border-radius:8px;
+                border:1px solid var(--border);
+            "
+        >
+
+            <strong>
+                Important:
+            </strong>
+
+            Accepting this application will create an active internship
+            placement for the student.
+
+        </div>
+
+
+        <!-- ACTIONS -->
+
+        <div
+            class="action-buttons"
+            style="margin-top:20px;"
+        >
+
+            <a
+                href="{{ url_for(
+                    'partner.application_details',
+                    application_id=application.id
+                ) }}"
+                class="btn btn-secondary"
+            >
+                &#8592; Cancel
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Confirm acceptance and create this internship placement?');"
+            >
+                &#10003; Confirm Acceptance
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

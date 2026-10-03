@@ -1,0 +1,541 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Partner Dashboard
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/partner_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Partner Dashboard</h1>
+
+        <p>
+            Overview of your internship applications and placements.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Partner / Dashboard
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     COMPANY INFORMATION
+====================================================== -->
+
+{% if company %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#127970; Company Information
+    </h3>
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Company
+            </div>
+
+            <div
+                class="stat-value"
+                style="font-size:20px;"
+            >
+                {{ company.company_name }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Available Slots
+            </div>
+
+            <div class="stat-value">
+
+                {{
+                    company.available_slots
+                    if company.available_slots is not none
+                    else '—'
+                }}
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Pending Applications
+            </div>
+
+            <div class="stat-value">
+                {{ pending_applications|length }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Current Interns
+            </div>
+
+            <div class="stat-value">
+                {{ interns|length }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+<!-- =====================================================
+     QUICK ACTIONS
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        &#9889; Quick Actions
+    </h3>
+
+
+    <p>
+        Manage your internship students and performance records.
+    </p>
+
+
+    <div class="action-buttons">
+
+
+        <a
+            href="{{ url_for('partner.interns') }}"
+            class="btn btn-primary"
+        >
+            &#128100; My Interns
+        </a>
+
+
+        <a
+            href="{{ url_for('partner.evaluation') }}"
+            class="btn btn-primary"
+        >
+            &#9733; Evaluation
+        </a>
+
+
+        <a
+            href="{{ url_for('partner.feedback') }}"
+            class="btn btn-outline"
+        >
+            &#128221; Feedback
+        </a>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PENDING APPLICATIONS
+====================================================== -->
+
+<div
+    class="card"
+    style="margin-top:20px;"
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <h3
+            class="card-title"
+            style="margin-bottom:0;"
+        >
+            &#128188; Pending Applications
+        </h3>
+
+
+        <a
+            href="{{ url_for('partner.applications') }}"
+            class="btn btn-primary"
+        >
+            View All Applications
+        </a>
+
+    </div>
+
+
+    <div style="margin-top:18px;">
+
+        {% if pending_applications %}
+
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Applicant
+                        </th>
+
+                        <th>
+                            Course
+                        </th>
+
+                        <th>
+                            Year Level
+                        </th>
+
+                        <th>
+                            Date Applied
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for application in pending_applications %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+
+                                {{ application.student.user.first_name }}
+
+                                {{ application.student.user.last_name }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ application.student.course or '—' }}
+                        </td>
+
+
+                        <td>
+                            {{ application.student.year_level or '—' }}
+                        </td>
+
+
+                        <td>
+
+                            {{
+                                application.submitted_at.strftime('%b %d, %Y')
+                                if application.submitted_at
+                                else '—'
+                            }}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="badge badge-warning">
+                                {{ application.status }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                href="{{ url_for(
+                                    'partner.application_details',
+                                    application_id=application.id
+                                ) }}"
+                                class="btn btn-sm btn-primary"
+                            >
+                                Review
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                &#128188;
+            </div>
+
+            <h3>
+                No Pending Applications
+            </h3>
+
+            <p>
+                Students who apply to your company will appear here.
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     CURRENT INTERNS
+====================================================== -->
+
+<div
+    class="card"
+    style="margin-top:20px;"
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <h3
+            class="card-title"
+            style="margin-bottom:0;"
+        >
+            &#128100; My Interns
+        </h3>
+
+
+        <a
+            href="{{ url_for('partner.interns') }}"
+            class="btn btn-primary"
+        >
+            View My Interns
+        </a>
+
+    </div>
+
+
+    <div style="margin-top:18px;">
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Student
+                        </th>
+
+                        <th>
+                            Department
+                        </th>
+
+                        <th>
+                            Hours
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for i in interns %}
+
+                    <tr>
+
+
+                        <td>
+
+                            <strong>
+
+                                {{ i.student.user.first_name }}
+
+                                {{ i.student.user.last_name }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ i.department or '—' }}
+                        </td>
+
+
+                        <td>
+
+                            {{ i.completed_hours or 0 }}
+
+                            /
+
+                            {{ i.required_hours or 240 }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if i.status == 'Active' %}
+
+                                <span class="badge badge-success">
+                                    Active
+                                </span>
+
+                            {% elif i.status == 'On Hold' %}
+
+                                <span class="badge badge-warning">
+                                    On Hold
+                                </span>
+
+                            {% elif i.status == 'Completed' %}
+
+                                <span class="badge badge-success">
+                                    Completed
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge">
+                                    {{ i.status }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            style="color:var(--muted);"
+                        >
+                            No interns assigned yet.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div
+    class="card"
+    style="margin-top:20px;"
+>
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('partner.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Partner Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

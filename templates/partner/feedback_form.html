@@ -1,0 +1,283 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Student Feedback
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/partner_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+
+            {% if evaluation and evaluation.remarks %}
+
+                Edit Feedback
+
+            {% else %}
+
+                Student Feedback
+
+            {% endif %}
+
+        </h1>
+
+        <p>
+            Provide written feedback for your assigned intern.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Partner / Feedback
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     STUDENT INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Student Information
+    </h3>
+
+
+    <div class="form-grid">
+
+
+        <div class="form-group">
+
+            <label>
+                Student Name
+            </label>
+
+            <div class="readonly-field">
+
+                {{ student.user.first_name }}
+
+                {% if student.user.middle_name %}
+
+                    {{ student.user.middle_name }}
+
+                {% endif %}
+
+                {{ student.user.last_name }}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Student ID
+            </label>
+
+            <div class="readonly-field">
+
+                {{ student.student_id_number or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Course
+            </label>
+
+            <div class="readonly-field">
+
+                {{ student.course or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Department
+            </label>
+
+            <div class="readonly-field">
+
+                {{ internship.department or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Internship Status
+            </label>
+
+            <div class="readonly-field">
+
+                {% if internship.status == 'Active' %}
+
+                    <span class="badge badge-success">
+                        Active
+                    </span>
+
+                {% elif internship.status == 'On Hold' %}
+
+                    <span class="badge badge-warning">
+                        On Hold
+                    </span>
+
+                {% elif internship.status == 'Completed' %}
+
+                    <span class="badge badge-success">
+                        Completed
+                    </span>
+
+                {% else %}
+
+                    <span class="badge">
+                        {{ internship.status or '—' }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     FEEDBACK FORM
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128221; Written Feedback
+    </h3>
+
+
+    <form
+        method="POST"
+        action="{{ url_for(
+            'partner.feedback_form',
+            internship_id=internship.id
+        ) }}"
+    >
+
+
+        <div class="form-group">
+
+            <label for="remarks">
+                Feedback
+            </label>
+
+
+            <textarea
+                id="remarks"
+                name="remarks"
+                rows="10"
+                placeholder="Write your feedback about the student's internship performance..."
+                required
+            >{% if evaluation %}{{ evaluation.remarks or '' }}{% endif %}</textarea>
+
+
+            <div class="form-help">
+
+                You may include the student's strengths,
+                work attitude, communication, teamwork,
+                technical skills, and areas for improvement.
+
+            </div>
+
+        </div>
+
+
+        <div class="action-buttons">
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+
+                {% if evaluation and evaluation.remarks %}
+
+                    &#9998; Update Feedback
+
+                {% else %}
+
+                    &#128221; Submit Feedback
+
+                {% endif %}
+
+            </button>
+
+
+            <a
+                href="{{ url_for('partner.feedback') }}"
+                class="btn btn-outline"
+            >
+                Cancel
+            </a>
+
+
+        </div>
+
+
+    </form>
+
+</div>
+
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('partner.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Partner Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

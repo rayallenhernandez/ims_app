@@ -1,0 +1,70 @@
+<a
+    href="{{ url_for('adviser.dashboard') }}"
+    class="{{ 'active' if request.endpoint == 'adviser.dashboard' }}"
+>
+    &#8962; Dashboard
+</a>
+
+
+<a
+    href="{{ url_for('adviser.students') }}"
+    class="{{ 'active' if request.endpoint in [
+        'adviser.students',
+        'adviser.student_details',
+        'adviser.hours',
+        'adviser.narrative_reports'
+    ] }}"
+>
+    &#128104;&#8205;&#127891; Assigned Students
+</a>
+
+
+<a
+    href="{{ url_for('adviser.internships') }}"
+    class="{{ 'active' if request.endpoint in [
+        'adviser.internships',
+        'adviser.internship_details'
+    ] }}"
+>
+    &#128188; Internship Monitoring
+</a>
+
+
+<a
+    href="{{ url_for('adviser.reports') }}"
+    class="{{ 'active' if request.endpoint in [
+        'adviser.reports',
+        'adviser.report_details',
+        'adviser.view_report_file',
+        'adviser.approve_report',
+        'adviser.return_report'
+    ] }}"
+>
+    &#128196; Weekly Reports
+</a>
+
+
+<a
+    href="{{ url_for('adviser.evaluations') }}"
+    class="{{ 'active' if request.endpoint in [
+        'adviser.evaluations',
+        'adviser.create_evaluation',
+        'adviser.evaluation_details',
+        'adviser.edit_evaluation'
+    ] }}"
+>
+    &#128202; Evaluations
+</a>
+
+
+<a
+    href="{{ url_for('adviser.certificates') }}"
+    class="{{ 'active' if request.endpoint in [
+        'adviser.certificates',
+        'adviser.certificate_details',
+        'adviser.view_certificate',
+        'adviser.download_certificate'
+    ] }}"
+>
+    &#127891; Certificate Readiness
+</a>

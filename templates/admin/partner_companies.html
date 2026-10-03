@@ -1,0 +1,196 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Partner Companies
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Partner Companies</h1>
+
+        <p>
+            Manage industry partner companies registered in the internship system.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Admin / Partner Companies
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <h3
+            class="card-title"
+            style="margin-bottom:0;"
+        >
+            &#127970; Registered Partner Companies
+        </h3>
+
+
+        <a
+            href="{{ url_for('admin.add_partner_company') }}"
+            class="btn btn-primary"
+        >
+            &#43; Add Partner Company
+        </a>
+
+    </div>
+
+
+    <div style="margin-top:20px;">
+
+        {% if companies %}
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Company</th>
+                        <th>Industry</th>
+                        <th>Address</th>
+                        <th>Available Slots</th>
+                        <th>Interns</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for company in companies %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                {{ company.company_name }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ company.industry or '—' }}
+                        </td>
+
+
+                        <td>
+                            {{ company.address or '—' }}
+                        </td>
+
+
+                        <td>
+                            {{ company.available_slots or 0 }}
+                        </td>
+
+
+                        <td>
+                            {{ company.internships.count() }}
+                        </td>
+
+
+                        <td>
+
+                            {% if company.status == 'Active' %}
+
+                                <span class="badge badge-success">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge">
+                                    {{ company.status }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                &#127970;
+            </div>
+
+            <h3>
+                No Partner Companies
+            </h3>
+
+            <p>
+                There are currently no registered partner companies.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Admin Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

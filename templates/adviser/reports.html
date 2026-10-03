@@ -1,0 +1,350 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Weekly Reports
+{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Weekly Reports</h1>
+
+        <p>
+            Review weekly internship reports submitted by your assigned students.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Weekly Reports
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128196; Submitted Weekly Reports
+    </h3>
+
+
+    {% if reports %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Student</th>
+
+                    <th>Company</th>
+
+                    <th>Week</th>
+
+                    <th>Date Covered</th>
+
+                    <th>Status</th>
+
+                    <th>Submitted</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for report in reports %}
+
+                <tr>
+
+                    <!-- STUDENT -->
+
+                    <td>
+
+                        <strong>
+
+                            {{ report.internship.student.user.last_name }},
+
+                            {{ report.internship.student.user.first_name }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- COMPANY -->
+
+                    <td>
+
+                        {% if report.internship.company %}
+
+                            {{ report.internship.company.company_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- WEEK -->
+
+                    <td>
+
+                        <strong>
+                            Week {{ report.week_number }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- DATE COVERED -->
+
+                    <td>
+
+                        {% if report.date_covered_start and report.date_covered_end %}
+
+                            {{ report.date_covered_start.strftime('%b %d, %Y') }}
+
+                            -
+
+                            {{ report.date_covered_end.strftime('%b %d, %Y') }}
+
+                        {% elif report.date_covered_start %}
+
+                            {{ report.date_covered_start.strftime('%b %d, %Y') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if report.status == 'Approved' %}
+
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+
+                        {% elif report.status == 'Submitted' %}
+
+                            <span class="badge badge-warning">
+                                Submitted
+                            </span>
+
+                        {% elif report.status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                Pending / For Correction
+                            </span>
+
+                        {% elif report.status == 'Draft' %}
+
+                            <span class="badge">
+                                Draft
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ report.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- SUBMITTED -->
+
+                    <td>
+
+                        {% if report.submitted_at %}
+
+                            {{ report.submitted_at.strftime('%b %d, %Y %I:%M %p') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTIONS -->
+
+                    <td>
+
+                        <div
+                            style="
+                                display:flex;
+                                flex-direction:column;
+                                gap:6px;
+                                min-width:120px;
+                            "
+                        >
+
+                            <!-- VIEW -->
+
+                            <a
+                                href="{{ url_for(
+                                    'adviser.report_details',
+                                    report_id=report.id
+                                ) }}"
+                                class="btn btn-sm btn-primary"
+                                style="text-align:center;"
+                            >
+                                &#128065; View
+                            </a>
+
+
+                            <!-- VIEW FILE -->
+
+                            {% if report.file_path %}
+
+                            <a
+                                href="{{ url_for(
+                                    'adviser.view_report_file',
+                                    report_id=report.id
+                                ) }}"
+                                class="btn btn-sm btn-secondary"
+                                target="_blank"
+                                style="text-align:center;"
+                            >
+                                &#128196; View File
+                            </a>
+
+                            {% endif %}
+
+
+                            <!-- APPROVE -->
+
+                            {% if report.status == 'Submitted'
+                                  or report.status == 'Pending' %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'adviser.approve_report',
+                                    report_id=report.id
+                                ) }}"
+                                style="margin:0;"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-success"
+                                    style="width:100%;"
+                                    onclick="return confirm('Approve this weekly report?');"
+                                >
+                                    &#10003; Approve
+                                </button>
+
+                            </form>
+
+
+                            <!-- RETURN -->
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'adviser.return_report',
+                                    report_id=report.id
+                                ) }}"
+                                style="margin:0;"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-warning"
+                                    style="width:100%;"
+                                    onclick="return confirm('Return this weekly report to the student for correction?');"
+                                >
+                                    &#8617; Return
+                                </button>
+
+                            </form>
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128196;
+        </div>
+
+        <h3>
+            No Weekly Reports
+        </h3>
+
+        <p>
+            Weekly reports submitted by your assigned students
+            will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- BACK TO DASHBOARD -->
+
+<div style="margin-top:20px;">
+
+    <a
+        href="{{ url_for('adviser.dashboard') }}"
+        class="btn btn-outline"
+    >
+        &#8592; Back to Dashboard
+    </a>
+
+</div>
+
+{% endblock %}

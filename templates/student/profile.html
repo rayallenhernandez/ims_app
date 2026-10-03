@@ -1,0 +1,120 @@
+{% extends "app_layout.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block sidebar_nav %}{% include "partials/student_nav.html" %}{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <div>
+    <h1>Student Profile</h1>
+    <p>View and manage your profile information and documents.</p>
+  </div>
+  <div class="breadcrumb">Home / Student / Profile</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+  <div class="card">
+    <h3 class="card-title">&#128100; Profile</h3>
+    <div style="text-align:center; padding: 10px 0 16px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;margin:0 auto 10px;">
+        {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+      </div>
+      <div style="font-weight:700; color:var(--navy);">{{ current_user.full_name }}</div>
+      <span class="badge badge-info">Student ID: {{ profile.student_id_number }}</span>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">{{ profile.course }} — {{ profile.year_level }}</div>
+      <a href="#profile-editor" class="btn btn-secondary btn-sm" style="margin-top:10px;">&#9998; Edit Profile</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">&#128196; Resume / Document Submission</h3>
+    <div class="grid grid-3">
+      <div style="text-align:center;">
+        <div style="font-size:26px;">&#128196;</div>
+        <div style="font-size:12px; font-weight:600; margin:6px 0;">Resume</div>
+        <button class="btn btn-secondary btn-sm">View / Replace</button>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:26px;">&#128196;</div>
+        <div style="font-size:12px; font-weight:600; margin:6px 0;">Application Letter</div>
+        <button class="btn btn-secondary btn-sm">View / Replace</button>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:26px;">&#128196;</div>
+        <div style="font-size:12px; font-weight:600; margin:6px 0;">Medical Certificate</div>
+        <button class="btn btn-secondary btn-sm">View / Replace</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:18px;">
+  <div class="card">
+    <h3 class="card-title">&#127891; Course / Year / Section</h3>
+    <table>
+      <tr><td>Course</td><td style="text-align:right;">{{ profile.course }}</td></tr>
+      <tr><td>Year Level</td><td style="text-align:right;">{{ profile.year_level }}</td></tr>
+      <tr><td>Section</td><td style="text-align:right;">{{ profile.section or '—' }}</td></tr>
+      <tr><td>School Year</td><td style="text-align:right;">{{ profile.school_year or '—' }}</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">&#9733; Skills</h3>
+    <div class="chip-list" id="skills-chip-list">
+      {% for skill in profile.skills_list %}
+        <span class="chip">{{ skill }}</span>
+      {% else %}
+        <span style="font-size:13px; color:var(--muted);">No skills added yet.</span>
+      {% endfor %}
+    </div>
+    <form method="POST" action="{{ url_for('student.add_skill') }}" style="display:flex; gap:8px;">
+      <input type="text" name="skill" placeholder="e.g. JavaScript" style="flex:1;">
+      <button type="submit" class="btn btn-secondary btn-sm">&#10133; Add Skill</button>
+    </form>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:18px;">
+  <div class="card">
+    <h3 class="card-title">&#128222; Contact Details</h3>
+    <table>
+      <tr><td>Email</td><td style="text-align:right;">{{ current_user.email }}</td></tr>
+      <tr><td>Phone Number</td><td style="text-align:right;">{{ current_user.contact_number or '—' }}</td></tr>
+      <tr><td>Address</td><td style="text-align:right;">{{ profile.address or '—' }}</td></tr>
+    </table>
+  </div>
+
+  <div class="card" id="profile-editor">
+    <h3 class="card-title">&#9998; Edit Profile</h3>
+    <form method="POST">
+      <div class="field-row">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" name="first_name" value="{{ current_user.first_name }}">
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" name="last_name" value="{{ current_user.last_name }}">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Phone Number</label>
+          <input type="tel" name="contact_number" value="{{ current_user.contact_number or '' }}">
+        </div>
+        <div class="field">
+          <label>Address</label>
+          <input type="text" name="address" value="{{ profile.address or '' }}">
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="reset" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">&#128190; Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

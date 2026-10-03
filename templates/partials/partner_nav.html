@@ -1,0 +1,49 @@
+<a
+    href="{{ url_for('partner.dashboard') }}"
+    class="{{ 'active' if request.endpoint == 'partner.dashboard' else '' }}"
+>
+    &#8962; Dashboard
+</a>
+
+
+<a
+    href="{{ url_for('partner.applications') }}"
+    class="{{ 'active' if request.endpoint in [
+        'partner.applications',
+        'partner.application_details'
+    ] else '' }}"
+>
+    &#128188; Applications
+</a>
+
+
+<a
+    href="{{ url_for('partner.interns') }}"
+    class="{{ 'active' if request.endpoint in [
+        'partner.interns'
+    ] else '' }}"
+>
+    &#128100; My Interns
+</a>
+
+
+<a
+    href="{{ url_for('partner.evaluation') }}"
+    class="{{ 'active' if request.endpoint in [
+        'partner.evaluation',
+        'partner.evaluation_form'
+    ] else '' }}"
+>
+    &#9733; Evaluation
+</a>
+
+
+<a
+    href="{{ url_for('partner.feedback') }}"
+    class="{{ 'active' if request.endpoint in [
+        'partner.feedback',
+        'partner.feedback_form'
+    ] else '' }}"
+>
+    &#128221; Feedback
+</a>

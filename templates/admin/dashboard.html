@@ -1,0 +1,855 @@
+{% extends "app_layout.html" %}
+
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+
+{% block sidebar_nav %}
+
+    {% include "partials/admin_nav.html" %}
+
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Admin Dashboard
+        </h1>
+
+        <p>
+            Overview of internship management activities.
+        </p>
+
+    </div>
+
+
+    <div class="breadcrumb">
+
+        Home / Admin / Dashboard
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =========================================================
+     STATISTICS
+========================================================= -->
+
+<div
+    class="grid grid-5"
+    style="margin-bottom:18px;"
+>
+
+
+    <!-- TOTAL STUDENTS -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#128101; Total Students
+        </h3>
+
+        <div class="stat-value">
+            {{ total_students }}
+        </div>
+
+        <div class="stat-label">
+            Registered students
+        </div>
+
+    </div>
+
+
+    <!-- ACTIVE INTERNS -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#128188; Active Interns
+        </h3>
+
+        <div class="stat-value">
+            {{ active_interns }}
+        </div>
+
+        <div class="stat-label">
+            Currently on internship
+        </div>
+
+    </div>
+
+
+    <!-- PARTNER COMPANIES -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#127970; Partner Companies
+        </h3>
+
+        <div class="stat-value">
+            {{ partner_companies }}
+        </div>
+
+        <div class="stat-label">
+            Active partner companies
+        </div>
+
+    </div>
+
+
+    <!-- PENDING REPORTS -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#128203; Pending Reports
+        </h3>
+
+        <div class="stat-value">
+            {{ pending_reports }}
+        </div>
+
+        <div class="stat-label">
+            Reports awaiting review
+        </div>
+
+    </div>
+
+
+    <!-- PENDING ACCOUNTS -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#128274; Pending Accounts
+        </h3>
+
+        <div class="stat-value">
+            {{ pending_accounts }}
+        </div>
+
+        <div class="stat-label">
+            Accounts awaiting approval
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     STUDENTS OVERVIEW + QUICK ACTIONS
+========================================================= -->
+
+<div
+    class="grid grid-2"
+    style="margin-bottom:18px;"
+>
+
+
+    <!-- STUDENTS OVERVIEW -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128101; Students Overview
+        </h3>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Company
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Hours
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for internship in students_overview %}
+
+                <tr>
+
+                    <td>
+                        {{ internship.student.user.full_name }}
+                    </td>
+
+                    <td>
+
+                        {% if internship.company %}
+
+                            {{ internship.company.company_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if internship.status == 'Active' %}
+
+                            <span class="badge badge-success">
+                                Active
+                            </span>
+
+                        {% elif internship.status == 'On Hold' %}
+
+                            <span class="badge badge-warning">
+                                On Hold
+                            </span>
+
+                        {% elif internship.status == 'Completed' %}
+
+                            <span class="badge badge-info">
+                                Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-info">
+                                {{ internship.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ internship.completed_hours or 0 }}
+                        /
+                        {{ internship.required_hours or 0 }}
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        style="color:var(--muted);"
+                    >
+
+                        No students placed yet.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#9889; Quick Actions
+        </h3>
+
+
+        <div
+            style="
+                display:flex;
+                flex-direction:column;
+                gap:10px;
+            "
+        >
+
+
+            <!-- ACCOUNT APPROVALS -->
+
+            <a
+                href="{{ url_for('admin.account_approvals') }}"
+                class="btn btn-primary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#128274; Review Account Approvals
+            </a>
+
+
+            <!-- ASSIGN OJT ADVISER -->
+
+            <a
+                href="{{ url_for('admin.assign_adviser') }}"
+                class="btn btn-primary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#128100; Assign OJT Adviser
+            </a>
+
+
+            <!-- STUDENT ASSIGNMENTS -->
+
+            <a
+                href="{{ url_for('admin.assign_adviser') }}"
+                class="btn btn-secondary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#128101; Manage Student Adviser Assignments
+            </a>
+
+
+            <!-- ADD PARTNER COMPANY -->
+
+            <a
+                href="{{ url_for('admin.add_partner_company') }}"
+                class="btn btn-secondary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#127970; Add Partner Company
+            </a>
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="{{ url_for('admin.reports_monitoring') }}"
+                class="btn btn-secondary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#128196; Review Pending Reports
+            </a>
+
+
+            <!-- GENERATE REPORT -->
+
+            <a
+                href="{{ url_for('admin.generate_report') }}"
+                class="btn btn-secondary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#128200; Generate Report
+            </a>
+
+
+            <!-- EVALUATIONS -->
+
+            <a
+                href="{{ url_for('admin.evaluations') }}"
+                class="btn btn-secondary btn-block"
+                style="
+                    text-decoration:none;
+                    text-align:center;
+                "
+            >
+                &#9989; Manage Evaluations
+            </a>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     PARTNER COMPANIES + REPORT MONITORING
+========================================================= -->
+
+<div
+    class="grid grid-2"
+    style="margin-bottom:18px;"
+>
+
+
+    <!-- PARTNER COMPANIES -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#127970; Partner Companies Overview
+        </h3>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Company
+                    </th>
+
+                    <th>
+                        Slots
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for c in companies_overview %}
+
+                <tr>
+
+                    <td>
+                        {{ c.company_name }}
+                    </td>
+
+
+                    <td>
+
+                        {{ c.internships.count() }}
+                        /
+                        {{ c.available_slots or 0 }}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if c.status == 'Active' %}
+
+                            <span class="badge badge-success">
+                                {{ c.status }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                {{ c.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="3"
+                        style="color:var(--muted);"
+                    >
+
+                        No partner companies yet.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- REPORT MONITORING -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128203; Reports Monitoring
+        </h3>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Type
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for r in recent_weekly_reports %}
+
+                <tr>
+
+                    <td>
+
+                        {% if r.internship
+                              and r.internship.student
+                              and r.internship.student.user %}
+
+                            {{ r.internship.student.user.full_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        Weekly Report
+                    </td>
+
+
+                    <td>
+
+                        {% if r.status == 'Approved' %}
+
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+
+                        {% elif r.status == 'Submitted' %}
+
+                            <span class="badge badge-info">
+                                Submitted
+                            </span>
+
+                        {% elif r.status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                {{ r.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="3"
+                        style="color:var(--muted);"
+                    >
+
+                        No reports submitted yet.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+        <a
+            href="{{ url_for('admin.reports_monitoring') }}"
+            class="btn btn-secondary btn-block"
+            style="margin-top:14px;"
+        >
+            View All Reports
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     EVALUATION MONITORING
+========================================================= -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#9989; Evaluation Monitoring
+    </h3>
+
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Evaluator
+                    </th>
+
+                    <th>
+                        Role
+                    </th>
+
+                    <th>
+                        Score
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for e in recent_evaluations %}
+
+                <tr>
+
+
+                    <!-- STUDENT -->
+
+                    <td>
+
+                        {% if e.internship
+                              and e.internship.student
+                              and e.internship.student.user %}
+
+                            {{ e.internship.student.user.full_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- EVALUATOR -->
+
+                    <td>
+
+                        {{ e.evaluator_name or '—' }}
+
+                    </td>
+
+
+                    <!-- ROLE -->
+
+                    <td>
+
+                        {% if e.evaluator_role == 'Supervisor' %}
+
+                            Industry Partner / Supervisor
+
+                        {% elif e.evaluator_role == 'Adviser' %}
+
+                            OJT Adviser
+
+                        {% else %}
+
+                            {{ e.evaluator_role or '—' }}
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- SCORE -->
+
+                    <td>
+
+                        {% if e.score is not none %}
+
+                            {{ e.score }} / 100
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if e.status == 'Submitted' %}
+
+                            <span class="badge badge-success">
+                                Submitted
+                            </span>
+
+                        {% elif e.status == 'Not Started' %}
+
+                            <span class="badge badge-warning">
+                                Not Started
+                            </span>
+
+                        {% elif e.status == 'Draft' %}
+
+                            <span class="badge badge-warning">
+                                Draft
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                {{ e.status or 'Pending' }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        style="
+                            color:var(--muted);
+                            text-align:center;
+                            padding:25px;
+                        "
+                    >
+
+                        No evaluations yet.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('admin.evaluations') }}"
+        class="btn btn-primary"
+        style="
+            margin-top:14px;
+            text-decoration:none;
+        "
+    >
+        &#9989; View All Evaluations
+    </a>
+
+</div>
+
+
+{% endblock %}

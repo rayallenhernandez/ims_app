@@ -1,0 +1,141 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Applications{% endblock %}
+
+{% block sidebar_nav %}
+  {% include "partials/partner_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+
+  <div>
+    <h1>Internship Applications</h1>
+    <p>Review students who applied to your company.</p>
+  </div>
+
+  <div class="breadcrumb">
+    Home / Partner / Applications
+  </div>
+
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+  <h3 class="card-title">
+    &#128188; Student Applications
+  </h3>
+
+  {% if applications %}
+
+  <table>
+
+    <thead>
+      <tr>
+        <th>Applicant</th>
+        <th>Course</th>
+        <th>Year</th>
+        <th>Date Applied</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for application in applications %}
+
+      <tr>
+
+        <td>
+          <strong>
+            {{ application.student.user.first_name }}
+            {{ application.student.user.last_name }}
+          </strong>
+        </td>
+
+        <td>
+          {{ application.student.course or '—' }}
+        </td>
+
+        <td>
+          {{ application.student.year_level or '—' }}
+        </td>
+
+        <td>
+          {{ application.submitted_at.strftime('%b %d, %Y') if application.submitted_at else '—' }}
+        </td>
+
+        <td>
+
+          {% if application.status == 'Pending' %}
+
+            <span class="badge badge-warning">
+              Pending
+            </span>
+
+          {% elif application.status == 'Accepted' %}
+
+            <span class="badge badge-success">
+              Accepted
+            </span>
+
+          {% elif application.status == 'Rejected' %}
+
+            <span class="badge badge-danger">
+              Rejected
+            </span>
+
+          {% else %}
+
+            <span class="badge">
+              {{ application.status }}
+            </span>
+
+          {% endif %}
+
+        </td>
+
+        <td>
+
+          <a
+            href="{{ url_for('partner.application_details', application_id=application.id) }}"
+            class="btn btn-sm btn-primary">
+            View
+          </a>
+
+        </td>
+
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+
+  </table>
+
+  {% else %}
+
+  <div class="empty-state">
+
+    <div class="empty-icon">
+      &#128188;
+    </div>
+
+    <h3>No Applications Yet</h3>
+
+    <p>
+      Students who apply to your company will appear here.
+    </p>
+
+  </div>
+
+  {% endif %}
+
+</div>
+
+{% endblock %}

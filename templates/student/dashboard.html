@@ -1,0 +1,915 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+
+{% block sidebar_nav %}
+
+    {% include "partials/student_nav.html" %}
+
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Dashboard
+        </h1>
+
+        <p>
+            Overview of your internship progress and activities.
+        </p>
+
+    </div>
+
+
+    <div class="breadcrumb">
+
+        Home / Student / Dashboard
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   STUDENT DASHBOARD LAYOUT
+========================================================= */
+
+.student-dashboard {
+    width: 100%;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.student-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.student-summary-grid .card {
+    min-width: 0;
+}
+
+
+/* =========================================================
+   MAIN TWO-COLUMN AREA
+========================================================= */
+
+.student-dashboard-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   LOWER THREE-COLUMN AREA
+========================================================= */
+
+.student-dashboard-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+
+/* =========================================================
+   STAT CARD
+========================================================= */
+
+.student-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #79a7ff;
+}
+
+.student-stat-status {
+    color: #1c9950;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.student-stat-label {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.student-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.student-progress-track {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(127, 152, 190, 0.20);
+}
+
+.student-progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: 999px;
+    background: #5689db;
+    transition: width 0.3s ease;
+}
+
+
+/* =========================================================
+   MILESTONES
+========================================================= */
+
+.student-milestone-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.student-milestone-row:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   ANNOUNCEMENTS
+========================================================= */
+
+.student-announcement {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.student-announcement:last-child {
+    border-bottom: none;
+}
+
+.student-announcement-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.student-announcement-body {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .student-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .student-dashboard-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 750px) {
+
+    .student-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .student-dashboard-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+
+<div class="student-dashboard">
+
+
+{% if not internship %}
+
+
+    <!-- =====================================================
+         NO INTERNSHIP
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+
+            No active internship yet
+
+        </h3>
+
+
+        <p
+            style="
+                color:var(--muted);
+                font-size:13px;
+            "
+        >
+
+            Once your adviser places you with a partner company,
+            your progress, hours, and report tracking will appear here.
+
+        </p>
+
+    </div>
+
+
+{% else %}
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+    ====================================================== -->
+
+    <div class="student-summary-grid">
+
+
+        <!-- =================================================
+             INTERNSHIP STATUS
+        ================================================== -->
+
+        <div class="card stat-card">
+
+            <h3 class="card-title">
+
+                &#128188; Internship Status
+
+            </h3>
+
+
+            <div class="student-stat-status">
+
+                {{ internship.status }}
+
+            </div>
+
+
+            <div class="student-stat-label">
+
+                Started:
+
+                {% if internship.start_date %}
+
+                    {{ internship.start_date.strftime('%b %d, %Y') }}
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             HOURS COMPLETED
+        ================================================== -->
+
+        <div class="card stat-card">
+
+            <h3 class="card-title">
+
+                &#8986; Hours Completed
+
+            </h3>
+
+
+            <div class="student-stat-value">
+
+                {{ internship.completed_hours or 0 }}
+                /
+                {{ internship.required_hours or 0 }}
+
+            </div>
+
+
+            <div
+                class="student-progress-track"
+                style="margin-top:10px;"
+            >
+
+                <div
+                    class="student-progress-fill progress-bar"
+                    data-progress="{{ internship.progress_percent or 0 }}"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REPORTS SUBMITTED
+        ================================================== -->
+
+        <div class="card stat-card">
+
+            <h3 class="card-title">
+
+                &#128196; Reports Submitted
+
+            </h3>
+
+
+            <div class="student-stat-value">
+
+                {{ weekly_count + narrative_count }}
+
+            </div>
+
+
+            <div
+                class="student-progress-track"
+                style="margin-top:10px;"
+            >
+
+                <div
+                    class="student-progress-fill progress-bar"
+                    data-progress="
+                    {% if weekly_count + narrative_count < 8 %}
+                        {{ ((weekly_count + narrative_count) / 8 * 100) | round }}
+                    {% else %}
+                        100
+                    {% endif %}
+                    "
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REMAINING HOURS
+        ================================================== -->
+
+        <div class="card stat-card">
+
+            <h3 class="card-title">
+
+                &#8987; Remaining Hours
+
+            </h3>
+
+
+            <div class="student-stat-value">
+
+                {{ internship.remaining_hours or 0 }}
+
+            </div>
+
+
+            <div class="student-stat-label">
+
+                Hours to complete
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         PROGRESS + ANNOUNCEMENTS
+    ====================================================== -->
+
+    <div class="student-dashboard-grid-2">
+
+
+        <!-- =================================================
+             INTERNSHIP PROGRESS
+        ================================================== -->
+
+        <div class="card">
+
+            <h3 class="card-title">
+
+                &#128200; Internship Progress
+
+            </h3>
+
+
+            <div class="student-progress-header">
+
+                <span>
+                    PROGRESS OVERVIEW
+                </span>
+
+                <span>
+                    {{ internship.progress_percent or 0 }}%
+                </span>
+
+            </div>
+
+
+            <div
+                class="student-progress-track"
+                style="margin-bottom:16px;"
+            >
+
+                <div
+                    class="student-progress-fill progress-bar"
+                    data-progress="{{ internship.progress_percent or 0 }}"
+                ></div>
+
+            </div>
+
+
+            <div
+                style="
+                    font-size:12px;
+                    color:var(--muted);
+                    margin-bottom:4px;
+                "
+            >
+                MILESTONES
+            </div>
+
+
+            <!-- ORIENTATION -->
+
+            <div class="student-milestone-row">
+
+                <span>
+
+                    &#9745; Orientation Complete
+
+                </span>
+
+                <span class="badge badge-success">
+
+                    Completed
+
+                </span>
+
+            </div>
+
+
+            <!-- WEEKLY REPORTS -->
+
+            <div class="student-milestone-row">
+
+                <span>
+
+                    {% if weekly_count > 0 %}
+                        &#9745;
+                    {% else %}
+                        &#9744;
+                    {% endif %}
+
+                    Weekly Reports
+
+                </span>
+
+
+                {% if weekly_count > 0 %}
+
+                    <span class="badge badge-success">
+
+                        {{ weekly_count }} Submitted
+
+                    </span>
+
+                {% else %}
+
+                    <span class="badge badge-warning">
+
+                        Pending
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- MIDTERM EVALUATION -->
+
+            <div class="student-milestone-row">
+
+                <span>
+
+                    &#9744; Mid-Term Evaluation
+
+                </span>
+
+
+                <span class="badge badge-info">
+
+                    In Progress
+
+                </span>
+
+            </div>
+
+
+            <!-- FINAL SUBMISSION -->
+
+            <div class="student-milestone-row">
+
+                <span>
+
+                    &#9744; Final Submission
+
+                </span>
+
+
+                <span class="badge badge-warning">
+
+                    Pending
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ANNOUNCEMENTS
+        ================================================== -->
+
+        <div class="card">
+
+            <h3 class="card-title">
+
+                &#128227; Announcements
+
+            </h3>
+
+
+            {% if announcements %}
+
+                {% for a in announcements %}
+
+                    <div class="student-announcement">
+
+                        <div class="student-announcement-title">
+
+                            {{ a.title }}
+
+                        </div>
+
+
+                        <div class="student-announcement-body">
+
+                            {{ a.body }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p
+                    style="
+                        font-size:13px;
+                        color:var(--muted);
+                    "
+                >
+
+                    No announcements yet.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         LOWER DASHBOARD
+    ====================================================== -->
+
+    <div class="student-dashboard-grid-3">
+
+
+        <!-- =================================================
+             HOURS TRACKING
+        ================================================== -->
+
+        <div class="card">
+
+            <h3 class="card-title">
+
+                &#8986; Hours Tracking Overview
+
+            </h3>
+
+
+            <table>
+
+                <tr>
+
+                    <td>
+                        Required Hours
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        <span class="badge badge-info">
+
+                            {{ internship.required_hours or 0 }}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Completed Hours
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        <span class="badge badge-success">
+
+                            {{ internship.completed_hours or 0 }}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Remaining Hours
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        <span class="badge badge-warning">
+
+                            {{ internship.remaining_hours or 0 }}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            <div
+                class="student-progress-track"
+                style="margin-top:12px;"
+            >
+
+                <div
+                    class="student-progress-fill progress-bar"
+                    data-progress="{{ internship.progress_percent or 0 }}"
+                ></div>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('student.hours_tracking') }}"
+                class="btn btn-secondary btn-block"
+                style="margin-top:14px;"
+            >
+
+                &#8986; View Hours Tracking
+
+            </a>
+
+        </div>
+
+
+        <!-- =================================================
+             REPORTS OVERVIEW
+        ================================================== -->
+
+        <div class="card">
+
+            <h3 class="card-title">
+
+                &#128196; Reports Overview
+
+            </h3>
+
+
+            <table>
+
+                <tr>
+
+                    <td>
+                        Weekly Reports
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        <span class="badge badge-info">
+
+                            {{ weekly_count }} / 8
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Narrative Report
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        <span class="badge badge-info">
+
+                            {{ narrative_count }} / 1
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            <a
+                href="{{ url_for('student.reports') }}"
+                class="btn btn-primary btn-block"
+                style="margin-top:14px;"
+            >
+
+                &#128196; Go to Report Submission
+
+            </a>
+
+        </div>
+
+
+        <!-- =================================================
+             NOTIFICATIONS
+        ================================================== -->
+
+        <div class="card">
+
+            <h3 class="card-title">
+
+                &#128276; Notifications
+
+            </h3>
+
+
+            <div
+                style="
+                    font-size:13px;
+                    line-height:1.7;
+                "
+            >
+
+                <p style="margin:0 0 10px;">
+
+                    &#128221;
+                    You have a new evaluation to view.
+
+                </p>
+
+
+                <p style="margin:0 0 10px;">
+
+                    &#9200;
+                    Weekly report deadline in 2 days.
+
+                </p>
+
+
+                <p style="margin:0;">
+
+                    &#127891;
+                    Certificate will be available after final evaluation.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+{% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+{{ super() }}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const progressBars =
+            document.querySelectorAll(
+                ".progress-bar"
+            );
+
+
+        progressBars.forEach(
+            function (bar) {
+
+                let progress =
+                    parseFloat(
+                        bar.dataset.progress || "0"
+                    );
+
+
+                if (isNaN(progress)) {
+                    progress = 0;
+                }
+
+
+                progress = Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        progress
+                    )
+                );
+
+
+                bar.style.width =
+                    progress + "%";
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

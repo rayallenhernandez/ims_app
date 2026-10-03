@@ -1,0 +1,482 @@
+{% extends "app_layout.html" %}
+
+
+{% block title %}
+Evaluations
+{% endblock %}
+
+
+{% block sidebar_nav %}
+
+    {% include "partials/admin_nav.html" %}
+
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Evaluations
+        </h1>
+
+        <p>
+            Monitor internship evaluations submitted by industry partners and OJT advisers.
+        </p>
+
+    </div>
+
+
+    <div class="breadcrumb">
+
+        Home / Admin / Evaluations
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   ADMIN EVALUATION PAGE
+========================================================= */
+
+.admin-evaluation-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+
+.admin-evaluation-summary .card {
+    min-width: 0;
+}
+
+
+.admin-evaluation-table {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+.admin-evaluation-table table {
+    min-width: 900px;
+}
+
+
+.admin-evaluation-empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 35px !important;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .admin-evaluation-summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+
+<!-- =========================================================
+     SUMMARY
+========================================================= -->
+
+<div class="admin-evaluation-summary">
+
+
+    <!-- TOTAL -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+
+            &#9989; Total Evaluations
+
+        </h3>
+
+
+        <div class="stat-value">
+
+            {{ evaluations|length }}
+
+        </div>
+
+
+        <div class="stat-label">
+
+            Evaluation records
+
+        </div>
+
+    </div>
+
+
+    <!-- SUBMITTED -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+
+            &#128196; Submitted
+
+        </h3>
+
+
+        <div class="stat-value">
+
+            {{
+                evaluations
+                |selectattr("status", "equalto", "Submitted")
+                |list
+                |length
+            }}
+
+        </div>
+
+
+        <div class="stat-label">
+
+            Completed evaluations
+
+        </div>
+
+    </div>
+
+
+    <!-- PENDING -->
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+
+            &#9203; Pending
+
+        </h3>
+
+
+        <div class="stat-value">
+
+            {{
+                evaluations
+                |rejectattr("status", "equalto", "Submitted")
+                |list
+                |length
+            }}
+
+        </div>
+
+
+        <div class="stat-label">
+
+            Evaluations not yet submitted
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     EVALUATION RECORDS
+========================================================= -->
+
+<div class="card">
+
+    <h3 class="card-title">
+
+        &#9989; Evaluation Monitoring
+
+    </h3>
+
+
+    <div class="admin-evaluation-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Company
+                    </th>
+
+                    <th>
+                        Evaluator
+                    </th>
+
+                    <th>
+                        Role
+                    </th>
+
+                    <th>
+                        Score
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Submitted
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for evaluation in evaluations %}
+
+
+                <tr>
+
+
+                    <!-- STUDENT -->
+
+                    <td>
+
+                        {% if evaluation.internship
+                              and evaluation.internship.student
+                              and evaluation.internship.student.user %}
+
+                            {{ evaluation.internship.student.user.full_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- COMPANY -->
+
+                    <td>
+
+                        {% if evaluation.internship
+                              and evaluation.internship.company %}
+
+                            {{ evaluation.internship.company.company_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- EVALUATOR -->
+
+                    <td>
+
+                        {{ evaluation.evaluator_name or '—' }}
+
+                    </td>
+
+
+                    <!-- ROLE -->
+
+                    <td>
+
+                        {% if evaluation.evaluator_role == 'Supervisor' %}
+
+                            <span class="badge badge-info">
+
+                                Supervisor
+
+                            </span>
+
+                        {% elif evaluation.evaluator_role == 'Adviser' %}
+
+                            <span class="badge badge-info">
+
+                                OJT Adviser
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-info">
+
+                                {{ evaluation.evaluator_role or '—' }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- SCORE -->
+
+                    <td>
+
+                        {% if evaluation.score is not none %}
+
+                            <strong>
+                                {{ evaluation.score }}
+                            </strong>
+
+                            / 100
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if evaluation.status == 'Submitted' %}
+
+                            <span class="badge badge-success">
+
+                                Submitted
+
+                            </span>
+
+                        {% elif evaluation.status == 'Not Started' %}
+
+                            <span class="badge badge-warning">
+
+                                Not Started
+
+                            </span>
+
+                        {% elif evaluation.status == 'Draft' %}
+
+                            <span class="badge badge-warning">
+
+                                Draft
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+
+                                {{ evaluation.status or 'Pending' }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        {% if evaluation.submitted_at %}
+
+                            {{ evaluation.submitted_at.strftime(
+                                '%b %d, %Y %I:%M %p'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="admin-evaluation-empty"
+                    >
+
+                        &#128203;
+
+                        <br><br>
+
+                        No evaluations have been submitted yet.
+
+                    </td>
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- BACK -->
+
+    <div
+        style="
+            margin-top:16px;
+        "
+    >
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="btn btn-secondary"
+            style="
+                text-decoration:none;
+            "
+        >
+
+            &#8592; Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

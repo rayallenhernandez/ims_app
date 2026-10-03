@@ -1,0 +1,69 @@
+<a
+    href="{{ url_for('student.dashboard') }}"
+    class="{{ 'active' if request.endpoint == 'student.dashboard' else '' }}"
+>
+    &#8962; Dashboard
+</a>
+
+
+<a
+    href="{{ url_for('student.companies') }}"
+    class="{{ 'active' if request.endpoint in [
+        'student.companies',
+        'student.company_details',
+        'student.apply'
+    ] else '' }}"
+>
+    &#128188; Find Internship
+</a>
+
+
+<a
+    href="{{ url_for('student.applications') }}"
+    class="{{ 'active' if request.endpoint in [
+        'student.applications',
+        'student.cancel_application'
+    ] else '' }}"
+>
+    &#128203; My Applications
+</a>
+
+
+<a
+    href="{{ url_for('student.hours_tracking') }}"
+    class="{{ 'active' if request.endpoint == 'student.hours_tracking' else '' }}"
+>
+    &#128337; Hours Tracking
+</a>
+
+
+<a
+    href="{{ url_for('student.reports') }}"
+    class="{{ 'active' if request.endpoint == 'student.reports' else '' }}"
+>
+    &#128196; Report Submission
+</a>
+
+
+<a
+    href="{{ url_for('student.evaluation') }}"
+    class="{{ 'active' if request.endpoint == 'student.evaluation' else '' }}"
+>
+    &#9733; Evaluation
+</a>
+
+
+<a
+    href="{{ url_for('student.certificate') }}"
+    class="{{ 'active' if request.endpoint == 'student.certificate' else '' }}"
+>
+    &#127891; Certificate
+</a>
+
+
+<a
+    href="{{ url_for('student.profile') }}"
+    class="{{ 'active' if request.endpoint == 'student.profile' else '' }}"
+>
+    &#128100; Profile
+</a>

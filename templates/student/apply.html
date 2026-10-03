@@ -1,0 +1,127 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Apply for Internship{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/student_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+    <div>
+        <h1>Apply for Internship</h1>
+        <p>Submit your application to the selected industry partner.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="content-card application-form-card">
+
+    <div class="application-company-summary">
+
+        <div class="company-logo-large">
+            {{ company.company_name[0]|upper }}
+        </div>
+
+        <div>
+
+            <h2>
+                {{ company.company_name }}
+            </h2>
+
+            {% if company.industry %}
+                <p class="company-industry-large">
+                    {{ company.industry }}
+                </p>
+            {% endif %}
+
+            <p class="muted">
+                Available slots:
+                <strong>{{ company.available_slots }}</strong>
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="details-divider"></div>
+
+    <div class="form-section">
+
+        <h3>
+            Application Message
+        </h3>
+
+        <p class="muted">
+            Introduce yourself and briefly explain your interest in
+            completing your internship with this company.
+        </p>
+
+        <form method="POST">
+
+            <div class="field">
+
+                <label for="message">
+                    Message
+                    <span class="required">*</span>
+                </label>
+
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="7"
+                    maxlength="1000"
+                    placeholder="Write your application message here..."
+                    required>{{ request.form.get('message', '') }}</textarea>
+
+                <small class="field-help">
+                    Maximum of 1,000 characters.
+                </small>
+
+            </div>
+
+            <div class="application-confirmation">
+
+                <span class="confirmation-icon">
+                    &#9432;
+                </span>
+
+                <div>
+
+                    <strong>
+                        Before submitting
+                    </strong>
+
+                    <p>
+                        Make sure your application message is complete.
+                        Once submitted, your application will be marked as
+                        <strong>Pending</strong> while the company reviews it.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <a href="{{ url_for('student.company_details', company_id=company.id) }}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Submit Application
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

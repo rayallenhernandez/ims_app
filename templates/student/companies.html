@@ -1,0 +1,110 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Find Internship{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/student_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+    <div>
+        <h1>Find Internship</h1>
+        <p>Browse available internship opportunities from our partner companies.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="content-card">
+
+    <div class="section-heading">
+        <div>
+            <h2>Available Internship Companies</h2>
+            <p class="muted">
+                Choose a company that matches your preferred industry and internship goals.
+            </p>
+        </div>
+    </div>
+
+    {% if companies %}
+
+        <div class="company-grid">
+
+            {% for company in companies %}
+
+            <div class="company-card">
+
+                <div class="company-card-header">
+
+                    <div class="company-logo-placeholder">
+                        {{ company.company_name[0]|upper }}
+                    </div>
+
+                    <div>
+                        <h3>{{ company.company_name }}</h3>
+
+                        {% if company.industry %}
+                            <span class="company-industry">
+                                {{ company.industry }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="company-info">
+
+                    {% if company.address %}
+                    <div class="company-info-row">
+                        <span class="company-info-icon">&#128205;</span>
+                        <span>{{ company.address }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="company-info-row">
+                        <span class="company-info-icon">&#128101;</span>
+                        <span>
+                            Available Slots:
+                            <strong>{{ company.available_slots }}</strong>
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="company-card-footer">
+
+                    <a href="{{ url_for('student.company_details', company_id=company.id) }}"
+                       class="btn btn-primary">
+                        View Details
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">&#128188;</div>
+
+            <h3>No Internship Opportunities Available</h3>
+
+            <p>
+                There are currently no active companies with available internship slots.
+                Please check again later.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

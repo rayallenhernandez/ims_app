@@ -1,0 +1,215 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Company Details{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/student_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+    <div>
+        <h1>Company Details</h1>
+        <p>Review the internship opportunity before submitting your application.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="content-card">
+
+    <div class="details-company-header">
+
+        <div class="company-logo-large">
+            {{ company.company_name[0]|upper }}
+        </div>
+
+        <div>
+
+            <h2>{{ company.company_name }}</h2>
+
+            {% if company.industry %}
+                <p class="company-industry-large">
+                    {{ company.industry }}
+                </p>
+            {% endif %}
+
+            <span class="status-badge status-active">
+                {{ company.status }}
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="details-divider"></div>
+
+    <div class="details-grid">
+
+        <div class="details-item">
+
+            <span class="details-label">
+                Company Name
+            </span>
+
+            <strong>
+                {{ company.company_name }}
+            </strong>
+
+        </div>
+
+        <div class="details-item">
+
+            <span class="details-label">
+                Industry
+            </span>
+
+            <strong>
+                {{ company.industry if company.industry else 'Not specified' }}
+            </strong>
+
+        </div>
+
+        <div class="details-item">
+
+            <span class="details-label">
+                Address
+            </span>
+
+            <strong>
+                {{ company.address if company.address else 'Not specified' }}
+            </strong>
+
+        </div>
+
+        <div class="details-item">
+
+            <span class="details-label">
+                Available Internship Slots
+            </span>
+
+            <strong>
+                {{ company.available_slots }}
+            </strong>
+
+        </div>
+
+    </div>
+
+    <div class="details-divider"></div>
+
+    {% if existing_application %}
+
+        <div class="application-notice">
+
+            {% if existing_application.status == 'Pending' %}
+
+                <strong>
+                    You already have a pending application.
+                </strong>
+
+                <p>
+                    You have already submitted an application to
+                    <strong>{{ company.company_name }}</strong>.
+                    You can monitor its status from My Applications.
+                </p>
+
+                <a href="{{ url_for('student.applications') }}"
+                   class="btn btn-primary">
+                    View My Applications
+                </a>
+
+            {% elif existing_application.status == 'Accepted' %}
+
+                <strong>
+                    Your application has been accepted!
+                </strong>
+
+                <p>
+                    Your application to
+                    <strong>{{ company.company_name }}</strong>
+                    has been accepted.
+                </p>
+
+                <a href="{{ url_for('student.applications') }}"
+                   class="btn btn-primary">
+                    View Application
+                </a>
+
+            {% else %}
+
+                <strong>
+                    Your previous application was rejected.
+                </strong>
+
+                <p>
+                    You may submit a new application if the company still
+                    has available internship slots.
+                </p>
+
+                <a href="{{ url_for('student.apply', company_id=company.id) }}"
+                   class="btn btn-primary">
+                    Apply Again
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    {% else %}
+
+        {% if company.available_slots and company.available_slots > 0 %}
+
+            <div class="application-action">
+
+                <div>
+
+                    <h3>
+                        Interested in this company?
+                    </h3>
+
+                    <p>
+                        Submit your internship application to
+                        <strong>{{ company.company_name }}</strong>.
+                    </p>
+
+                </div>
+
+                <a href="{{ url_for('student.apply', company_id=company.id) }}"
+                   class="btn btn-primary">
+                    Apply for Internship
+                </a>
+
+            </div>
+
+        {% else %}
+
+            <div class="application-notice">
+
+                <strong>
+                    No available slots.
+                </strong>
+
+                <p>
+                    This company currently has no available internship slots.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    {% endif %}
+
+    <div class="back-link-wrapper">
+
+        <a href="{{ url_for('student.companies') }}"
+           class="back-link">
+            &larr; Back to Available Companies
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

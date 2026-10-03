@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block body %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('main.landing') }}">
+  <img
+    src="{{ url_for('static', filename='img/cmu_logo.jpg') }}"
+    alt="City of Malabon University Logo"
+  >
+  <span>Internship Management System</span>
+</a>
+  <div class="topbar-actions">
+    <a class="btn-outline-light" href="#for-students">For Students</a>
+    <a class="btn-outline-light" href="#for-partners">For Partners</a>
+    <a class="btn-outline-light" href="#for-admins">For Advisers</a>
+  </div>
+</header>
+
+<div class="landing-split">
+  <div class="landing-hero">
+    <span class="eyebrow">Track. Monitor. Achieve.</span>
+    <h1>Internship <span>Management</span><br>System</h1>
+    <p class="lede">
+      A centralized platform for managing internship placements, tracking hours,
+      evaluations, and generating reports for students, industry partners,
+      advisers, and administrators.
+    </p>
+    <div class="cta-row">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary">&#127891; Get Started</a>
+      <a href="#for-students" class="btn btn-secondary">&#9432; Learn More</a>
+    </div>
+
+    <div class="feature-row">
+      <div class="card" id="for-students">
+        <strong>For Students</strong>
+        <p>Track your internship hours, submit reports, and stay updated.</p>
+      </div>
+      <div class="card" id="for-partners">
+        <strong>For Industry Partners</strong>
+        <p>Evaluate interns, monitor performance, and provide feedback.</p>
+      </div>
+      <div class="card" id="for-admins">
+        <strong>For Advisers &amp; Admins</strong>
+        <p>Oversee placements, reviews, and generate detailed reports.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="landing-auth">
+    <div class="auth-box">
+      <h2>Welcome Back!</h2>
+      <p class="lede">Sign in to your account</p>
+
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="field">
+          <label for="email">Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="icon">&#9993;</span>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-icon-wrap">
+            <span class="icon">&#128274;</span>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" class="toggle-visibility" data-target="password">&#128065;</button>
+          </div>
+        </div>
+        <div class="form-footer-row">
+          <label style="display:flex; align-items:center; gap:6px; font-weight:400;">
+            <input type="checkbox" name="remember" style="width:auto;"> Remember me
+          </label>
+          <a href="#">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+
+      <div class="divider">OR</div>
+      <p style="text-align:center; font-size:13px;">
+        Don't have an account? <a href="{{ url_for('auth.register') }}" style="color: var(--navy); font-weight:600;">Register here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<footer class="app-footer">
+  &copy; {{ now_year }} City of Malabon University<br>
+  Internship Management System
+</footer>
+{% endblock %}

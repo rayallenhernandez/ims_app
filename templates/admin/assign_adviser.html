@@ -1,0 +1,190 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Assign OJT Adviser{% endblock %}
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Assign OJT Adviser</h1>
+        <p>Assign an OJT Adviser to a registered CMU student.</p>
+    </div>
+
+    <div class="breadcrumb">
+        Home / Admin / Assign OJT Adviser
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Student Adviser Assignment
+    </h3>
+
+    <p style="color:var(--muted); margin-bottom:20px;">
+        Select a student and assign an available OJT Adviser.
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" style="margin-bottom:15px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <div style="margin-bottom:18px;">
+
+            <label for="student_id">
+                <strong>Student</strong>
+            </label>
+
+            <select
+                id="student_id"
+                name="student_id"
+                required
+                style="width:100%; padding:10px; margin-top:6px;"
+            >
+
+                <option value="">
+                    -- Select Student --
+                </option>
+
+                {% for student in students %}
+
+                    <option value="{{ student.id }}">
+
+                        {{ student.user.last_name }},
+                        {{ student.user.first_name }}
+
+                        {% if student.user.middle_name %}
+                            {{ student.user.middle_name }}
+                        {% endif %}
+
+                        — {{ student.student_id_number }}
+
+                    </option>
+
+                {% else %}
+
+                    <option value="" disabled>
+                        No registered students found.
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div style="margin-bottom:18px;">
+
+            <label for="adviser_id">
+                <strong>OJT Adviser</strong>
+            </label>
+
+            <select
+                id="adviser_id"
+                name="adviser_id"
+                required
+                style="width:100%; padding:10px; margin-top:6px;"
+            >
+
+                <option value="">
+                    -- Select OJT Adviser --
+                </option>
+
+                {% for adviser in advisers %}
+
+                    <option value="{{ adviser.id }}">
+
+                        {{ adviser.last_name }},
+                        {{ adviser.first_name }}
+
+                        {% if adviser.middle_name %}
+                            {{ adviser.middle_name }}
+                        {% endif %}
+
+                    </option>
+
+                {% else %}
+
+                    <option value="" disabled>
+                        No OJT Advisers available.
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div style="display:flex; gap:10px;">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                &#9989; Assign Adviser
+            </button>
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="btn btn-secondary"
+                style="text-decoration:none;"
+            >
+                &#8592; Back to Dashboard
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="card" style="margin-top:18px;">
+
+    <h3 class="card-title">
+        &#8505; Assignment Information
+    </h3>
+
+    <ul style="line-height:1.8; color:var(--muted);">
+
+        <li>
+            Each student can be assigned to an OJT Adviser.
+        </li>
+
+        <li>
+            Students must be registered before they can be assigned.
+        </li>
+
+        <li>
+            Only accounts with the OJT Adviser role appear in the adviser list.
+        </li>
+
+        <li>
+            The assigned adviser will be able to monitor the student's internship.
+        </li>
+
+    </ul>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends "app_layout.html" %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/student_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+    <div>
+        <h1>My Applications</h1>
+        <p>Track the status of your internship applications.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <div>
+
+            <h2>
+                Internship Applications
+            </h2>
+
+            <p class="muted">
+                Applications you have submitted to industry partners.
+            </p>
+
+        </div>
+
+        <a href="{{ url_for('student.companies') }}"
+           class="btn btn-primary">
+            + Find Internship
+        </a>
+
+    </div>
+
+    {% if applications %}
+
+        <div class="applications-list">
+
+            {% for application in applications %}
+
+            <div class="application-card">
+
+                <div class="application-card-main">
+
+                    <div class="company-logo-placeholder">
+                        {{ application.company.company_name[0]|upper }}
+                    </div>
+
+                    <div class="application-company-info">
+
+                        <h3>
+                            {{ application.company.company_name }}
+                        </h3>
+
+                        {% if application.company.industry %}
+                            <p>
+                                {{ application.company.industry }}
+                            </p>
+                        {% endif %}
+
+                        <div class="application-meta">
+
+                            <span>
+                                &#128197;
+                                Applied:
+                                {{ application.submitted_at.strftime('%B %d, %Y') }}
+                            </span>
+
+                            {% if application.company.address %}
+
+                            <span>
+                                &#128205;
+                                {{ application.company.address }}
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="application-card-status">
+
+                    {% if application.status == 'Pending' %}
+
+                        <span class="status-badge status-pending">
+                            Pending
+                        </span>
+
+                    {% elif application.status == 'Accepted' %}
+
+                        <span class="status-badge status-accepted">
+                            Accepted
+                        </span>
+
+                    {% elif application.status == 'Rejected' %}
+
+                        <span class="status-badge status-rejected">
+                            Rejected
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge">
+                            {{ application.status }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="application-card-message">
+
+                    <span class="details-label">
+                        Your Message
+                    </span>
+
+                    <p>
+                        {{ application.message if application.message else 'No message provided.' }}
+                    </p>
+
+                </div>
+
+                {% if application.reviewed_at %}
+
+                <div class="application-reviewed">
+
+                    Reviewed:
+                    {{ application.reviewed_at.strftime('%B %d, %Y at %I:%M %p') }}
+
+                </div>
+
+                {% endif %}
+
+                {% if application.status == 'Pending' %}
+
+                <div class="application-card-actions">
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('student.cancel_application', application_id=application.id) }}"
+                        onsubmit="return confirm('Are you sure you want to cancel this application?');"
+                    >
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger-outline"
+                        >
+                            Cancel Application
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                &#128203;
+            </div>
+
+            <h3>
+                No Applications Yet
+            </h3>
+
+            <p>
+                You have not submitted any internship applications.
+                Browse available companies and submit your first application.
+            </p>
+
+            <a href="{{ url_for('student.companies') }}"
+               class="btn btn-primary">
+                Find an Internship
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

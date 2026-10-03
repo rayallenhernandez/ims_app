@@ -1,0 +1,282 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+My Interns
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/partner_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>My Interns</h1>
+
+        <p>
+            View and monitor students assigned to your company.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Partner / My Interns
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Internship Students
+    </h3>
+
+
+    {% if interns %}
+
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Student ID
+                    </th>
+
+                    <th>
+                        Course
+                    </th>
+
+                    <th>
+                        Department
+                    </th>
+
+                    <th>
+                        Hours
+                    </th>
+
+                    <th>
+                        Progress
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for internship in interns %}
+
+                <tr>
+
+
+                    <td>
+
+                        <strong>
+
+                            {{ internship.student.user.last_name }},
+
+                            {{ internship.student.user.first_name }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+                        {{ internship.student.student_id_number or '—' }}
+                    </td>
+
+
+                    <td>
+                        {{ internship.student.course or '—' }}
+                    </td>
+
+
+                    <td>
+                        {{ internship.department or '—' }}
+                    </td>
+
+
+                    <td>
+
+                        {{ internship.completed_hours or 0 }}
+
+                        /
+
+                        {{ internship.required_hours or 240 }}
+
+                    </td>
+
+
+                    <td>
+
+                        {% set required = internship.required_hours or 240 %}
+                        {% set completed = internship.completed_hours or 0 %}
+
+                        {% if required > 0 %}
+
+                            {% set progress =
+                                ((completed / required) * 100)
+                                |round(0)
+                            %}
+
+                        {% else %}
+
+                            {% set progress = 0 %}
+
+                        {% endif %}
+
+
+                        <strong>
+                            {{ progress }}%
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if internship.status == 'Active' %}
+
+                            <span class="badge badge-success">
+                                Active
+                            </span>
+
+                        {% elif internship.status == 'On Hold' %}
+
+                            <span class="badge badge-warning">
+                                On Hold
+                            </span>
+
+                        {% elif internship.status == 'Completed' %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ internship.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <div class="action-buttons">
+
+
+                            <a
+                                href="{{ url_for(
+                                    'partner.evaluation_form',
+                                    internship_id=internship.id
+                                ) }}"
+                                class="btn btn-sm btn-primary"
+                            >
+                                &#9733; Evaluate
+                            </a>
+
+
+                            <a
+                                href="{{ url_for(
+                                    'partner.feedback_form',
+                                    internship_id=internship.id
+                                ) }}"
+                                class="btn btn-sm btn-outline"
+                            >
+                                &#128221; Feedback
+                            </a>
+
+
+                        </div>
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128100;
+        </div>
+
+        <h3>
+            No Interns Yet
+        </h3>
+
+        <p>
+            Students accepted into your company will appear here.
+        </p>
+
+    </div>
+
+
+    {% endif %}
+
+</div>
+
+
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('partner.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Partner Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

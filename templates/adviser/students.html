@@ -1,0 +1,208 @@
+{% extends "app_layout.html" %}
+
+{% block title %}My Students{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+        <h1>My Students</h1>
+
+        <p>
+            Students currently assigned to you as their OJT Adviser.
+        </p>
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Students
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Assigned Students
+    </h3>
+
+
+    {% if students %}
+
+        <p style="color:var(--muted); margin-bottom:20px;">
+
+            You currently have
+            <strong>{{ students|length }}</strong>
+            assigned student(s).
+
+        </p>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Student Name</th>
+
+                        <th>Email</th>
+
+                        <th>Student ID</th>
+
+                        <th>Program</th>
+
+                        <th>Year Level</th>
+
+                        <th>Section</th>
+
+                        <th>School Year</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                {{ student.user.last_name }},
+
+                                {{ student.user.first_name }}
+
+                                {% if student.user.middle_name %}
+                                    {{ student.user.middle_name }}
+                                {% endif %}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ student.user.email }}
+                        </td>
+
+
+                        <td>
+                            {{ student.student_id_number or 'N/A' }}
+                        </td>
+
+
+                        <td>
+                            {{ student.course or 'N/A' }}
+                        </td>
+
+
+                        <td>
+                            {{ student.year_level or 'N/A' }}
+                        </td>
+
+
+                        <td>
+                            {{ student.section or 'N/A' }}
+                        </td>
+
+
+                        <td>
+                            {{ student.school_year or 'N/A' }}
+                        </td>
+
+
+                        <td>
+
+                            <div
+                                style="
+                                    display:flex;
+                                    flex-direction:column;
+                                    gap:6px;
+                                "
+                            >
+
+                                <!-- VIEW STUDENT DETAILS -->
+                                <a
+                                    href="{{ url_for(
+                                        'adviser.student_details',
+                                        student_id=student.id
+                                    ) }}"
+                                    class="btn btn-sm btn-primary"
+                                >
+                                    View Details
+                                </a>
+
+
+                                <!-- VIEW OJT HOURS -->
+                                <a
+                                    href="{{ url_for(
+                                        'adviser.hours',
+                                        student_id=student.id
+                                    ) }}"
+                                    class="btn btn-sm btn-secondary"
+                                >
+                                    &#9201; OJT Hours
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                &#128100;
+            </div>
+
+            <h3>No Assigned Students</h3>
+
+            <p>
+                No students have been assigned to you yet.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

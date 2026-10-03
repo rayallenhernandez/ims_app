@@ -1,0 +1,233 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Adviser Dashboard{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Adviser Dashboard</h1>
+        <p>Manage assigned students and monitor internship progress.</p>
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Dashboard
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     WELCOME
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        Welcome, {{ adviser.first_name }} {{ adviser.last_name }}!
+    </h3>
+
+    <p>
+        You are logged in as an <strong>OJT Adviser</strong>.
+    </p>
+
+    <p style="color:var(--muted); margin-bottom:0;">
+        Use this dashboard to monitor your assigned students,
+        internship placements, reports, evaluations, and
+        certificate readiness.
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     STATISTICS
+====================================================== -->
+
+<div class="stats-grid" style="margin-top:20px;">
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Assigned Students
+        </div>
+
+        <div class="stat-value">
+            {{ assigned_students_count }}
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Total Internships
+        </div>
+
+        <div class="stat-value">
+            {{ assigned_internships_count }}
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Active Internships
+        </div>
+
+        <div class="stat-value">
+            {{ active_internships_count }}
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Completed Internships
+        </div>
+
+        <div class="stat-value">
+            {{ completed_internships_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ADVISER FUNCTIONS
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        Adviser Functions
+    </h3>
+
+
+    <div class="dashboard-grid">
+
+
+        <!-- STUDENTS -->
+
+        <a
+            href="{{ url_for('adviser.students') }}"
+            class="card"
+            style="text-decoration:none; color:inherit;"
+        >
+
+            <h3>
+                &#128100; Assigned Students
+            </h3>
+
+            <p>
+                View the students assigned to you and
+                monitor their internship information.
+            </p>
+
+        </a>
+
+
+        <!-- INTERNSHIPS -->
+
+        <a
+            href="{{ url_for('adviser.internships') }}"
+            class="card"
+            style="text-decoration:none; color:inherit;"
+        >
+
+            <h3>
+                &#128188; Internship Monitoring
+            </h3>
+
+            <p>
+                Monitor company placements, OJT hours,
+                internship status, and progress.
+            </p>
+
+        </a>
+
+
+        <!-- REPORTS -->
+
+        <div class="card">
+
+            <h3>
+                &#128196; Reports
+            </h3>
+
+            <p>
+                Review weekly and narrative reports
+                submitted by assigned students.
+            </p>
+
+            <span class="badge badge-warning">
+                Coming Next
+            </span>
+
+        </div>
+
+
+        <!-- EVALUATIONS -->
+
+        <div class="card">
+
+            <h3>
+                &#9733; Evaluations
+            </h3>
+
+            <p>
+                Evaluate student internship performance
+                and provide adviser feedback.
+            </p>
+
+            <span class="badge badge-warning">
+                Coming Next
+            </span>
+
+        </div>
+
+
+        <!-- CERTIFICATE -->
+
+        <div class="card">
+
+            <h3>
+                &#127891; Certificate Readiness
+            </h3>
+
+            <p>
+                Monitor whether students have completed
+                the requirements for their internship certificate.
+            </p>
+
+            <span class="badge badge-warning">
+                Coming Next
+            </span>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+{% endblock %}

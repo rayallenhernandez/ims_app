@@ -1,0 +1,448 @@
+{% extends "app_layout.html" %}
+
+
+{% block title %}
+Certificate Readiness
+{% endblock %}
+
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Certificate Readiness
+        </h1>
+
+        <p>
+            Monitor certificate completion of your assigned students.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Certificate Readiness
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     CERTIFICATE RECORDS
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#127891; Assigned Student Certificates
+    </h3>
+
+
+    {% if certificate_records %}
+
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Company
+                    </th>
+
+                    <th>
+                        Hours
+                    </th>
+
+                    <th>
+                        Reports
+                    </th>
+
+                    <th>
+                        Evaluation
+                    </th>
+
+                    <th>
+                        Certificate
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for record in certificate_records %}
+
+                {% set internship = record.internship %}
+                {% set cert = record.certificate %}
+
+
+                <tr>
+
+
+                    <!-- =================================================
+                         STUDENT
+                    ================================================== -->
+
+                    <td>
+
+                        <strong>
+
+                            {{ internship.student.user.first_name }}
+
+                            {% if internship.student.user.middle_name %}
+                                {{ internship.student.user.middle_name }}
+                            {% endif %}
+
+                            {{ internship.student.user.last_name }}
+
+                        </strong>
+
+
+                        {% if internship.student.student_id_number %}
+
+                            <br>
+
+                            <small style="color:var(--muted);">
+
+                                {{ internship.student.student_id_number }}
+
+                            </small>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         COMPANY
+                    ================================================== -->
+
+                    <td>
+
+                        {% if internship.company %}
+
+                            {{ internship.company.company_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         HOURS
+                    ================================================== -->
+
+                    <td>
+
+                        {% if cert.hours_met %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+
+                                {{ record.completed_hours }}
+
+                                /
+
+                                {{ record.required_hours }}
+
+                                hrs
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         REPORTS
+                    ================================================== -->
+
+                    <td>
+
+                        {% if cert.reports_met %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         EVALUATION
+                    ================================================== -->
+
+                    <td>
+
+                        {% if cert.evaluations_met %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         CERTIFICATE UPLOAD
+                    ================================================== -->
+
+                    <td>
+
+                        {% if cert.pdf_path %}
+
+                            <span class="badge badge-success">
+                                Uploaded
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                Not Uploaded
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         OVERALL STATUS
+                    ================================================== -->
+
+                    <td>
+
+                        {% if cert.is_ready %}
+
+                            <span class="badge badge-success">
+                                Ready
+                            </span>
+
+                        {% elif cert.hours_met
+                            and cert.reports_met
+                            and cert.evaluations_met %}
+
+                            <span class="badge badge-info">
+                                Ready for Upload
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                Not Ready
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         ACTION
+                    ================================================== -->
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'adviser.certificate_details',
+                                internship_id=internship.id
+                            ) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+                            View
+                        </a>
+
+                    </td>
+
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- =================================================
+         NO ASSIGNED STUDENTS
+    ================================================== -->
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#127891;
+        </div>
+
+
+        <h3>
+            No Certificate Records
+        </h3>
+
+
+        <p>
+            Students with internship placements will appear here.
+        </p>
+
+    </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+<!-- =====================================================
+     CERTIFICATE PROCESS
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#8505; Certificate Process
+    </h3>
+
+
+    <div class="details-grid">
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Requirement 1
+            </span>
+
+            <strong>
+                Complete required OJT hours
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Requirement 2
+            </span>
+
+            <strong>
+                Complete and approve weekly reports
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Requirement 3
+            </span>
+
+            <strong>
+                Complete the student evaluation
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Final Step
+            </span>
+
+            <strong>
+                Upload the completed certificate
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div style="margin-top:20px;">
+
+    <a
+        href="{{ url_for('adviser.dashboard') }}"
+        class="btn btn-outline"
+    >
+        &#8592; Back to Dashboard
+    </a>
+
+</div>
+
+
+{% endblock %}

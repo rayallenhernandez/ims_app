@@ -1,0 +1,568 @@
+{% extends "app_layout.html" %}
+
+
+{% block title %}
+Account Approvals
+{% endblock %}
+
+
+{% block sidebar_nav %}
+
+    {% include "partials/admin_nav.html" %}
+
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Account Approvals
+        </h1>
+
+        <p>
+            Review account information and verification documents before approving or rejecting accounts.
+        </p>
+
+    </div>
+
+
+    <div class="breadcrumb">
+        Home / Admin / Account Approvals
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+{#
+=========================================================
+GET PENDING ACCOUNTS
+=========================================================
+#}
+
+{% set pending_accounts = users
+    | selectattr('approval_status', 'equalto', 'Pending')
+    | list
+%}
+
+
+<!-- =====================================================
+     PENDING ACCOUNTS
+====================================================== -->
+
+<div class="card">
+
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        "
+    >
+
+        <div>
+
+            <h2>
+                Pending Accounts
+            </h2>
+
+            <p style="color:var(--muted); margin:5px 0 0;">
+
+                These accounts are waiting for administrator approval.
+
+            </p>
+
+        </div>
+
+
+        <span class="badge badge-warning">
+
+            {{ pending_accounts|length }}
+
+            Pending
+
+        </span>
+
+    </div>
+
+
+    {% if pending_accounts %}
+
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Email
+                    </th>
+
+                    <th>
+                        Role
+                    </th>
+
+                    <th>
+                        Verification Document
+                    </th>
+
+                    <th>
+                        Registered
+                    </th>
+
+                    <th>
+                        Approval Status
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for account in pending_accounts %}
+
+                <tr>
+
+
+                    <!-- =================================================
+                         NAME
+                    ================================================== -->
+
+                    <td>
+
+                        <strong>
+
+                            {{ account.last_name }},
+
+                            {{ account.first_name }}
+
+                            {% if account.middle_name %}
+
+                                {{ account.middle_name }}
+
+                            {% endif %}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- =================================================
+                         EMAIL
+                    ================================================== -->
+
+                    <td>
+
+                        {{ account.email }}
+
+                    </td>
+
+
+                    <!-- =================================================
+                         ROLE
+                    ================================================== -->
+
+                    <td>
+
+
+                        {% if account.role == 'student' %}
+
+                            <span class="badge">
+                                Student
+                            </span>
+
+
+                        {% elif account.role == 'partner' %}
+
+                            <span class="badge">
+                                Industry Partner
+                            </span>
+
+
+                        {% elif account.role == 'adviser' %}
+
+                            <span class="badge">
+                                OJT Adviser
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ account.role|capitalize }}
+                            </span>
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                    <!-- =================================================
+                         VERIFICATION DOCUMENT
+                    ================================================== -->
+
+                    <td>
+
+
+                        {% if account.verification_document_path %}
+
+
+                            <div>
+
+                                <strong>
+
+                                    {{ account.verification_document_type
+                                        or "Verification Document" }}
+
+                                </strong>
+
+
+                                <br>
+
+
+                                <small style="color:var(--muted);">
+
+                                    Document uploaded
+
+                                </small>
+
+
+                                <br>
+
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin.view_verification_document',
+                                        user_id=account.id
+                                    ) }}"
+                                    target="_blank"
+                                    class="btn btn-sm btn-secondary"
+                                    style="margin-top:8px;"
+                                >
+                                    &#128065; View Document
+                                </a>
+
+                            </div>
+
+
+                        {% else %}
+
+
+                            <span class="badge badge-warning">
+                                No Document
+                            </span>
+
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                    <!-- =================================================
+                         REGISTERED DATE
+                    ================================================== -->
+
+                    <td>
+
+
+                        {% if account.created_at %}
+
+                            {{ account.created_at.strftime(
+                                '%b %d, %Y %I:%M %p'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                    <!-- =================================================
+                         APPROVAL STATUS
+                    ================================================== -->
+
+                    <td>
+
+                        <span class="badge badge-warning">
+                            Pending
+                        </span>
+
+                    </td>
+
+
+                    <!-- =================================================
+                         ACTIONS
+                    ================================================== -->
+
+                    <td>
+
+
+                        <div
+                            style="
+                                display:flex;
+                                flex-direction:column;
+                                gap:7px;
+                                min-width:125px;
+                            "
+                        >
+
+
+                            <!-- =========================================
+                                 APPROVE
+                            ========================================== -->
+
+                            {% if account.verification_document_path %}
+
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin.approve_account',
+                                        user_id=account.id
+                                    ) }}"
+                                    style="margin:0;"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-success"
+                                        style="width:100%;"
+                                        onclick="return confirm(
+                                            'Approve this account?'
+                                        );"
+                                    >
+
+                                        &#10003; Approve
+
+                                    </button>
+
+                                </form>
+
+
+                            {% else %}
+
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-secondary"
+                                    style="width:100%;"
+                                    disabled
+                                    title="A verification document is required before approval."
+                                >
+
+                                    Approve
+
+                                </button>
+
+
+                            {% endif %}
+
+
+                            <!-- =========================================
+                                 REJECT
+                            ========================================== -->
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'admin.reject_account',
+                                    user_id=account.id
+                                ) }}"
+                                style="margin:0;"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    style="width:100%;"
+                                    onclick="return confirm(
+                                        'Reject this account?'
+                                    );"
+                                >
+
+                                    &#10007; Reject
+
+                                </button>
+
+                            </form>
+
+
+                        </div>
+
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- =================================================
+         NO PENDING ACCOUNTS
+    ================================================== -->
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#10003;
+        </div>
+
+
+        <h3>
+            No Pending Accounts
+        </h3>
+
+
+        <p>
+            There are currently no accounts waiting for administrator approval.
+        </p>
+
+    </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+<!-- =====================================================
+     VERIFICATION REQUIREMENTS
+====================================================== -->
+
+<div class="card">
+
+
+    <h3 class="card-title">
+        &#8505; Verification Requirements
+    </h3>
+
+
+    <div class="details-grid">
+
+
+        <!-- STUDENT -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Student
+            </span>
+
+            <strong>
+                Student ID
+            </strong>
+
+        </div>
+
+
+        <!-- INDUSTRY PARTNER -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Industry Partner
+            </span>
+
+            <strong>
+                Business Permit
+            </strong>
+
+        </div>
+
+
+        <!-- ADVISER -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                OJT Adviser
+            </span>
+
+            <strong>
+                Employment / Appointment Proof
+            </strong>
+
+        </div>
+
+
+        <!-- APPROVAL RULE -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Approval Rule
+            </span>
+
+            <strong>
+                Verification document required
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div style="margin-top:20px;">
+
+    <a
+        href="{{ url_for('admin.dashboard') }}"
+        class="btn btn-outline"
+    >
+        &#8592; Back to Dashboard
+    </a>
+
+</div>
+
+
+{% endblock %}

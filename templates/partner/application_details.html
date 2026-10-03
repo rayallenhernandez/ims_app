@@ -1,0 +1,255 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Application Review{% endblock %}
+
+{% block sidebar_nav %}
+  {% include "partials/partner_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+
+  <div>
+    <h1>Application Review</h1>
+    <p>Review the student's internship application.</p>
+  </div>
+
+  <div class="breadcrumb">
+    Home / Partner / Applications / Review
+  </div>
+
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap;">
+
+    <div>
+      <h3 class="card-title" style="margin-bottom:5px;">
+        &#128100; Student Information
+      </h3>
+
+      <p style="color:var(--muted); margin:0;">
+        Internship applicant
+      </p>
+    </div>
+
+    <div>
+
+      {% if application.status == 'Pending' %}
+
+        <span class="badge badge-warning">
+          Pending
+        </span>
+
+      {% elif application.status == 'Accepted' %}
+
+        <span class="badge badge-success">
+          Accepted
+        </span>
+
+      {% elif application.status == 'Rejected' %}
+
+        <span class="badge badge-danger">
+          Rejected
+        </span>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+
+
+  <!-- STUDENT DETAILS -->
+
+  <div class="form-grid" style="margin-top:25px;">
+
+    <div class="field">
+      <label>Full Name</label>
+
+      <div class="readonly-field">
+        {{ application.student.user.first_name }}
+        {{ application.student.user.middle_name or '' }}
+        {{ application.student.user.last_name }}
+      </div>
+    </div>
+
+
+    <div class="field">
+      <label>Student ID Number</label>
+
+      <div class="readonly-field">
+        {{ application.student.student_id_number or '—' }}
+      </div>
+    </div>
+
+
+    <div class="field">
+      <label>Course</label>
+
+      <div class="readonly-field">
+        {{ application.student.course or '—' }}
+      </div>
+    </div>
+
+
+    <div class="field">
+      <label>Year Level</label>
+
+      <div class="readonly-field">
+        {{ application.student.year_level or '—' }}
+      </div>
+    </div>
+
+
+    <div class="field">
+      <label>Section</label>
+
+      <div class="readonly-field">
+        {{ application.student.section or '—' }}
+      </div>
+    </div>
+
+
+    <div class="field">
+      <label>School Year</label>
+
+      <div class="readonly-field">
+        {{ application.student.school_year or '—' }}
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- STUDENT SKILLS -->
+
+  <div style="margin-top:25px;">
+
+    <h4>Skills</h4>
+
+    {% if application.student.skills %}
+
+      <p>
+        {{ application.student.skills }}
+      </p>
+
+    {% else %}
+
+      <p style="color:var(--muted);">
+        No skills listed.
+      </p>
+
+    {% endif %}
+
+  </div>
+
+
+  <!-- APPLICATION MESSAGE -->
+
+  <div style="margin-top:25px;">
+
+    <h4>Applicant's Message</h4>
+
+    {% if application.message %}
+
+      <div class="card" style="background:var(--surface); margin-top:10px;">
+        {{ application.message }}
+      </div>
+
+    {% else %}
+
+      <p style="color:var(--muted);">
+        The student did not provide a message.
+      </p>
+
+    {% endif %}
+
+  </div>
+
+
+  <!-- APPLICATION DATE -->
+
+  <div style="margin-top:20px; color:var(--muted); font-size:13px;">
+
+    Applied:
+
+    {{ application.submitted_at.strftime('%B %d, %Y at %I:%M %p')
+       if application.submitted_at else '—' }}
+
+  </div>
+
+
+  <!-- ACTIONS -->
+
+  {% if application.status == 'Pending' %}
+
+  <div
+    style="
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:30px;
+      padding-top:20px;
+      border-top:1px solid var(--border);
+    "
+  >
+
+    <form
+      method="POST"
+      action="{{ url_for('partner.accept_application', application_id=application.id) }}"
+      onsubmit="return confirm('Are you sure you want to accept this student? This will create an active internship placement.');"
+    >
+
+      <button type="submit" class="btn btn-success">
+        &#10003; Accept Application
+      </button>
+
+    </form>
+
+
+    <form
+      method="POST"
+      action="{{ url_for('partner.reject_application', application_id=application.id) }}"
+      onsubmit="return confirm('Are you sure you want to reject this application?');"
+    >
+
+      <button type="submit" class="btn btn-danger">
+        &#10007; Reject Application
+      </button>
+
+    </form>
+
+
+    <a
+      href="{{ url_for('partner.applications') }}"
+      class="btn btn-outline"
+    >
+      Back to Applications
+    </a>
+
+  </div>
+
+  {% else %}
+
+  <div style="margin-top:30px;">
+
+    <a
+      href="{{ url_for('partner.applications') }}"
+      class="btn btn-primary"
+    >
+      &larr; Back to Applications
+    </a>
+
+  </div>
+
+  {% endif %}
+
+</div>
+
+{% endblock %}

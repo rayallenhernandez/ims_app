@@ -1,0 +1,587 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Weekly Report Details
+{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Weekly Report Details</h1>
+
+        <p>
+            Review the student's submitted weekly internship report.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Weekly Reports / Details
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="dashboard-grid">
+
+
+    <!-- =====================================================
+         STUDENT INFORMATION
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128100; Student Information
+        </h3>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label>
+                    Student Name
+                </label>
+
+                <div class="readonly-field">
+
+                    {{ student.user.first_name }}
+
+                    {% if student.user.middle_name %}
+                        {{ student.user.middle_name }}
+                    {% endif %}
+
+                    {{ student.user.last_name }}
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Student ID
+                </label>
+
+                <div class="readonly-field">
+                    {{ student.student_id_number or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Course
+                </label>
+
+                <div class="readonly-field">
+                    {{ student.course or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Year Level
+                </label>
+
+                <div class="readonly-field">
+                    {{ student.year_level or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Section
+                </label>
+
+                <div class="readonly-field">
+                    {{ student.section or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    School Year
+                </label>
+
+                <div class="readonly-field">
+                    {{ student.school_year or '—' }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         INTERNSHIP INFORMATION
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128188; Internship Information
+        </h3>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label>
+                    Company
+                </label>
+
+                <div class="readonly-field">
+
+                    {% if internship.company %}
+                        {{ internship.company.company_name }}
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Department
+                </label>
+
+                <div class="readonly-field">
+                    {{ internship.department or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Supervisor
+                </label>
+
+                <div class="readonly-field">
+                    {{ internship.supervisor_name or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Internship Status
+                </label>
+
+                <div class="readonly-field">
+                    {{ internship.status or '—' }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REPORT INFORMATION
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128196; Report Information
+        </h3>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label>
+                    Week Number
+                </label>
+
+                <div class="readonly-field">
+                    Week {{ report.week_number }}
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Status
+                </label>
+
+                <div class="readonly-field">
+
+                    {% if report.status == 'Approved' %}
+
+                        <span class="badge badge-success">
+                            Approved
+                        </span>
+
+                    {% elif report.status == 'Submitted' %}
+
+                        <span class="badge badge-warning">
+                            Submitted
+                        </span>
+
+                    {% elif report.status == 'Pending' %}
+
+                        <span class="badge badge-warning">
+                            Pending / For Correction
+                        </span>
+
+                    {% elif report.status == 'Draft' %}
+
+                        <span class="badge">
+                            Draft
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge">
+                            {{ report.status }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Date Covered From
+                </label>
+
+                <div class="readonly-field">
+
+                    {% if report.date_covered_start %}
+                        {{ report.date_covered_start.strftime('%B %d, %Y') }}
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Date Covered To
+                </label>
+
+                <div class="readonly-field">
+
+                    {% if report.date_covered_end %}
+                        {{ report.date_covered_end.strftime('%B %d, %Y') }}
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Submitted At
+                </label>
+
+                <div class="readonly-field">
+
+                    {% if report.submitted_at %}
+                        {{ report.submitted_at.strftime('%B %d, %Y %I:%M %p') }}
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         STUDENT NOTES
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128221; Student Notes
+        </h3>
+
+        {% if report.notes %}
+
+            <div class="report-notes">
+                {{ report.notes }}
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <p>
+                    The student did not provide any notes for this report.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         UPLOADED REPORT
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#128206; Uploaded Report
+        </h3>
+
+
+        {% if report.file_path %}
+
+            <div class="form-group">
+
+                <label>
+                    Uploaded File
+                </label>
+
+                <div class="readonly-field">
+                    {{ report.file_path }}
+                </div>
+
+            </div>
+
+
+            <div class="action-buttons">
+
+                <a
+                    href="{{ url_for(
+                        'adviser.view_report_file',
+                        report_id=report.id
+                    ) }}"
+                    class="btn btn-primary"
+                    target="_blank"
+                >
+                    &#128065; View Report
+                </a>
+
+            </div>
+
+
+            <p class="form-help">
+
+                Click "View Report" to open the student's uploaded
+                weekly report in a new browser tab.
+
+            </p>
+
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    &#128206;
+                </div>
+
+                <h3>
+                    No Report File
+                </h3>
+
+                <p>
+                    The student did not upload a file with this report.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         ADVISER REVIEW
+    ====================================================== -->
+
+    <div class="card">
+
+        <h3 class="card-title">
+            &#9989; Adviser Review
+        </h3>
+
+
+        {% if report.status == 'Submitted' or report.status == 'Pending' %}
+
+            <p>
+                Review the student's report before choosing an action.
+            </p>
+
+
+            <div class="action-buttons">
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'adviser.approve_report',
+                        report_id=report.id
+                    ) }}"
+                    onsubmit="return confirm('Approve this weekly report?');"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        &#10003; Approve Report
+                    </button>
+
+                </form>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'adviser.return_report',
+                        report_id=report.id
+                    ) }}"
+                    onsubmit="return confirm('Return this report to the student for correction?');"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+                        &#8617; Return for Correction
+                    </button>
+
+                </form>
+
+            </div>
+
+
+        {% elif report.status == 'Approved' %}
+
+            <div class="empty-state">
+
+                <h3>
+                    Report Approved
+                </h3>
+
+                <p>
+                    This weekly report has already been approved.
+                </p>
+
+            </div>
+
+
+        {% elif report.status == 'Draft' %}
+
+            <div class="empty-state">
+
+                <h3>
+                    Draft Report
+                </h3>
+
+                <p>
+                    This report is still a draft and has not been
+                    submitted for Adviser review.
+                </p>
+
+            </div>
+
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <p>
+                    This report is currently in
+                    <strong>{{ report.status }}</strong>
+                    status and cannot be reviewed.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <div class="card">
+
+        <div class="action-buttons">
+
+            <a
+                href="{{ url_for('adviser.reports') }}"
+                class="btn btn-outline"
+            >
+                &#8592; Back to Weekly Reports
+            </a>
+
+            <a
+                href="{{ url_for('adviser.dashboard') }}"
+                class="btn btn-primary"
+            >
+                &#8962; Back to Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,251 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Feedback
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/partner_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Student Feedback</h1>
+
+        <p>
+            Provide written feedback for your assigned interns.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Partner / Feedback
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128221; Intern Feedback
+    </h3>
+
+
+    {% if feedback_records %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Student ID
+                    </th>
+
+                    <th>
+                        Department
+                    </th>
+
+                    <th>
+                        Evaluation Score
+                    </th>
+
+                    <th>
+                        Feedback
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for record in feedback_records %}
+
+                {% set internship = record.internship %}
+                {% set evaluation = record.evaluation %}
+
+                <tr>
+
+
+                    <td>
+
+                        <strong>
+
+                            {{ internship.student.user.last_name }},
+                            {{ internship.student.user.first_name }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {{ internship.student.student_id_number or '—' }}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ internship.department or '—' }}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation and evaluation.score is not none %}
+
+                            <strong>
+                                {{ "%.1f"|format(evaluation.score|float) }}
+                            </strong>
+
+                            / 100
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation and evaluation.remarks %}
+
+                            <div
+                                style="
+                                    max-width:400px;
+                                    white-space:pre-wrap;
+                                    line-height:1.5;
+                                "
+                            >
+                                {{ evaluation.remarks }}
+                            </div>
+
+                        {% else %}
+
+                            <span
+                                style="color:var(--muted);"
+                            >
+                                No feedback yet.
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'partner.feedback_form',
+                                internship_id=internship.id
+                            ) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+
+                            {% if evaluation and evaluation.remarks %}
+
+                                &#9998; Edit Feedback
+
+                            {% else %}
+
+                                &#128221; Add Feedback
+
+                            {% endif %}
+
+                        </a>
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128221;
+        </div>
+
+        <h3>
+            No Interns Available
+        </h3>
+
+        <p>
+            Students accepted into your company will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('partner.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Partner Dashboard
+        </a>
+
+        <a
+            href="{{ url_for('partner.interns') }}"
+            class="btn btn-primary"
+        >
+            &#128100; My Interns
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

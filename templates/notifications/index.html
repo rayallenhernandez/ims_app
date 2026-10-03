@@ -1,0 +1,330 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Notifications
+{% endblock %}
+
+
+{% block sidebar_nav %}
+
+{% if current_user.role == "student" %}
+
+    {% include "partials/student_nav.html" %}
+
+{% elif current_user.role == "partner" %}
+
+    {% include "partials/partner_nav.html" %}
+
+{% elif current_user.role == "adviser" %}
+
+    {% include "partials/adviser_nav.html" %}
+
+{% elif current_user.role == "admin" %}
+
+    {% include "partials/admin_nav.html" %}
+
+{% endif %}
+
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Notifications
+        </h1>
+
+        <p>
+            View your latest internship management notifications.
+        </p>
+
+    </div>
+
+
+    <div class="breadcrumb">
+
+        Home / Notifications
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:15px;
+            margin-bottom:18px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <div>
+
+            <h2
+                style="
+                    margin:0;
+                    color:var(--text);
+                "
+            >
+                Your Notifications
+            </h2>
+
+            <p
+                style="
+                    margin:5px 0 0;
+                    color:var(--muted);
+                "
+            >
+                Stay updated with your internship activities.
+            </p>
+
+        </div>
+
+
+        {% if notifications %}
+
+        <form
+            method="POST"
+            action="{{ url_for('notifications.mark_all_read') }}"
+        >
+
+            <button
+                type="submit"
+                class="btn btn-outline"
+            >
+                ✓ Mark All as Read
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+
+    {% if notifications %}
+
+        <div
+            style="
+                display:flex;
+                flex-direction:column;
+                gap:12px;
+            "
+        >
+
+            {% for notification in notifications %}
+
+            <div
+                class="
+                    notification-item
+                    {% if notification.is_read %}
+                        notification-read
+                    {% else %}
+                        notification-unread
+                    {% endif %}
+                "
+            >
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:flex-start;
+                        gap:15px;
+                    "
+                >
+
+                    <div
+                        style="
+                            flex:1;
+                        "
+                    >
+
+                        <div
+                            style="
+                                display:flex;
+                                align-items:center;
+                                gap:8px;
+                                margin-bottom:6px;
+                            "
+                        >
+
+                            {% if not notification.is_read %}
+
+                                <span
+                                    style="
+                                        width:9px;
+                                        height:9px;
+                                        border-radius:50%;
+                                        background:#0d6efd;
+                                        display:inline-block;
+                                        flex-shrink:0;
+                                    "
+                                ></span>
+
+                                <strong>
+                                    New
+                                </strong>
+
+                            {% else %}
+
+                                <strong>
+                                    Notification
+                                </strong>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div
+                            style="
+                                color:var(--text);
+                                font-size:15px;
+                                line-height:1.5;
+                            "
+                        >
+
+                            {{ notification.message }}
+
+                        </div>
+
+
+                        <div
+                            style="
+                                margin-top:8px;
+                                color:var(--muted);
+                                font-size:13px;
+                            "
+                        >
+
+                            {{ notification.created_at.strftime("%B %d, %Y %I:%M %p") }}
+
+                        </div>
+
+                    </div>
+
+
+                    {% if not notification.is_read %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'notifications.mark_read',
+                            notification_id=notification.id
+                        ) }}"
+                    >
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline"
+                            style="
+                                white-space:nowrap;
+                            "
+                        >
+                            ✓ Mark Read
+                        </button>
+
+                    </form>
+
+                    {% else %}
+
+                    <span
+                        class="badge badge-success"
+                    >
+                        Read
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <div
+            style="
+                text-align:center;
+                padding:50px 20px;
+                color:var(--muted);
+            "
+        >
+
+            <div
+                style="
+                    font-size:42px;
+                    margin-bottom:12px;
+                "
+            >
+                🔔
+            </div>
+
+            <h3
+                style="
+                    margin:0 0 8px;
+                    color:var(--text);
+                "
+            >
+                No Notifications
+            </h3>
+
+            <p
+                style="
+                    margin:0;
+                "
+            >
+                You currently have no notifications.
+
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<style>
+
+.notification-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 15px;
+    transition: background 0.2s ease;
+}
+
+.notification-read {
+    background: var(--surface);
+}
+
+.notification-unread {
+    background: var(--background);
+}
+
+.notification-unread:hover,
+.notification-read:hover {
+    filter: brightness(0.98);
+}
+
+</style>
+
+{% endblock %}

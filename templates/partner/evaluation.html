@@ -1,0 +1,257 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Evaluation
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/partner_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Student Evaluation</h1>
+
+        <p>
+            Evaluate the internship performance of your assigned students.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Partner / Evaluation
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#9733; Internship Evaluations
+    </h3>
+
+
+    {% if evaluation_records %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Student ID
+                    </th>
+
+                    <th>
+                        Department
+                    </th>
+
+                    <th>
+                        Score
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for record in evaluation_records %}
+
+                {% set internship = record.internship %}
+                {% set evaluation = record.evaluation %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+
+                            {{ internship.student.user.last_name }},
+                            {{ internship.student.user.first_name }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {{ internship.student.student_id_number or '—' }}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ internship.department or '—' }}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation and evaluation.score is not none %}
+
+                            <strong>
+                                {{ "%.1f"|format(evaluation.score|float) }}
+                            </strong>
+
+                            / 100
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation %}
+
+                            {% if evaluation.status == 'Submitted' %}
+
+                                <span class="badge badge-success">
+                                    Submitted
+                                </span>
+
+                            {% elif evaluation.status == 'Not Started' %}
+
+                                <span class="badge badge-warning">
+                                    Not Started
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge">
+                                    {{ evaluation.status }}
+                                </span>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <span class="badge badge-warning">
+                                Not Evaluated
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'partner.evaluation_form',
+                                internship_id=internship.id
+                            ) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+
+                            {% if evaluation %}
+
+                                &#9998; Edit Evaluation
+
+                            {% else %}
+
+                                &#9733; Evaluate
+
+                            {% endif %}
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#9733;
+        </div>
+
+        <h3>
+            No Interns Available
+        </h3>
+
+        <p>
+            Students accepted into your company will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('partner.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Partner Dashboard
+        </a>
+
+        <a
+            href="{{ url_for('partner.interns') }}"
+            class="btn btn-primary"
+        >
+            &#128100; My Interns
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

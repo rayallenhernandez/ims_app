@@ -1,0 +1,708 @@
+{% extends "app_layout.html" %}
+
+
+{# =======================================================
+   ADVISER SIDEBAR
+   ======================================================= #}
+
+{% block sidebar_nav %}
+
+<a
+    href="{{ url_for('adviser.dashboard') }}"
+    class="sidebar-link"
+>
+    <span>📊</span>
+    Dashboard
+</a>
+
+<a
+    href="{{ url_for('adviser.students') }}"
+    class="sidebar-link"
+>
+    <span>👨‍🎓</span>
+    Assigned Students
+</a>
+
+<a
+    href="{{ url_for('adviser.internships') }}"
+    class="sidebar-link"
+>
+    <span>💼</span>
+    Internships
+</a>
+
+<a
+    href="{{ url_for('adviser.reports') }}"
+    class="sidebar-link"
+>
+    <span>📄</span>
+    Reports
+</a>
+
+<a
+    href="{{ url_for('adviser.evaluations') }}"
+    class="sidebar-link"
+>
+    <span>⭐</span>
+    Evaluations
+</a>
+
+<a
+    href="{{ url_for('adviser.certificates') }}"
+    class="sidebar-link active"
+>
+    <span>🎓</span>
+    Certificate Readiness
+</a>
+
+{% endblock %}
+
+
+{# =======================================================
+   PAGE CONTENT
+   ======================================================= #}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Certificate Details
+        </h1>
+
+        <p class="page-subtitle">
+            Review the student's certificate requirements and upload the completed certificate.
+        </p>
+
+    </div>
+
+</div>
+
+
+{# =======================================================
+   STUDENT INFORMATION
+   ======================================================= #}
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>
+            Student Information
+        </h2>
+
+    </div>
+
+    <div class="details-grid">
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Student Name
+            </span>
+
+            <strong>
+                {{ student.user.first_name }}
+                {% if student.user.middle_name %}
+                    {{ student.user.middle_name }}
+                {% endif %}
+                {{ student.user.last_name }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Student ID
+            </span>
+
+            <strong>
+                {{ student.student_id_number or "Not provided" }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Course
+            </span>
+
+            <strong>
+                {{ student.course or "Not provided" }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Year Level
+            </span>
+
+            <strong>
+                {{ student.year_level or "Not provided" }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Section
+            </span>
+
+            <strong>
+                {{ student.section or "Not provided" }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                School Year
+            </span>
+
+            <strong>
+                {{ student.school_year or "Not provided" }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{# =======================================================
+   INTERNSHIP INFORMATION
+   ======================================================= #}
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>
+            Internship Information
+        </h2>
+
+    </div>
+
+    <div class="details-grid">
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Company
+            </span>
+
+            <strong>
+                {% if internship.company %}
+                    {{ internship.company.company_name }}
+                {% else %}
+                    Not provided
+                {% endif %}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Department
+            </span>
+
+            <strong>
+                {{ internship.department or "Not provided" }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Supervisor
+            </span>
+
+            <strong>
+                {{ internship.supervisor_name or "Not provided" }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Internship Status
+            </span>
+
+            <strong>
+                {{ internship.status }}
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Required Hours
+            </span>
+
+            <strong>
+                {{ required_hours }} hours
+            </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Completed Hours
+            </span>
+
+            <strong>
+                {{ completed_hours }} hours
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{# =======================================================
+   CERTIFICATE REQUIREMENTS
+   ======================================================= #}
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>
+            Certificate Requirements
+        </h2>
+
+    </div>
+
+
+    <div class="requirement-list">
+
+
+        {# HOURS #}
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Required Internship Hours
+                </strong>
+
+                <p>
+                    {{ completed_hours }}
+                    /
+                    {{ required_hours }}
+                    hours completed
+                </p>
+
+            </div>
+
+            {% if certificate.hours_met %}
+
+                <span class="status-badge success">
+                    ✓ Complete
+                </span>
+
+            {% else %}
+
+                <span class="status-badge warning">
+                    Pending
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        {# WEEKLY REPORTS #}
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Weekly Reports
+                </strong>
+
+                <p>
+                    {% if reports %}
+                        {{ reports|length }} report(s) submitted
+                    {% else %}
+                        No reports submitted
+                    {% endif %}
+                </p>
+
+            </div>
+
+            {% if certificate.reports_met %}
+
+                <span class="status-badge success">
+                    ✓ Complete
+                </span>
+
+            {% else %}
+
+                <span class="status-badge warning">
+                    Pending
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        {# EVALUATION #}
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Student Evaluation
+                </strong>
+
+                <p>
+
+                    {% if evaluations %}
+
+                        Evaluation submitted
+
+                    {% else %}
+
+                        No evaluation submitted
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+            {% if certificate.evaluations_met %}
+
+                <span class="status-badge success">
+                    ✓ Complete
+                </span>
+
+            {% else %}
+
+                <span class="status-badge warning">
+                    Pending
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        {# UPLOADED CERTIFICATE #}
+
+        <div class="requirement-row">
+
+            <div>
+
+                <strong>
+                    Completed Certificate
+                </strong>
+
+                <p>
+
+                    {% if certificate.pdf_path %}
+
+                        Certificate image uploaded
+
+                    {% else %}
+
+                        Certificate image not uploaded
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+            {% if certificate.pdf_path %}
+
+                <span class="status-badge success">
+                    ✓ Uploaded
+                </span>
+
+            {% else %}
+
+                <span class="status-badge warning">
+                    Pending
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{# =======================================================
+   OVERALL STATUS
+   ======================================================= #}
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>
+            Overall Certificate Status
+        </h2>
+
+    </div>
+
+
+    {% if certificate.is_ready %}
+
+        <div class="success-box">
+
+            <strong>
+                ✓ Certificate Ready
+            </strong>
+
+            <p>
+                All certificate requirements have been completed
+                and the certificate has been uploaded.
+            </p>
+
+        </div>
+
+    {% else %}
+
+        <div class="warning-box">
+
+            <strong>
+                Certificate Not Ready
+            </strong>
+
+            <p>
+                Complete all required internship requirements
+                before the certificate can be finalized.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{# =======================================================
+   UPLOAD COMPLETED CERTIFICATE
+   ======================================================= #}
+
+<div class="content-card">
+
+    <div class="section-heading">
+
+        <h2>
+            Completed Certificate
+        </h2>
+
+    </div>
+
+
+    {% if certificate.pdf_path %}
+
+        <div class="success-box">
+
+            <strong>
+                Certificate Uploaded
+            </strong>
+
+            <p>
+                A completed certificate image is currently stored
+                in the system.
+            </p>
+
+            {% if certificate.date_issued %}
+
+                <p>
+                    Date Issued:
+                    {{ certificate.date_issued.strftime('%B %d, %Y') }}
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="button-group">
+
+            <a
+                href="{{ url_for(
+                    'adviser.view_certificate',
+                    internship_id=internship.id
+                ) }}"
+                class="btn btn-primary"
+                target="_blank"
+            >
+                View Certificate
+            </a>
+
+
+            <a
+                href="{{ url_for(
+                    'adviser.download_certificate',
+                    internship_id=internship.id
+                ) }}"
+                class="btn btn-secondary"
+            >
+                Download Certificate
+            </a>
+
+        </div>
+
+
+        <hr style="margin: 25px 0;">
+
+
+        <h3>
+            Replace Certificate
+        </h3>
+
+        <p class="page-subtitle">
+            Upload a new completed certificate to replace the existing one.
+        </p>
+
+    {% else %}
+
+        <div class="info-box">
+
+            <strong>
+                Upload the completed certificate
+            </strong>
+
+            <p>
+                Complete the official certificate template provided
+                separately by the university, save it as an image,
+                then upload it here.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+
+    {% if certificate.hours_met
+        and certificate.reports_met
+        and certificate.evaluations_met %}
+
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'adviser.upload_certificate',
+                internship_id=internship.id
+            ) }}"
+            enctype="multipart/form-data"
+            class="certificate-upload-form"
+        >
+
+            <div class="form-group">
+
+                <label for="certificate_file">
+                    Certificate Image
+                </label>
+
+                <input
+                    type="file"
+                    id="certificate_file"
+                    name="certificate_file"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                    required
+                >
+
+                <small>
+                    Accepted formats: JPG, JPEG, PNG
+                </small>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+
+                {% if certificate.pdf_path %}
+
+                    Replace Certificate
+
+                {% else %}
+
+                    Upload Certificate
+
+                {% endif %}
+
+            </button>
+
+        </form>
+
+
+    {% else %}
+
+        <div class="warning-box">
+
+            <strong>
+                Upload unavailable
+            </strong>
+
+            <p>
+                The certificate can only be uploaded after
+                the required hours, weekly reports, and evaluation
+                have been completed.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{# =======================================================
+   BACK BUTTON
+   ======================================================= #}
+
+<div class="button-group">
+
+    <a
+        href="{{ url_for('adviser.certificates') }}"
+        class="btn btn-secondary"
+    >
+        ← Back to Certificate Readiness
+    </a>
+
+</div>
+
+{% endblock %}

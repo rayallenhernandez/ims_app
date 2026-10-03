@@ -1,0 +1,643 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Student Details
+{% endblock %}
+
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Student Details</h1>
+
+        <p>
+            View student information and monitor internship progress.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Students / Details
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     BACK BUTTON
+====================================================== -->
+
+<div style="margin-bottom:20px;">
+
+    <a
+        href="{{ url_for('adviser.students') }}"
+        class="btn btn-outline"
+    >
+        &#8592; Back to Students
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     STUDENT INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Student Information
+    </h3>
+
+
+    <div class="details-grid">
+
+
+        <!-- FULL NAME -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Full Name
+            </span>
+
+            <strong>
+
+                {{ student.user.last_name }},
+
+                {{ student.user.first_name }}
+
+                {% if student.user.middle_name %}
+                    {{ student.user.middle_name }}
+                {% endif %}
+
+            </strong>
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Email
+            </span>
+
+            <strong>
+                {{ student.user.email }}
+            </strong>
+
+        </div>
+
+
+        <!-- STUDENT ID -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Student ID
+            </span>
+
+            <strong>
+                {{ student.student_id_number or 'N/A' }}
+            </strong>
+
+        </div>
+
+
+        <!-- COURSE -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Program / Course
+            </span>
+
+            <strong>
+                {{ student.course or 'N/A' }}
+            </strong>
+
+        </div>
+
+
+        <!-- YEAR LEVEL -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Year Level
+            </span>
+
+            <strong>
+                {{ student.year_level or 'N/A' }}
+            </strong>
+
+        </div>
+
+
+        <!-- SECTION -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Section
+            </span>
+
+            <strong>
+                {{ student.section or 'N/A' }}
+            </strong>
+
+        </div>
+
+
+        <!-- SCHOOL YEAR -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                School Year
+            </span>
+
+            <strong>
+                {{ student.school_year or 'N/A' }}
+            </strong>
+
+        </div>
+
+
+        <!-- ADDRESS -->
+
+        <div class="detail-item">
+
+            <span class="detail-label">
+                Address
+            </span>
+
+            <strong>
+                {{ student.address or 'N/A' }}
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     INTERNSHIP INFORMATION
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        &#128188; Internship Information
+    </h3>
+
+
+    {% if internships %}
+
+
+        {% for internship in internships %}
+
+        <div
+            class="card"
+            style="margin-top:15px;"
+        >
+
+
+            <!-- =================================================
+                 INTERNSHIP HEADER
+            ================================================== -->
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:15px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <div>
+
+                    <h3 style="margin-bottom:5px;">
+
+                        {% if internship.company %}
+
+                            {{ internship.company.company_name }}
+
+                        {% else %}
+
+                            Internship Placement
+
+                        {% endif %}
+
+                    </h3>
+
+
+                    <p style="color:var(--muted); margin:0;">
+
+                        {{ internship.department or 'Department not specified' }}
+
+                    </p>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div>
+
+                    {% if internship.status == 'Active' %}
+
+                        <span class="badge badge-success">
+                            Active
+                        </span>
+
+                    {% elif internship.status == 'On Hold' %}
+
+                        <span class="badge badge-warning">
+                            On Hold
+                        </span>
+
+                    {% elif internship.status == 'Completed' %}
+
+                        <span class="badge badge-success">
+                            Completed
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge">
+                            {{ internship.status or 'N/A' }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INTERNSHIP DETAILS
+            ================================================== -->
+
+            <div
+                class="details-grid"
+                style="margin-top:20px;"
+            >
+
+
+                <!-- SUPERVISOR -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Company Supervisor
+                    </span>
+
+                    <strong>
+                        {{ internship.supervisor_name or 'N/A' }}
+                    </strong>
+
+                </div>
+
+
+                <!-- START DATE -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Start Date
+                    </span>
+
+                    <strong>
+
+                        {% if internship.start_date %}
+
+                            {{ internship.start_date.strftime('%B %d, %Y') }}
+
+                        {% else %}
+
+                            N/A
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- END DATE -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        End Date
+                    </span>
+
+                    <strong>
+
+                        {% if internship.end_date %}
+
+                            {{ internship.end_date.strftime('%B %d, %Y') }}
+
+                        {% else %}
+
+                            N/A
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- REQUIRED HOURS -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Required Hours
+                    </span>
+
+                    <strong>
+                        {{ internship.required_hours or 240 }} hours
+                    </strong>
+
+                </div>
+
+
+                <!-- COMPLETED HOURS -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Completed Hours
+                    </span>
+
+                    <strong>
+                        {{ internship.completed_hours or 0 }} hours
+                    </strong>
+
+                </div>
+
+
+                <!-- REMAINING HOURS -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Remaining Hours
+                    </span>
+
+                    <strong>
+
+                        {% set required =
+                            internship.required_hours or 240
+                        %}
+
+                        {% set completed =
+                            internship.completed_hours or 0
+                        %}
+
+                        {{ [required - completed, 0]|max }} hours
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 PROGRESS
+            ================================================== -->
+
+            {% set required =
+                internship.required_hours or 240
+            %}
+
+            {% set completed =
+                internship.completed_hours or 0
+            %}
+
+
+            {% if required > 0 %}
+
+                {% set progress =
+                    ((completed / required) * 100)
+                %}
+
+            {% else %}
+
+                {% set progress = 0 %}
+
+            {% endif %}
+
+
+            {% set progress =
+                [progress, 100]|min
+            %}
+
+
+            <div style="margin-top:20px;">
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:6px;
+                    "
+                >
+
+                    <span>
+                        OJT Progress
+                    </span>
+
+                    <strong>
+                        {{ "%.1f"|format(progress) }}%
+                    </strong>
+
+                </div>
+
+
+                <div class="progress">
+
+                    <div
+                        class="progress-bar"
+                        data-progress="{{ progress }}"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ACTIONS
+            ================================================== -->
+
+            <div
+                class="button-group"
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    gap:10px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <!-- INTERNSHIP DETAILS -->
+
+                <a
+                    href="{{ url_for(
+                        'adviser.internship_details',
+                        internship_id=internship.id
+                    ) }}"
+                    class="btn btn-primary"
+                >
+                    &#128188; View Internship Details
+                </a>
+
+
+                <!-- OJT HOURS -->
+
+                <a
+                    href="{{ url_for(
+                        'adviser.hours',
+                        student_id=student.id
+                    ) }}"
+                    class="btn btn-secondary"
+                >
+                    &#9201; OJT Hours
+                </a>
+
+
+                <!-- WEEKLY REPORTS -->
+
+                <a
+                    href="{{ url_for(
+                        'adviser.reports',
+                        student_id=student.id
+                    ) }}"
+                    class="btn btn-outline"
+                >
+                    &#128196; Weekly Reports
+                </a>
+
+
+                <!-- NARRATIVE REPORTS -->
+
+                <a
+                    href="{{ url_for(
+                        'adviser.narrative_reports',
+                        student_id=student.id
+                    ) }}"
+                    class="btn btn-outline"
+                >
+                    &#128221; Narrative Reports
+                </a>
+
+
+                <!-- EVALUATION -->
+
+                <a
+                    href="{{ url_for(
+                        'adviser.create_evaluation',
+                        internship_id=internship.id
+                    ) }}"
+                    class="btn btn-outline"
+                >
+                    &#128202; Evaluation
+                </a>
+
+            </div>
+
+
+        </div>
+
+        {% endfor %}
+
+
+    {% else %}
+
+
+        <!-- =================================================
+             NO INTERNSHIP
+        ================================================== -->
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                &#128188;
+            </div>
+
+            <h3>
+                No Internship Yet
+            </h3>
+
+            <p>
+                This student does not have an internship placement yet.
+            </p>
+
+        </div>
+
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const progressBars =
+        document.querySelectorAll(".progress-bar");
+
+
+    progressBars.forEach(function (bar) {
+
+        let progress =
+            Number(bar.dataset.progress) || 0;
+
+
+        progress =
+            Math.max(0, Math.min(100, progress));
+
+
+        bar.style.width =
+            progress + "%";
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

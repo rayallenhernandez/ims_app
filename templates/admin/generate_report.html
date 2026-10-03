@@ -1,0 +1,319 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Generate Report
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Generate Report</h1>
+
+        <p>
+            Summary of internship management activities.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Admin / Generate Report
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="grid grid-4">
+
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#128101; Students
+        </h3>
+
+        <div class="stat-value">
+            {{ total_students }}
+        </div>
+
+        <div class="stat-label">
+            Registered students
+        </div>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#127970; Partner Companies
+        </h3>
+
+        <div class="stat-value">
+            {{ total_partner_companies }}
+        </div>
+
+        <div class="stat-label">
+            Total partner companies
+        </div>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#128188; Internships
+        </h3>
+
+        <div class="stat-value">
+            {{ total_internships }}
+        </div>
+
+        <div class="stat-label">
+            Total placements
+        </div>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <h3 class="card-title">
+            &#9989; Evaluations
+        </h3>
+
+        <div class="stat-value">
+            {{ total_evaluations }}
+        </div>
+
+        <div class="stat-label">
+            Total evaluations
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        &#128188; Internship Summary
+    </h3>
+
+
+    <table>
+
+        <tbody>
+
+            <tr>
+
+                <td>
+                    Total Internships
+                </td>
+
+                <td style="text-align:right;">
+                    <strong>
+                        {{ total_internships }}
+                    </strong>
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Active Internships
+                </td>
+
+                <td style="text-align:right;">
+                    <strong>
+                        {{ active_internships }}
+                    </strong>
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Completed Internships
+                </td>
+
+                <td style="text-align:right;">
+                    <strong>
+                        {{ completed_internships }}
+                    </strong>
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        &#128196; Weekly Reports
+    </h3>
+
+
+    <table>
+
+        <tbody>
+
+            <tr>
+
+                <td>
+                    Total Weekly Reports
+                </td>
+
+                <td style="text-align:right;">
+                    {{ total_weekly_reports }}
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Submitted Reports
+                </td>
+
+                <td style="text-align:right;">
+                    {{ submitted_weekly_reports }}
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Approved Reports
+                </td>
+
+                <td style="text-align:right;">
+                    {{ approved_weekly_reports }}
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Reports Pending / For Correction
+                </td>
+
+                <td style="text-align:right;">
+                    {{ pending_weekly_reports }}
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Narrative Reports
+                </td>
+
+                <td style="text-align:right;">
+                    {{ total_narrative_reports }}
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        &#9989; Evaluation Summary
+    </h3>
+
+
+    <table>
+
+        <tbody>
+
+            <tr>
+
+                <td>
+                    Total Evaluations
+                </td>
+
+                <td style="text-align:right;">
+                    {{ total_evaluations }}
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Submitted Evaluations
+                </td>
+
+                <td style="text-align:right;">
+                    {{ submitted_evaluations }}
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Admin Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

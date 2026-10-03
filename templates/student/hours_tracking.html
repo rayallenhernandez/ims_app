@@ -1,0 +1,860 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Hours Tracking
+{% endblock %}
+
+
+{% block sidebar_nav %}
+    {% include "partials/student_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Hours Tracking</h1>
+
+        <p>
+            Record and monitor your OJT attendance and rendered hours.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Student / Hours Tracking
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+{% if internship %}
+
+
+<!-- =====================================================
+     SUMMARY CARDS
+====================================================== -->
+
+<div class="grid grid-4" style="margin-bottom:18px;">
+
+
+    <!-- REQUIRED HOURS -->
+
+    <div class="card stat-card">
+
+        <div class="stat-label">
+            Required Hours
+        </div>
+
+        <div class="stat-value">
+            {{ internship.required_hours or 0 }}
+        </div>
+
+        <div class="stat-label">
+            Total OJT requirement
+        </div>
+
+    </div>
+
+
+    <!-- COMPLETED HOURS -->
+
+    <div class="card stat-card">
+
+        <div class="stat-label">
+            Completed Hours
+        </div>
+
+        <div class="stat-value">
+            {{ internship.completed_hours or 0 }}
+        </div>
+
+        <div class="stat-label">
+            Total hours rendered
+        </div>
+
+    </div>
+
+
+    <!-- REMAINING HOURS -->
+
+    <div class="card stat-card">
+
+        <div class="stat-label">
+            Remaining Hours
+        </div>
+
+        <div class="stat-value">
+            {{ internship.remaining_hours or 0 }}
+        </div>
+
+        <div class="stat-label">
+            Hours remaining
+        </div>
+
+    </div>
+
+
+    <!-- PROGRESS -->
+
+    <div class="card stat-card">
+
+        <div class="stat-label">
+            Progress
+        </div>
+
+        <div class="stat-value">
+            {{ internship.progress_percent or 0 }}%
+        </div>
+
+        <div class="stat-label">
+            OJT completion
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     INTERNSHIP INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128188; Internship Information
+    </h3>
+
+
+    <div class="form-grid">
+
+
+        <!-- COMPANY -->
+
+        <div class="form-group">
+
+            <label>
+                Company
+            </label>
+
+            <div class="readonly-field">
+
+                {% if internship.company %}
+
+                    {{ internship.company.company_name }}
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- DEPARTMENT -->
+
+        <div class="form-group">
+
+            <label>
+                Department
+            </label>
+
+            <div class="readonly-field">
+
+                {{ internship.department or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <!-- SUPERVISOR -->
+
+        <div class="form-group">
+
+            <label>
+                Supervisor
+            </label>
+
+            <div class="readonly-field">
+
+                {{ internship.supervisor_name or '—' }}
+
+            </div>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div class="form-group">
+
+            <label>
+                Internship Status
+            </label>
+
+            <div class="readonly-field">
+
+
+                {% if internship.status == 'Active' %}
+
+                    <span class="badge badge-success">
+                        Active
+                    </span>
+
+
+                {% elif internship.status == 'Completed' %}
+
+                    <span class="badge badge-success">
+                        Completed
+                    </span>
+
+
+                {% elif internship.status == 'On Hold' %}
+
+                    <span class="badge badge-warning">
+                        On Hold
+                    </span>
+
+
+                {% else %}
+
+                    <span class="badge">
+                        {{ internship.status or '—' }}
+                    </span>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+
+        <!-- START DATE -->
+
+        <div class="form-group">
+
+            <label>
+                Start Date
+            </label>
+
+            <div class="readonly-field">
+
+                {% if internship.start_date %}
+
+                    {{ internship.start_date.strftime('%B %d, %Y') }}
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- END DATE -->
+
+        <div class="form-group">
+
+            <label>
+                End Date
+            </label>
+
+            <div class="readonly-field">
+
+                {% if internship.end_date %}
+
+                    {{ internship.end_date.strftime('%B %d, %Y') }}
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     TODAY'S ATTENDANCE
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#9201; Today's Attendance
+    </h3>
+
+
+    {% if active_attendance %}
+
+
+        <!-- ACTIVE TIME IN -->
+
+        <div
+            style="
+                padding:18px;
+                border:1px solid var(--border);
+                border-radius:10px;
+                margin-bottom:18px;
+            "
+        >
+
+            <div style="margin-bottom:8px;">
+
+                <strong>
+                    Time In:
+                </strong>
+
+                {{ active_attendance.time_in.strftime(
+                    '%B %d, %Y %I:%M %p'
+                ) }}
+
+            </div>
+
+
+            <div>
+
+                <span class="badge badge-success">
+                    Currently Timed In
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- TIME OUT -->
+
+        <form
+            method="POST"
+            action="{{ url_for('student.time_out') }}"
+        >
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Are you sure you want to Time Out?');"
+            >
+                &#9200; Time Out
+            </button>
+
+        </form>
+
+
+    {% else %}
+
+
+        <!-- NOT TIMED IN -->
+
+        <div
+            style="
+                padding:18px;
+                border:1px solid var(--border);
+                border-radius:10px;
+                margin-bottom:18px;
+            "
+        >
+
+            <p style="margin:0;">
+
+                You are not currently timed in.
+
+            </p>
+
+        </div>
+
+
+        <!-- TIME IN -->
+
+        {% if internship.status == 'Active' %}
+
+            <form
+                method="POST"
+                action="{{ url_for('student.time_in') }}"
+            >
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    &#9201; Time In
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <span class="badge badge-warning">
+
+                Time In is unavailable because your
+                internship is not active.
+
+            </span>
+
+        {% endif %}
+
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =====================================================
+     OJT PROGRESS
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128200; OJT Progress
+    </h3>
+
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:8px;
+        "
+    >
+
+        <strong>
+            {{ internship.completed_hours or 0 }}
+            /
+            {{ internship.required_hours or 0 }}
+            hours
+        </strong>
+
+
+        <strong>
+            {{ internship.progress_percent or 0 }}%
+        </strong>
+
+    </div>
+
+
+    <progress
+        value="{{ internship.progress_percent or 0 }}"
+        max="100"
+        style="
+            width:100%;
+            height:14px;
+        "
+    >
+        {{ internship.progress_percent or 0 }}%
+    </progress>
+
+
+    {% if internship.remaining_hours > 0 %}
+
+
+        <p
+            style="
+                margin-top:10px;
+                color:var(--muted);
+            "
+        >
+
+            You still need
+
+            <strong>
+                {{ internship.remaining_hours }}
+            </strong>
+
+            hour(s) to complete your OJT requirement.
+
+        </p>
+
+
+    {% else %}
+
+
+        <p style="margin-top:10px;">
+
+            <span class="badge badge-success">
+
+                &#10003; Required Hours Completed
+
+            </span>
+
+        </p>
+
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =====================================================
+     ATTENDANCE HISTORY
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128197; Attendance History
+    </h3>
+
+
+    {% if attendances %}
+
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Time In
+                    </th>
+
+                    <th>
+                        Time Out
+                    </th>
+
+                    <th>
+                        Hours Rendered
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for attendance in attendances %}
+
+
+                <tr>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        {% if attendance.attendance_date %}
+
+                            {{ attendance.attendance_date.strftime(
+                                '%B %d, %Y'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- TIME IN -->
+
+                    <td>
+
+                        {% if attendance.time_in %}
+
+                            {{ attendance.time_in.strftime(
+                                '%I:%M %p'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- TIME OUT -->
+
+                    <td>
+
+                        {% if attendance.time_out %}
+
+                            {{ attendance.time_out.strftime(
+                                '%I:%M %p'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- HOURS -->
+
+                    <td>
+
+                        {% if attendance.hours_rendered is not none %}
+
+                            {{ "%.2f"|format(
+                                attendance.hours_rendered|float
+                            ) }}
+
+                        {% else %}
+
+                            0.00
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+
+                        {% if attendance.status == 'Completed' %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+
+                        {% elif attendance.status == 'Present' %}
+
+                            <span class="badge badge-warning">
+                                Timed In
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ attendance.status or '—' }}
+                            </span>
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128197;
+        </div>
+
+
+        <h3>
+            No Attendance Records
+        </h3>
+
+
+        <p>
+            Your Time In and Time Out records will appear here.
+        </p>
+
+    </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+
+<!-- =====================================================
+     ATTENDANCE INFORMATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#8505; Attendance Information
+    </h3>
+
+
+    <div
+        style="
+            line-height:1.7;
+            color:var(--muted);
+        "
+    >
+
+        <p>
+
+            <strong>
+                Time In:
+            </strong>
+
+            Records the time you begin your OJT session.
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Time Out:
+            </strong>
+
+            Records the time you finish your OJT session.
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Hours Rendered:
+            </strong>
+
+            The system automatically calculates the number
+            of hours between Time In and Time Out.
+
+        </p>
+
+
+        <p style="margin-bottom:0;">
+
+            <strong>
+                Progress:
+            </strong>
+
+            Your completed hours are automatically added
+            to your internship progress.
+
+        </p>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div class="card">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('student.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Student Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% else %}
+
+
+<!-- =====================================================
+     NO INTERNSHIP
+====================================================== -->
+
+<div class="card">
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128188;
+        </div>
+
+
+        <h3>
+            No Internship Placement
+        </h3>
+
+
+        <p>
+
+            You do not have an active internship placement yet.
+            Your attendance and OJT hours will appear here
+            once an internship has been assigned to you.
+
+        </p>
+
+
+        <div style="margin-top:18px;">
+
+            <a
+                href="{{ url_for('student.dashboard') }}"
+                class="btn btn-primary"
+            >
+                &#8592; Back to Student Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endif %}
+
+
+{% endblock %}

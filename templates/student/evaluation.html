@@ -1,0 +1,273 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Evaluation
+{% endblock %}
+
+{% block sidebar_nav %}
+{% include "partials/student_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Evaluation</h1>
+
+        <p>
+            View your internship evaluation results.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Student / Evaluation
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+{% if not internship %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#9733; No Active Internship
+    </h3>
+
+    <p style="font-size:13px; color:var(--muted);">
+
+        You do not have an internship placement yet.
+
+        Your evaluation will appear here once an
+        internship has been assigned.
+
+    </p>
+
+</div>
+
+
+{% elif not evaluations %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#9733; Evaluation
+    </h3>
+
+    <p style="font-size:13px; color:var(--muted);">
+
+        No evaluation has been submitted yet.
+
+    </p>
+
+    <p style="font-size:13px; color:var(--muted);">
+
+        Your adviser or industry supervisor will submit
+        your evaluation during your internship.
+
+    </p>
+
+</div>
+
+
+{% else %}
+
+
+{% for evaluation in evaluations %}
+
+<div class="card" style="margin-bottom:18px;">
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:14px;
+            gap:15px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <h3 class="card-title" style="margin:0;">
+            &#9733; Internship Evaluation
+        </h3>
+
+
+        {% if evaluation.status == 'Submitted' %}
+
+            <span class="badge badge-success">
+                Submitted
+            </span>
+
+        {% elif evaluation.status == 'Not Started' %}
+
+            <span class="badge badge-warning">
+                Not Started
+            </span>
+
+        {% else %}
+
+            <span class="badge">
+                {{ evaluation.status or '—' }}
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        <strong>Evaluator</strong>
+                    </td>
+
+                    <td style="text-align:right;">
+                        {{ evaluation.evaluator_name or '—' }}
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>Evaluator Role</strong>
+                    </td>
+
+                    <td style="text-align:right;">
+                        {{ evaluation.evaluator_role or '—' }}
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>Score</strong>
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        {% if evaluation.score is not none %}
+
+                            <strong style="font-size:20px;">
+                                {{ "%.1f"|format(evaluation.score|float) }}
+                            </strong>
+
+                            / 100
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>Submitted Date</strong>
+                    </td>
+
+                    <td style="text-align:right;">
+
+                        {% if evaluation.submitted_at %}
+
+                            {{ evaluation.submitted_at.strftime('%b %d, %Y %I:%M %p') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% if evaluation.remarks %}
+
+    <div
+        style="
+            margin-top:18px;
+            padding:14px;
+            background:var(--bg);
+            border:1px solid var(--border);
+            border-radius:8px;
+        "
+    >
+
+        <strong style="font-size:13px;">
+            Remarks
+        </strong>
+
+        <p
+            style="
+                font-size:13px;
+                color:var(--muted);
+                margin-top:8px;
+                white-space:pre-wrap;
+            "
+        >
+            {{ evaluation.remarks }}
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div class="card">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('student.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Student Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

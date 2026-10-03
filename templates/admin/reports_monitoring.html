@@ -1,0 +1,339 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Reports & Monitoring
+{% endblock %}
+
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Reports &amp; Monitoring</h1>
+
+        <p>
+            Monitor weekly and narrative internship reports submitted by students.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Admin / Reports &amp; Monitoring
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     WEEKLY REPORTS
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128196; Weekly Reports
+    </h3>
+
+
+    {% if weekly_reports %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Student</th>
+                    <th>Company</th>
+                    <th>Week</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for report in weekly_reports %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ report.internship.student.user.full_name }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.internship.company %}
+                            {{ report.internship.company.company_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        Week {{ report.week_number }}
+                    </td>
+
+
+                    <td>
+
+                        {% if report.status == 'Approved' %}
+
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+
+                        {% elif report.status == 'Submitted' %}
+
+                            <span class="badge badge-warning">
+                                Submitted
+                            </span>
+
+                        {% elif report.status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                Pending / Correction
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ report.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.submitted_at %}
+
+                            {{ report.submitted_at.strftime(
+                                '%b %d, %Y %I:%M %p'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128196;
+        </div>
+
+        <h3>
+            No Weekly Reports
+        </h3>
+
+        <p>
+            No weekly reports have been submitted yet.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =====================================================
+     NARRATIVE REPORTS
+====================================================== -->
+
+<div class="card" style="margin-top:20px;">
+
+    <h3 class="card-title">
+        &#128221; Narrative Reports
+    </h3>
+
+
+    {% if narrative_reports %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Student</th>
+                    <th>Company</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for report in narrative_reports %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ report.internship.student.user.full_name }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.internship.company %}
+                            {{ report.internship.company.company_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        {{ report.title }}
+                    </td>
+
+
+                    <td>
+
+                        {% if report.status == 'Approved' %}
+
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+
+                        {% elif report.status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ report.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if report.submitted_at %}
+
+                            {{ report.submitted_at.strftime(
+                                '%b %d, %Y %I:%M %p'
+                            ) }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128221;
+        </div>
+
+        <h3>
+            No Narrative Reports
+        </h3>
+
+        <p>
+            No narrative reports have been submitted yet.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<div class="card" style="margin-top:20px;">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Admin Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,342 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Evaluations
+{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Student Evaluations</h1>
+
+        <p>
+            Evaluate and monitor the performance of your assigned students.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Evaluations
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     EXISTING EVALUATIONS
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128202; Evaluation Records
+    </h3>
+
+
+    {% if evaluations %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Student</th>
+                    <th>Company</th>
+                    <th>Evaluator</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for evaluation in evaluations %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ evaluation.internship.student.user.last_name }},
+                            {{ evaluation.internship.student.user.first_name }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation.internship.company %}
+                            {{ evaluation.internship.company.company_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        {{ evaluation.evaluator_name or '—' }}
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation.score is not none %}
+
+                            {{ "%.1f"|format(evaluation.score) }}
+
+                            / 100
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation.status == 'Submitted' %}
+
+                            <span class="badge badge-success">
+                                Submitted
+                            </span>
+
+                        {% elif evaluation.status == 'Not Started' %}
+
+                            <span class="badge">
+                                Not Started
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ evaluation.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if evaluation.submitted_at %}
+
+                            {{ evaluation.submitted_at.strftime('%b %d, %Y') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'adviser.evaluation_details',
+                                evaluation_id=evaluation.id
+                            ) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+                            View
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128202;
+        </div>
+
+        <h3>
+            No Evaluations Yet
+        </h3>
+
+        <p>
+            Evaluations for your assigned students will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     INTERNSHIPS AVAILABLE FOR EVALUATION
+====================================================== -->
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128100; Students Available for Evaluation
+    </h3>
+
+    <p>
+        Select an internship below to create an evaluation.
+    </p>
+
+
+    {% if internships %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Student</th>
+                    <th>Company</th>
+                    <th>Internship Status</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for internship in internships %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+
+                            {{ internship.student.user.last_name }},
+                            {{ internship.student.user.first_name }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if internship.company %}
+                            {{ internship.company.company_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="badge">
+
+                            {{ internship.status or '—' }}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'adviser.create_evaluation',
+                                internship_id=internship.id
+                            ) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+                            Evaluate
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128100;
+        </div>
+
+        <h3>
+            No Assigned Internships
+        </h3>
+
+        <p>
+            Students with assigned internships will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+====================================================== -->
+
+<div style="margin-top:20px;">
+
+    <a
+        href="{{ url_for('adviser.dashboard') }}"
+        class="btn btn-outline"
+    >
+        &#8592; Back to Dashboard
+    </a>
+
+</div>
+
+{% endblock %}

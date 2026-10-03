@@ -1,0 +1,683 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+
+
+<!-- ========================================================= -->
+<!-- TOP BAR -->
+<!-- ========================================================= -->
+
+<header class="topbar">
+
+  <a
+    class="brand"
+    href="{{ url_for('main.dashboard_redirect') }}"
+  >
+
+    <img
+      src="{{ url_for('static', filename='cmu_logo.jpg') }}"
+      alt="City of Malabon University Logo"
+    >
+
+    <span>
+
+      Internship Management System
+
+      <span class="subtitle">
+        City of Malabon University
+      </span>
+
+    </span>
+
+  </a>
+
+
+  <div class="topbar-actions">
+
+
+    <!-- ===================================================== -->
+    <!-- NOTIFICATIONS -->
+    <!-- ===================================================== -->
+
+    <a
+      href="{{ url_for('notifications.index') }}"
+      class="notification-button"
+      title="Notifications"
+      aria-label="Notifications"
+    >
+
+      <span class="notification-bell">
+        &#128276;
+      </span>
+
+
+      {% if unread_notifications_count > 0 %}
+
+        <span class="notification-badge">
+
+          {% if unread_notifications_count > 99 %}
+
+            99+
+
+          {% else %}
+
+            {{ unread_notifications_count }}
+
+          {% endif %}
+
+        </span>
+
+      {% endif %}
+
+    </a>
+
+
+    <!-- ===================================================== -->
+    <!-- USER CHIP -->
+    <!-- ===================================================== -->
+
+    <div class="user-chip">
+
+      <div>
+
+        <strong>
+
+          {{ current_user.first_name }}
+          {{ current_user.last_name }}
+
+        </strong>
+
+
+        <span class="role">
+
+          {{ current_user.role|capitalize }}
+
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- TOP BAR LOGOUT -->
+    <!-- ===================================================== -->
+
+    <a
+      class="btn-outline-light"
+      href="{{ url_for('auth.logout') }}"
+    >
+
+      Log Out
+
+    </a>
+
+  </div>
+
+</header>
+
+
+<!-- ========================================================= -->
+<!-- APPLICATION SHELL -->
+<!-- ========================================================= -->
+
+<div class="app-shell">
+
+
+  <!-- ======================================================= -->
+  <!-- SIDEBAR -->
+  <!-- ======================================================= -->
+
+  <aside class="sidebar">
+
+
+    <!-- ===================================================== -->
+    <!-- ROLE LABEL -->
+    <!-- ===================================================== -->
+
+    <div class="section-label">
+
+      {{ current_user.role|upper }}
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- USER CARD -->
+    <!-- ===================================================== -->
+
+    <div class="user-card">
+
+
+      <div class="avatar">
+
+        {{ current_user.first_name[0] }}
+        {{ current_user.last_name[0] }}
+
+      </div>
+
+
+      <div>
+
+        <div class="name">
+
+          {{ current_user.first_name }}
+          {{ current_user.last_name }}
+
+        </div>
+
+
+        <div class="meta">
+
+
+          {% if current_user.role == 'student'
+                and current_user.student_profile %}
+
+            {{ current_user.student_profile.course }}
+
+            &middot;
+
+            {{ current_user.student_profile.year_level }}
+
+
+          {% elif current_user.role == 'partner'
+                  and current_user.partner_profile %}
+
+            {{ current_user.partner_profile.company_name }}
+
+
+          {% elif current_user.role == 'adviser' %}
+
+            Adviser
+
+
+          {% elif current_user.role == 'admin' %}
+
+            Administrator
+
+
+          {% else %}
+
+            {{ current_user.role|capitalize }}
+
+          {% endif %}
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SIDEBAR NAVIGATION -->
+    <!-- ===================================================== -->
+
+    <nav class="sidebar-nav">
+
+      {% block sidebar_nav %}{% endblock %}
+
+    </nav>
+
+
+    <!-- ===================================================== -->
+    <!-- SIDEBAR BOTTOM -->
+    <!-- DARK MODE + LOGOUT -->
+    <!-- ===================================================== -->
+
+    <div class="sidebar-bottom">
+
+
+      <!-- ================================================= -->
+      <!-- DARK MODE -->
+      <!-- ================================================= -->
+
+      <button
+        type="button"
+        id="theme-toggle"
+        class="sidebar-theme-toggle"
+        aria-label="Switch to dark mode"
+        title="Switch to dark mode"
+      >
+
+        <span id="theme-icon">
+          🌙
+        </span>
+
+        <span id="theme-text">
+          Dark Mode
+        </span>
+
+      </button>
+
+
+      <!-- ================================================= -->
+      <!-- LOG OUT -->
+      <!-- ================================================= -->
+
+      <a
+        class="logout-link"
+        href="{{ url_for('auth.logout') }}"
+      >
+
+        <span>
+          &#8618;
+        </span>
+
+        <span>
+          Log Out
+        </span>
+
+      </a>
+
+
+    </div>
+
+
+  </aside>
+
+
+  <!-- ======================================================= -->
+  <!-- MAIN CONTENT -->
+  <!-- ======================================================= -->
+
+  <main class="main-content">
+
+    {% block page_header %}{% endblock %}
+
+    {% block content %}{% endblock %}
+
+  </main>
+
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- FOOTER -->
+<!-- ========================================================= -->
+
+<footer class="app-footer">
+
+  &copy; {{ now_year }}
+
+  City of Malabon University —
+
+  College of Computer Studies ·
+
+  Internship Management System
+
+</footer>
+
+
+<!-- ========================================================= -->
+<!-- DARK MODE + INACTIVITY JAVASCRIPT -->
+<!-- ========================================================= -->
+
+<script>
+
+  (function () {
+
+
+    /* =======================================================
+       DARK MODE
+    ======================================================= */
+
+    const body =
+      document.body;
+
+
+    const toggle =
+      document.getElementById(
+        "theme-toggle"
+      );
+
+
+    const icon =
+      document.getElementById(
+        "theme-icon"
+      );
+
+
+    const text =
+      document.getElementById(
+        "theme-text"
+      );
+
+
+    if (toggle) {
+
+
+      /* -----------------------------------------------------
+         LOAD SAVED THEME
+      ----------------------------------------------------- */
+
+      const savedTheme =
+        localStorage.getItem(
+          "cmu-theme"
+        );
+
+
+      if (
+        savedTheme === "dark"
+      ) {
+
+        body.classList.add(
+          "dark-mode"
+        );
+
+      }
+
+
+      /* -----------------------------------------------------
+         UPDATE THEME BUTTON
+      ----------------------------------------------------- */
+
+      function updateThemeButton() {
+
+
+        if (
+          body.classList.contains(
+            "dark-mode"
+          )
+        ) {
+
+
+          icon.textContent =
+            "☀️";
+
+
+          text.textContent =
+            "Light Mode";
+
+
+          toggle.setAttribute(
+            "aria-label",
+            "Switch to light mode"
+          );
+
+
+          toggle.setAttribute(
+            "title",
+            "Switch to light mode"
+          );
+
+
+        } else {
+
+
+          icon.textContent =
+            "🌙";
+
+
+          text.textContent =
+            "Dark Mode";
+
+
+          toggle.setAttribute(
+            "aria-label",
+            "Switch to dark mode"
+          );
+
+
+          toggle.setAttribute(
+            "title",
+            "Switch to dark mode"
+          );
+
+        }
+
+      }
+
+
+      /* -----------------------------------------------------
+         INITIAL BUTTON STATE
+      ----------------------------------------------------- */
+
+      updateThemeButton();
+
+
+      /* -----------------------------------------------------
+         TOGGLE THEME
+      ----------------------------------------------------- */
+
+      toggle.addEventListener(
+        "click",
+        function () {
+
+
+          body.classList.toggle(
+            "dark-mode"
+          );
+
+
+          const isDark =
+            body.classList.contains(
+              "dark-mode"
+            );
+
+
+          localStorage.setItem(
+            "cmu-theme",
+            isDark
+              ? "dark"
+              : "light"
+          );
+
+
+          updateThemeButton();
+
+        }
+      );
+
+    }
+
+
+    /* =======================================================
+       INACTIVITY AUTO LOGOUT
+    ======================================================= */
+
+    const INACTIVITY_LIMIT =
+      20 * 60 * 1000;
+
+
+    let inactivityTimer;
+
+
+    /* -------------------------------------------------------
+       RESET TIMER
+    ------------------------------------------------------- */
+
+    function resetInactivityTimer() {
+
+
+      clearTimeout(
+        inactivityTimer
+      );
+
+
+      inactivityTimer =
+        setTimeout(
+          logoutAfterInactivity,
+          INACTIVITY_LIMIT
+        );
+
+    }
+
+
+    /* -------------------------------------------------------
+       LOGOUT
+    ------------------------------------------------------- */
+
+    function logoutAfterInactivity() {
+
+
+      window.location.href =
+        "{{ url_for('auth.logout') }}";
+
+    }
+
+
+    /* -------------------------------------------------------
+       USER ACTIVITY EVENTS
+    ------------------------------------------------------- */
+
+    const activityEvents = [
+
+      "mousemove",
+
+      "mousedown",
+
+      "keydown",
+
+      "touchstart",
+
+      "scroll",
+
+      "click",
+
+      "input",
+
+      "change"
+
+    ];
+
+
+    activityEvents.forEach(
+      function (eventName) {
+
+
+        document.addEventListener(
+          eventName,
+          resetInactivityTimer,
+          true
+        );
+
+
+      }
+    );
+
+
+    /* -------------------------------------------------------
+       START TIMER
+    ------------------------------------------------------- */
+
+    resetInactivityTimer();
+
+
+  })();
+
+</script>
+
+
+<!-- ========================================================= -->
+<!-- NOTIFICATION CSS -->
+<!-- ========================================================= -->
+
+<style>
+
+  /* =========================================================
+     NOTIFICATION BUTTON
+  ========================================================= */
+
+  .notification-button {
+
+    position: relative;
+
+    width: 42px;
+
+    height: 42px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    background: rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
+
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease;
+
+  }
+
+
+  .notification-button:hover {
+
+    background: rgba(
+      255,
+      255,
+      255,
+      0.18
+    );
+
+    transform:
+      translateY(-1px);
+
+  }
+
+
+  .notification-bell {
+
+    font-size: 20px;
+
+    line-height: 1;
+
+  }
+
+
+  .notification-badge {
+
+    position: absolute;
+
+    top: -4px;
+
+    right: -4px;
+
+    min-width: 19px;
+
+    height: 19px;
+
+    padding:
+      0 5px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: #dc3545;
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    border:
+      2px solid #062b6b;
+
+  }
+
+
+</style>
+
+
+{% endblock %}

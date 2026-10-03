@@ -1,0 +1,219 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Narrative Reports
+{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Narrative Reports</h1>
+
+        <p>
+            Review narrative reports submitted by your assigned students.
+        </p>
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Narrative Reports
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128221; Submitted Narrative Reports
+    </h3>
+
+    {% if reports %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Company</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for report in reports %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ report.internship.student.user.last_name }},
+                            {{ report.internship.student.user.first_name }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {% if report.internship.company %}
+                            {{ report.internship.company.company_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ report.title }}
+                    </td>
+
+                    <td>
+                        {% if report.status == 'Approved' %}
+                            <span class="badge badge-success">
+                                Approved
+                            </span>
+                        {% elif report.status == 'Pending' %}
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+                        {% elif report.status == 'Rejected' %}
+                            <span class="badge badge-danger">
+                                Rejected
+                            </span>
+                        {% else %}
+                            <span class="badge">
+                                {{ report.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if report.submitted_at %}
+                            {{ report.submitted_at.strftime('%b %d, %Y %I:%M %p') }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        <div
+                            style="
+                                display:flex;
+                                flex-direction:column;
+                                gap:6px;
+                                min-width:130px;
+                            "
+                        >
+
+                            {% if report.file_path %}
+                            <a
+                                href="{{ url_for(
+                                    'adviser.view_narrative_report_file',
+                                    report_id=report.id
+                                ) }}"
+                                class="btn btn-sm btn-secondary"
+                                target="_blank"
+                                style="text-align:center;"
+                            >
+                                &#128065; View File
+                            </a>
+                            {% endif %}
+
+                            {% if report.status == 'Pending' %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'adviser.approve_narrative_report',
+                                    report_id=report.id
+                                ) }}"
+                                style="margin:0;"
+                            >
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-success"
+                                    style="width:100%;"
+                                    onclick="return confirm('Approve this narrative report?');"
+                                >
+                                    &#10003; Approve
+                                </button>
+                            </form>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'adviser.reject_narrative_report',
+                                    report_id=report.id
+                                ) }}"
+                                style="margin:0;"
+                            >
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-warning"
+                                    style="width:100%;"
+                                    onclick="return confirm('Reject this narrative report?');"
+                                >
+                                    &#10007; Reject
+                                </button>
+                            </form>
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128221;
+        </div>
+
+        <h3>No Narrative Reports</h3>
+
+        <p>
+            Narrative reports submitted by your assigned students will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<div style="margin-top:20px;">
+
+    <a
+        href="{{ url_for('adviser.dashboard') }}"
+        class="btn btn-outline"
+    >
+        &#8592; Back to Dashboard
+    </a>
+
+</div>
+
+{% endblock %}

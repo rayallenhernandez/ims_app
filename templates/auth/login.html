@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login — Internship Management System</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}?v=2"
+    >
+
+    <style>
+
+        /* =====================================================
+           LOGIN PAGE
+        ===================================================== */
+
+        body.auth-page {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f6f8fc;
+            color: #102d61;
+        }
+
+        .login-page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* =====================================================
+           TOP BAR
+        ===================================================== */
+
+        .login-topbar {
+            background: #062b6b;
+            color: white;
+            padding: 16px 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .login-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .login-seal {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #d8b34a;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: white;
+}
+
+.login-seal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+        /* =====================================================
+           MAIN LOGIN AREA
+        ===================================================== */
+
+        .login-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 460px;
+            background: white;
+            border-radius: 14px;
+            padding: 34px;
+            box-shadow: 0 8px 30px rgba(6, 43, 107, 0.10);
+            border: 1px solid #e2e8f0;
+        }
+
+        .login-icon {
+            text-align: center;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .login-card h1 {
+            margin: 0;
+            text-align: center;
+            color: #062b6b;
+            font-size: 28px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin: 8px 0 24px;
+        }
+
+        /* =====================================================
+           FLASH MESSAGE
+        ===================================================== */
+
+        .login-alert {
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid;
+        }
+
+        .login-alert.error,
+        .login-alert.danger {
+            background: #fff1f2;
+            color: #b42318;
+            border-color: #f3b5bc;
+        }
+
+        .login-alert.success {
+            background: #ecfdf3;
+            color: #087443;
+            border-color: #a7e3c2;
+        }
+
+        .login-alert.warning {
+            background: #fff8e7;
+            color: #8a5a00;
+            border-color: #f0d48a;
+        }
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .login-form-group {
+            margin-bottom: 18px;
+        }
+
+        .login-form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #102d61;
+        }
+
+        .login-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .login-input:focus {
+            border-color: #062b6b;
+            box-shadow: 0 0 0 3px rgba(6, 43, 107, 0.10);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .login-input {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 17px;
+            padding: 5px;
+        }
+
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 6px 0 20px;
+            font-size: 13px;
+        }
+
+        .remember-wrap {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .remember-wrap input {
+            width: 15px;
+            height: 15px;
+        }
+
+        .login-link {
+            color: #315ca8;
+            text-decoration: none;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        .login-submit {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #062b6b;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .login-submit:hover {
+            background: #041f4e;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .login-footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* =====================================================
+           DARK MODE
+        ===================================================== */
+
+        body.dark-mode {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .login-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        body.dark-mode .login-card h1,
+        body.dark-mode .login-form-group label {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .login-subtitle,
+        body.dark-mode .register-link {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .login-input {
+            background: #0f172a;
+            color: #f8fafc;
+            border-color: #475569;
+        }
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            .login-topbar {
+                padding: 14px 18px;
+            }
+
+            .login-brand {
+                font-size: 14px;
+            }
+
+            .login-main {
+                padding: 25px 15px;
+            }
+
+            .login-card {
+                padding: 25px 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="auth-page">
+
+<div class="login-page-wrapper">
+
+
+    <!-- =====================================================
+         TOP BAR
+    ===================================================== -->
+
+    <header class="login-topbar">
+
+        <div class="login-brand">
+
+            <div class="login-seal">
+                <img
+        src="{{ url_for('static', filename='img/cmu_logo.jpg') }}"
+        alt="City of Malabon University Logo"
+    >
+            </div>
+
+            <span>
+                City of Malabon University — Internship Management System
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         LOGIN
+    ===================================================== -->
+
+    <main class="login-main">
+
+        <section class="login-card">
+
+            <div class="login-icon">
+                🎓
+            </div>
+
+            <h1>
+                Sign In
+            </h1>
+
+            <p class="login-subtitle">
+                Sign in to access your internship dashboard.
+            </p>
+
+
+            <!-- =================================================
+                 FLASH MESSAGES
+            ================================================= -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="login-alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- =================================================
+                 LOGIN FORM
+            ================================================= -->
+
+            <form
+                method="POST"
+                action="{{ url_for('auth.login') }}"
+            >
+
+                <!-- EMAIL -->
+
+                <div class="login-form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="login-input"
+                        value="{{ request.form.get('email', '') }}"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="login-form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="login-input"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword()"
+                            aria-label="Show or hide password"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- OPTIONS -->
+
+                <div class="login-options">
+
+                    <label class="remember-wrap">
+
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            value="1"
+                        >
+
+                        <span>
+                            Remember Me
+                        </span>
+
+                    </label>
+
+
+                    <a
+                        href="{{ url_for('auth.forgot_password') }}"
+                        class="login-link"
+                    >
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    class="login-submit"
+                >
+                    Sign In
+                </button>
+
+            </form>
+
+
+            <!-- REGISTER -->
+
+            <div class="register-link">
+
+                Don't have an account?
+
+                <a
+                    href="{{ url_for('auth.register') }}"
+                    class="login-link"
+                >
+                    Register
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ===================================================== -->
+
+    <footer class="login-footer">
+
+        © 2026 City of Malabon University — Internship Management System
+
+    </footer>
+
+</div>
+
+
+<script>
+
+function togglePassword() {
+
+    const password = document.getElementById("password");
+
+    const button = document.querySelector(".password-toggle");
+
+    if (password.type === "password") {
+
+        password.type = "text";
+
+        button.textContent = "🙈";
+
+    } else {
+
+        password.type = "password";
+
+        button.textContent = "👁";
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>

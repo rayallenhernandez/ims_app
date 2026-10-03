@@ -1,0 +1,341 @@
+{% extends "app_layout.html" %}
+
+{% block title %}
+Internship Monitoring
+{% endblock %}
+
+{% block sidebar_nav %}
+    {% include "partials/adviser_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Internship Monitoring</h1>
+
+        <p>
+            Monitor the internship progress of your assigned students.
+        </p>
+
+    </div>
+
+    <div class="breadcrumb">
+        Home / Adviser / Internship Monitoring
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h3 class="card-title">
+        &#128188; Assigned Internships
+    </h3>
+
+
+    {% if internships %}
+
+    <div class="table-responsive">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Student</th>
+                    <th>Company</th>
+                    <th>Department</th>
+                    <th>Supervisor</th>
+                    <th>Required Hours</th>
+                    <th>Completed Hours</th>
+                    <th>Progress</th>
+                    <th>Status</th>
+                    <th>Evaluation</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for internship in internships %}
+
+                <tr>
+
+                    <!-- STUDENT -->
+
+                    <td>
+
+                        <strong>
+
+                            {% if internship.student and internship.student.user %}
+
+                                {{ internship.student.user.last_name }},
+                                {{ internship.student.user.first_name }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- COMPANY -->
+
+                    <td>
+
+                        {% if internship.company %}
+
+                            {{ internship.company.company_name }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- DEPARTMENT -->
+
+                    <td>
+
+                        {{ internship.department or '—' }}
+
+                    </td>
+
+
+                    <!-- SUPERVISOR -->
+
+                    <td>
+
+                        {{ internship.supervisor_name or '—' }}
+
+                    </td>
+
+
+                    <!-- REQUIRED HOURS -->
+
+                    <td>
+
+                        {{ internship.required_hours or 0 }}
+
+                    </td>
+
+
+                    <!-- COMPLETED HOURS -->
+
+                    <td>
+
+                        {{ internship.completed_hours or 0 }}
+
+                    </td>
+
+
+                    <!-- PROGRESS -->
+
+                    <td>
+
+                        {% set required = internship.required_hours or 0 %}
+                        {% set completed = internship.completed_hours or 0 %}
+
+                        {% if required > 0 %}
+
+                            {% set progress = (completed / required * 100) %}
+
+                            {% if progress > 100 %}
+                                {% set progress = 100 %}
+                            {% endif %}
+
+                            <strong>
+                                {{ "%.0f"|format(progress) }}%
+                            </strong>
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if internship.status == 'Active' %}
+
+                            <span class="badge badge-success">
+                                Active
+                            </span>
+
+                        {% elif internship.status == 'Completed' %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+                        {% elif internship.status == 'On Hold' %}
+
+                            <span class="badge badge-warning">
+                                On Hold
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ internship.status or '—' }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- EVALUATION -->
+
+                    <td>
+
+                        {% set evaluation = evaluation_map.get(internship.id) %}
+
+                        {% if evaluation %}
+
+                            {% if evaluation.score is not none %}
+
+                                <span class="badge badge-success">
+
+                                    {{ "%.1f"|format(evaluation.score) }}/100
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge">
+                                    Submitted
+                                </span>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <a
+                                href="{{ url_for(
+                                    'adviser.create_evaluation',
+                                    internship_id=internship.id
+                                ) }}"
+                                class="btn btn-sm btn-primary"
+                            >
+                                Evaluate
+                            </a>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <a
+                                href="{{ url_for(
+                                    'adviser.internship_details',
+                                    internship_id=internship.id
+                                ) }}"
+                                class="btn btn-sm btn-primary"
+                            >
+                                View
+                            </a>
+
+
+                            {% if evaluation %}
+
+                                <a
+                                    href="{{ url_for(
+                                        'adviser.evaluation_details',
+                                        evaluation_id=evaluation.id
+                                    ) }}"
+                                    class="btn btn-sm btn-outline"
+                                >
+                                    Evaluation
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            &#128188;
+        </div>
+
+        <h3>
+            No Assigned Internships
+        </h3>
+
+        <p>
+            Internship placements for your assigned students
+            will appear here.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     BACK TO DASHBOARD
+====================================================== -->
+
+<div class="card">
+
+    <div class="action-buttons">
+
+        <a
+            href="{{ url_for('adviser.dashboard') }}"
+            class="btn btn-outline"
+        >
+            &#8592; Back to Adviser Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+<a
+    href="{{ url_for('admin.dashboard') }}"
+    class="{{ 'active' if request.endpoint == 'admin.dashboard' else '' }}"
+>
+    &#8962; Dashboard
+</a>
+
+
+<a
+    href="{{ url_for('admin.students') }}"
+    class="{{ 'active' if request.endpoint == 'admin.students' else '' }}"
+>
+    &#128101; Students
+</a>
+
+
+<a
+    href="{{ url_for('admin.partner_companies') }}"
+    class="{{
+        'active'
+        if request.endpoint in [
+            'admin.partner_companies',
+            'admin.add_partner_company'
+        ]
+        else ''
+    }}"
+>
+    &#127970; Partner Companies
+</a>
+
+
+<a
+    href="{{ url_for('admin.reports_monitoring') }}"
+    class="{{ 'active' if request.endpoint == 'admin.reports_monitoring' else '' }}"
+>
+    &#128202; Reports &amp; Monitoring
+</a>
+
+
+<a
+    href="{{ url_for('admin.evaluations') }}"
+    class="{{ 'active' if request.endpoint == 'admin.evaluations' else '' }}"
+>
+    &#9989; Evaluations
+</a>
