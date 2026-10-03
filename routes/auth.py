@@ -1,6 +1,7 @@
 import os
 import re
 import smtplib
+import uuid
 
 from datetime import datetime
 
@@ -33,6 +34,7 @@ from extensions import db
 from models import (
     User,
     StudentProfile,
+    IndustryPartner,
 )
 
 
@@ -438,6 +440,7 @@ def login():
 
 
 # =========================================================
+# =========================================================
 # REGISTER
 # =========================================================
 
@@ -465,14 +468,19 @@ def register():
     # -----------------------------------------------------
 
     form = {
+        "role": "student",
         "full_name": "",
         "first_name": "",
         "middle_name": "",
         "last_name": "",
         "student_id": "",
+        "student_id_number": "",
         "program": "",
+        "course": "",
         "year_level": "4th Year",
         "email": "",
+        "contact_number": "",
+        "company_name": "",
     }
 
 
@@ -492,60 +500,113 @@ def register():
     # POST
     # =====================================================
 
-    # Support both registration form layouts:
-    # 1. One field named "full_name"
-    # 2. Separate "first_name", "middle_name", and "last_name" fields
-    first_name_input = request.form.get(
-        "first_name",
-        ""
-    ).strip()
+    # The current registration page uses separate name fields,
+    # student_id_number, course, and role. Older versions used
+    # full_name, student_id, and program. Support both layouts.
 
-    middle_name_input = request.form.get(
-        "middle_name",
-        ""
-    ).strip()
+    role = (
+        request.form.get(
+            "role",
+            "student"
+        )
+        .strip()
+        .lower()
+    )
 
-    last_name_input = request.form.get(
-        "last_name",
-        ""
-    ).strip()
+    first_name = (
+        request.form.get(
+            "first_name",
+            ""
+        )
+        .strip()
+    )
 
-    full_name = request.form.get(
-        "full_name",
-        ""
-    ).strip()
+    middle_name = (
+        request.form.get(
+            "middle_name",
+            ""
+        )
+        .strip()
+    )
 
-    # If the form uses separate name fields, build the full name.
-    if not full_name:
-        full_name = " ".join(
-            part
-            for part in [
-                first_name_input,
-                middle_name_input,
-                last_name_input
-            ]
-            if part
-        ).strip()
+    last_name = (
+        request.form.get(
+            "last_name",
+            ""
+        )
+        .strip()
+    )
 
-    student_id = request.form.get(
-        "student_id",
-        ""
-    ).strip()
+    full_name = (
+        request.form.get(
+            "full_name",
+            ""
+        )
+        .strip()
+    )
 
-    program = request.form.get(
-        "program",
-        ""
-    ).strip()
+    student_id_number = (
+        request.form.get(
+            "student_id_number",
+            ""
+        )
+        .strip()
+    )
 
-    year_level = request.form.get(
-        "year_level",
-        ""
-    ).strip()
+    legacy_student_id = (
+        request.form.get(
+            "student_id",
+            ""
+        )
+        .strip()
+    )
 
-    email = request.form.get(
-        "email",
-        ""
-    ).strip().lower()
+    if not student_id_number:
+        student_id_number = legacy_student_id
+
+    course = (
+        request.form.get(
+            "course",
+            ""
+        )
+        .strip()
+    )
+
+    legacy_program = (
+        request.form.get(
+            "program",
+            ""
+        )
+        .strip()
+    )
+
+    if not course:
+        course = legacy_program
+
+    year_level = (
+        request.form.get(
+            "year_level",
+            ""
+        )
+        .strip()
+    )
+
+    email = (
+        request.form.get(
+            "email",
+            ""
+        )
+        .strip()
+        .lower()
+    )
+
+    contact_number = (
+        request.form.get(
+            "contact_number",
+            ""
+        )
+        .strip()
+    )
 
     password = request.form.get(
         "password",
@@ -557,31 +618,68 @@ def register():
         ""
     )
 
+    company_name = (
+        request.form.get(
+            "company_name",
+            ""
+        )
+        .strip()
+    )
+
+    verification_document = request.files.get(
+        "verification_document"
+    )
+
+
+    # -----------------------------------------------------
+    # BUILD FULL NAME FROM SEPARATE FIELDS
+    # -----------------------------------------------------
+
+    if not full_name:
+
+        full_name = " ".join(
+            part
+            for part in [
+                first_name,
+                middle_name,
+                last_name
+            ]
+            if part
+        ).strip()
+
 
     # -----------------------------------------------------
     # PRESERVE FORM DATA
     # -----------------------------------------------------
 
     form = {
+        "role": role,
         "full_name": full_name,
-        "first_name": first_name_input,
-        "middle_name": middle_name_input,
-        "last_name": last_name_input,
-        "student_id": student_id,
-        "program": program,
-        "year_level": year_level,
+        "first_name": first_name,
+        "middle_name": middle_name,
+        "last_name": last_name,
+        "student_id": student_id_number,
+        "student_id_number": student_id_number,
+        "program": course,
+        "course": course,
+        "year_level": year_level or "4th Year",
         "email": email,
+        "contact_number": contact_number,
+        "company_name": company_name,
     }
 
 
     # -----------------------------------------------------
-    # REQUIRED FIELDS
+    # ROLE VALIDATION
     # -----------------------------------------------------
 
-    if not full_name:
+    if role not in {
+        User.ROLE_STUDENT,
+        User.ROLE_PARTNER
+    }:
 
         flash(
-            "Please enter your full name.",
+            "Invalid registration role.",
             "danger"
         )
 
@@ -591,10 +689,113 @@ def register():
         )
 
 
-    if not student_id:
+    # -----------------------------------------------------
+    # NAME REQUIRED
+    # -----------------------------------------------------
+
+    if not first_name or not last_name:
+
+        # Legacy one-field layout may still be used.
+        if not full_name:
+
+            flash(
+                "Please enter your full name.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+        # Convert legacy full_name into the name fields.
+        name_parts = full_name.split()
+
+        if len(name_parts) < 2:
+
+            flash(
+                "Please enter your first name and last name.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+        first_name = name_parts[0]
+        last_name = name_parts[-1]
+
+        if len(name_parts) > 2:
+            middle_name = " ".join(
+                name_parts[1:-1]
+            )
+
+
+    # -----------------------------------------------------
+    # FULL NAME / NAME VALIDATION
+    # -----------------------------------------------------
+
+    for label, value in [
+        ("First Name", first_name),
+        ("Middle Name", middle_name),
+        ("Last Name", last_name)
+    ]:
+
+        if value and not re.fullmatch(
+            r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*",
+            value
+        ):
+
+            flash(
+                f"{label} must contain letters and spaces only.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+    # Rebuild the canonical full name after validation.
+    full_name = " ".join(
+        part
+        for part in [
+            first_name,
+            middle_name,
+            last_name
+        ]
+        if part
+    ).strip()
+
+    form["full_name"] = full_name
+    form["first_name"] = first_name
+    form["middle_name"] = middle_name
+    form["last_name"] = last_name
+
+
+    # -----------------------------------------------------
+    # CONTACT NUMBER
+    # -----------------------------------------------------
+
+    if not contact_number:
 
         flash(
-            "Please enter your Student ID.",
+            "Please enter your contact number.",
+            "danger"
+        )
+
+        return render_template(
+            "auth/register.html",
+            form=form
+        )
+
+    if len(contact_number) > 20:
+
+        flash(
+            "Contact number must not exceed 20 characters.",
             "danger"
         )
 
@@ -604,18 +805,9 @@ def register():
         )
 
 
-    if not program:
-
-        flash(
-            "Please enter your program.",
-            "danger"
-        )
-
-        return render_template(
-            "auth/register.html",
-            form=form
-        )
-
+    # -----------------------------------------------------
+    # EMAIL
+    # -----------------------------------------------------
 
     if not email:
 
@@ -629,35 +821,13 @@ def register():
             form=form
         )
 
-
-    # -----------------------------------------------------
-    # YEAR LEVEL
-    # -----------------------------------------------------
-
-    if year_level != "4th Year":
-
-        flash(
-            "Registration is limited to 4th-year students of City of Malabon University.",
-            "danger"
-        )
-
-        return render_template(
-            "auth/register.html",
-            form=form
-        )
-
-
-    # -----------------------------------------------------
-    # FULL NAME VALIDATION
-    # -----------------------------------------------------
-
     if not re.fullmatch(
-        r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*",
-        full_name
+        r"[^@\s]+@[^@\s]+\.[^@\s]+",
+        email
     ):
 
         flash(
-            "Full Name must contain letters and spaces only.",
+            "Please enter a valid email address.",
             "danger"
         )
 
@@ -668,7 +838,7 @@ def register():
 
 
     # -----------------------------------------------------
-    # PASSWORD LENGTH
+    # PASSWORD
     # -----------------------------------------------------
 
     if len(password) < 6:
@@ -682,7 +852,6 @@ def register():
             "auth/register.html",
             form=form
         )
-
 
     if len(password) > 30:
 
@@ -715,13 +884,167 @@ def register():
 
 
     # -----------------------------------------------------
-    # EMAIL CHECK
+    # ROLE-SPECIFIC REQUIRED FIELDS
+    # -----------------------------------------------------
+
+    if role == User.ROLE_STUDENT:
+
+        if not course:
+
+            flash(
+                "Please select your course/program.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+        if year_level != "4th Year":
+
+            flash(
+                "Registration is limited to 4th-year students of City of Malabon University.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+        if not student_id_number:
+
+            flash(
+                "Please enter your Student ID Number.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+    elif role == User.ROLE_PARTNER:
+
+        if not company_name:
+
+            flash(
+                "Please enter your company name.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+    # -----------------------------------------------------
+    # VERIFICATION DOCUMENT
+    # -----------------------------------------------------
+
+    if verification_document is None or not verification_document.filename:
+
+        if role == User.ROLE_STUDENT:
+
+            message = "Please upload your Student ID."
+
+        else:
+
+            message = "Please upload your Business Permit."
+
+
+        flash(
+            message,
+            "danger"
+        )
+
+        return render_template(
+            "auth/register.html",
+            form=form
+        )
+
+
+    original_filename = (
+        verification_document.filename
+        or ""
+    )
+
+    safe_original_filename = (
+        os.path.basename(original_filename)
+        .strip()
+    )
+
+    if not safe_original_filename:
+
+        flash(
+            "The selected verification document is invalid.",
+            "danger"
+        )
+
+        return render_template(
+            "auth/register.html",
+            form=form
+        )
+
+
+    extension = ""
+
+    if "." in safe_original_filename:
+        extension = (
+            safe_original_filename.rsplit(
+                ".",
+                1
+            )[1]
+            .lower()
+        )
+
+
+    allowed_document_extensions = {
+        "pdf",
+        "jpg",
+        "jpeg",
+        "png"
+    }
+
+    if extension not in allowed_document_extensions:
+
+        flash(
+            "Invalid verification document. "
+            "Please upload a PDF, JPG, JPEG, or PNG file.",
+            "danger"
+        )
+
+        return render_template(
+            "auth/register.html",
+            form=form
+        )
+
+
+    max_file_size = (
+        current_app.config.get(
+            "MAX_CONTENT_LENGTH",
+            10 * 1024 * 1024
+        )
+    )
+
+    # Do not attempt to read the whole file into memory just to validate
+    # size. Flask/Werkzeug will enforce MAX_CONTENT_LENGTH globally.
+    # We only keep the explicit extension validation here.
+
+
+    # -----------------------------------------------------
+    # DUPLICATE EMAIL
     # -----------------------------------------------------
 
     existing_user = (
         User.query
-        .filter_by(
-            email=email
+        .filter(
+            db.func.lower(User.email) == email
         )
         .first()
     )
@@ -740,21 +1063,44 @@ def register():
 
 
     # -----------------------------------------------------
-    # STUDENT ID CHECK
+    # DUPLICATE STUDENT ID
     # -----------------------------------------------------
 
-    existing_student = (
-        StudentProfile.query
-        .filter_by(
-            student_id_number=student_id
+    if role == User.ROLE_STUDENT:
+
+        existing_student = (
+            StudentProfile.query
+            .filter_by(
+                student_id_number=student_id_number
+            )
+            .first()
         )
-        .first()
+
+        if existing_student:
+
+            flash(
+                "That Student ID is already registered.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+    # -----------------------------------------------------
+    # PREPARE UPLOAD DIRECTORY
+    # -----------------------------------------------------
+
+    upload_root = current_app.config.get(
+        "UPLOAD_FOLDER"
     )
 
-    if existing_student:
+    if not upload_root:
 
         flash(
-            "That Student ID is already registered.",
+            "The upload folder is not configured.",
             "danger"
         )
 
@@ -764,38 +1110,90 @@ def register():
         )
 
 
-    # -----------------------------------------------------
-    # SPLIT / NORMALIZE NAME
-    # -----------------------------------------------------
+    if role == User.ROLE_STUDENT:
 
-    name_parts = full_name.split()
+        verification_subfolder = "verification/student"
 
-    first_name = name_parts[0] if name_parts else first_name_input
+    else:
 
-    last_name = name_parts[-1] if len(name_parts) >= 2 else last_name_input
+        verification_subfolder = "verification/partner"
 
-    middle_name = None
 
-    if len(name_parts) > 2:
-        middle_name = " ".join(
-            name_parts[1:-1]
+    verification_folder = os.path.join(
+        upload_root,
+        verification_subfolder
+    )
+
+
+    try:
+
+        os.makedirs(
+            verification_folder,
+            exist_ok=True
         )
-    elif middle_name_input:
-        middle_name = middle_name_input
+
+    except OSError:
+
+        current_app.logger.exception(
+            "Could not create verification upload folder."
+        )
+
+        flash(
+            "The verification document could not be saved. "
+            "Please try again.",
+            "danger"
+        )
+
+        return render_template(
+            "auth/register.html",
+            form=form
+        )
+
+
+    # secure_filename is imported locally so this route remains
+    # compatible with the rest of this auth module.
+    from werkzeug.utils import secure_filename
+
+    base_name = secure_filename(
+        os.path.splitext(safe_original_filename)[0]
+    ) or "verification"
+
+    unique_name = (
+        f"{base_name}_"
+        f"{uuid.uuid4().hex}."
+        f"{extension}"
+    )
+
+    verification_path = os.path.join(
+        verification_folder,
+        unique_name
+    )
+
+    relative_verification_path = os.path.join(
+        verification_subfolder,
+        unique_name
+    ).replace("\\", "/")
 
 
     # -----------------------------------------------------
-    # CREATE USER
+    # CREATE ACCOUNT
     # -----------------------------------------------------
 
     user = User(
         first_name=first_name,
-        middle_name=middle_name,
+        middle_name=middle_name or None,
         last_name=last_name,
         email=email,
-        role=User.ROLE_STUDENT,
+        contact_number=contact_number,
+        role=role,
         approval_status=User.APPROVAL_PENDING,
         is_active_account=False,
+        verification_document_path=relative_verification_path,
+        verification_document_type=(
+            User.VERIFICATION_STUDENT_ID
+            if role == User.ROLE_STUDENT
+            else User.VERIFICATION_BUSINESS_PERMIT
+        ),
         created_at=datetime.utcnow(),
     )
 
@@ -803,40 +1201,82 @@ def register():
         password
     )
 
-    db.session.add(
-        user
-    )
-
-    db.session.flush()
-
-
-    # -----------------------------------------------------
-    # CREATE STUDENT PROFILE
-    # -----------------------------------------------------
-
-    student_profile = StudentProfile(
-        user_id=user.id,
-        student_id_number=student_id,
-        course=program,
-        year_level="4th Year",
-    )
-
-    db.session.add(
-        student_profile
-    )
-
-
-    # -----------------------------------------------------
-    # SAVE
-    # -----------------------------------------------------
 
     try:
 
+        # Save the uploaded verification document first.
+        verification_document.save(
+            verification_path
+        )
+
+        db.session.add(
+            user
+        )
+
+        db.session.flush()
+
+
+        # -------------------------------------------------
+        # CREATE STUDENT PROFILE
+        # -------------------------------------------------
+
+        if role == User.ROLE_STUDENT:
+
+            student_profile = StudentProfile(
+                user_id=user.id,
+                student_id_number=student_id_number,
+                course=course,
+                year_level="4th Year",
+            )
+
+            db.session.add(
+                student_profile
+            )
+
+
+        # -------------------------------------------------
+        # CREATE INDUSTRY PARTNER PROFILE
+        # -------------------------------------------------
+
+        elif role == User.ROLE_PARTNER:
+
+            partner_profile = IndustryPartner(
+                user_id=user.id,
+                company_name=company_name,
+                status="Active",
+            )
+
+            db.session.add(
+                partner_profile
+            )
+
+
         db.session.commit()
+
 
     except Exception:
 
         db.session.rollback()
+
+        try:
+
+            if os.path.exists(
+                verification_path
+            ):
+                os.remove(
+                    verification_path
+                )
+
+        except OSError:
+
+            current_app.logger.exception(
+                "Could not remove failed registration upload."
+            )
+
+
+        current_app.logger.exception(
+            "Registration failed."
+        )
 
         flash(
             "Registration could not be completed. "
@@ -867,7 +1307,6 @@ def register():
     )
 
 
-# =========================================================
 # LOGOUT
 # =========================================================
 
