@@ -466,6 +466,9 @@ def register():
 
     form = {
         "full_name": "",
+        "first_name": "",
+        "middle_name": "",
+        "last_name": "",
         "student_id": "",
         "program": "",
         "year_level": "4th Year",
@@ -489,10 +492,40 @@ def register():
     # POST
     # =====================================================
 
+    # Support both registration form layouts:
+    # 1. One field named "full_name"
+    # 2. Separate "first_name", "middle_name", and "last_name" fields
+    first_name_input = request.form.get(
+        "first_name",
+        ""
+    ).strip()
+
+    middle_name_input = request.form.get(
+        "middle_name",
+        ""
+    ).strip()
+
+    last_name_input = request.form.get(
+        "last_name",
+        ""
+    ).strip()
+
     full_name = request.form.get(
         "full_name",
         ""
     ).strip()
+
+    # If the form uses separate name fields, build the full name.
+    if not full_name:
+        full_name = " ".join(
+            part
+            for part in [
+                first_name_input,
+                middle_name_input,
+                last_name_input
+            ]
+            if part
+        ).strip()
 
     student_id = request.form.get(
         "student_id",
@@ -531,6 +564,9 @@ def register():
 
     form = {
         "full_name": full_name,
+        "first_name": first_name_input,
+        "middle_name": middle_name_input,
+        "last_name": last_name_input,
         "student_id": student_id,
         "program": program,
         "year_level": year_level,
@@ -729,22 +765,23 @@ def register():
 
 
     # -----------------------------------------------------
-    # SPLIT NAME
+    # SPLIT / NORMALIZE NAME
     # -----------------------------------------------------
 
     name_parts = full_name.split()
 
-    first_name = name_parts[0]
+    first_name = name_parts[0] if name_parts else first_name_input
 
-    last_name = name_parts[-1]
+    last_name = name_parts[-1] if len(name_parts) >= 2 else last_name_input
 
     middle_name = None
 
     if len(name_parts) > 2:
-
         middle_name = " ".join(
             name_parts[1:-1]
         )
+    elif middle_name_input:
+        middle_name = middle_name_input
 
 
     # -----------------------------------------------------
@@ -1119,7 +1156,7 @@ def reset_password(token):
 
 
         # -------------------------------------------------
-        # SAVE NEW PASSWORD
+        # SAVE NEW PASSWORD   
         # -------------------------------------------------
 
         user.set_password(
