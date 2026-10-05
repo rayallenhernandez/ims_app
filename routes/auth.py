@@ -1,6 +1,9 @@
 import os
+
 import re
+
 import smtplib
+
 import uuid
 
 from datetime import datetime
@@ -99,7 +102,6 @@ def _send_reset_email(
     email,
     reset_url
 ):
-
     """
     Sends the reset email when SMTP settings are configured.
 
@@ -440,7 +442,6 @@ def login():
 
 
 # =========================================================
-# =========================================================
 # REGISTER
 # =========================================================
 
@@ -562,7 +563,9 @@ def register():
     )
 
     if not student_id_number:
+
         student_id_number = legacy_student_id
+
 
     course = (
         request.form.get(
@@ -581,7 +584,9 @@ def register():
     )
 
     if not course:
+
         course = legacy_program
+
 
     year_level = (
         request.form.get(
@@ -696,6 +701,7 @@ def register():
     if not first_name or not last_name:
 
         # Legacy one-field layout may still be used.
+
         if not full_name:
 
             flash(
@@ -710,6 +716,7 @@ def register():
 
 
         # Convert legacy full_name into the name fields.
+
         name_parts = full_name.split()
 
         if len(name_parts) < 2:
@@ -725,9 +732,11 @@ def register():
             )
 
         first_name = name_parts[0]
+
         last_name = name_parts[-1]
 
         if len(name_parts) > 2:
+
             middle_name = " ".join(
                 name_parts[1:-1]
             )
@@ -760,6 +769,7 @@ def register():
 
 
     # Rebuild the canonical full name after validation.
+
     full_name = " ".join(
         part
         for part in [
@@ -771,8 +781,11 @@ def register():
     ).strip()
 
     form["full_name"] = full_name
+
     form["first_name"] = first_name
+
     form["middle_name"] = middle_name
+
     form["last_name"] = last_name
 
 
@@ -791,6 +804,7 @@ def register():
             "auth/register.html",
             form=form
         )
+
 
     if len(contact_number) > 20:
 
@@ -820,6 +834,7 @@ def register():
             "auth/register.html",
             form=form
         )
+
 
     if not re.fullmatch(
         r"[^@\s]+@[^@\s]+\.[^@\s]+",
@@ -852,6 +867,7 @@ def register():
             "auth/register.html",
             form=form
         )
+
 
     if len(password) > 30:
 
@@ -947,7 +963,10 @@ def register():
     # VERIFICATION DOCUMENT
     # -----------------------------------------------------
 
-    if verification_document is None or not verification_document.filename:
+    if (
+        verification_document is None
+        or not verification_document.filename
+    ):
 
         if role == User.ROLE_STUDENT:
 
@@ -975,9 +994,12 @@ def register():
     )
 
     safe_original_filename = (
-        os.path.basename(original_filename)
+        os.path.basename(
+            original_filename
+        )
         .strip()
     )
+
 
     if not safe_original_filename:
 
@@ -995,6 +1017,7 @@ def register():
     extension = ""
 
     if "." in safe_original_filename:
+
         extension = (
             safe_original_filename.rsplit(
                 ".",
@@ -1011,6 +1034,7 @@ def register():
         "png"
     }
 
+
     if extension not in allowed_document_extensions:
 
         flash(
@@ -1025,16 +1049,14 @@ def register():
         )
 
 
+    # Flask/Werkzeug enforces MAX_CONTENT_LENGTH globally.
+
     max_file_size = (
         current_app.config.get(
             "MAX_CONTENT_LENGTH",
             10 * 1024 * 1024
         )
     )
-
-    # Do not attempt to read the whole file into memory just to validate
-    # size. Flask/Werkzeug will enforce MAX_CONTENT_LENGTH globally.
-    # We only keep the explicit extension validation here.
 
 
     # -----------------------------------------------------
@@ -1048,6 +1070,7 @@ def register():
         )
         .first()
     )
+
 
     if existing_user:
 
@@ -1076,6 +1099,7 @@ def register():
             .first()
         )
 
+
         if existing_student:
 
             flash(
@@ -1096,6 +1120,7 @@ def register():
     upload_root = current_app.config.get(
         "UPLOAD_FOLDER"
     )
+
 
     if not upload_root:
 
@@ -1150,13 +1175,17 @@ def register():
         )
 
 
-    # secure_filename is imported locally so this route remains
-    # compatible with the rest of this auth module.
+    # secure_filename is imported locally.
+
     from werkzeug.utils import secure_filename
 
+
     base_name = secure_filename(
-        os.path.splitext(safe_original_filename)[0]
+        os.path.splitext(
+            safe_original_filename
+        )[0]
     ) or "verification"
+
 
     unique_name = (
         f"{base_name}_"
@@ -1164,15 +1193,20 @@ def register():
         f"{extension}"
     )
 
+
     verification_path = os.path.join(
         verification_folder,
         unique_name
     )
 
+
     relative_verification_path = os.path.join(
         verification_subfolder,
         unique_name
-    ).replace("\\", "/")
+    ).replace(
+        "\\",
+        "/"
+    )
 
 
     # -----------------------------------------------------
@@ -1197,6 +1231,7 @@ def register():
         created_at=datetime.utcnow(),
     )
 
+
     user.set_password(
         password
     )
@@ -1204,14 +1239,17 @@ def register():
 
     try:
 
-        # Save the uploaded verification document first.
+        # Save uploaded verification document first.
+
         verification_document.save(
             verification_path
         )
 
+
         db.session.add(
             user
         )
+
 
         db.session.flush()
 
@@ -1258,11 +1296,13 @@ def register():
 
         db.session.rollback()
 
+
         try:
 
             if os.path.exists(
                 verification_path
             ):
+
                 os.remove(
                     verification_path
                 )
@@ -1278,11 +1318,13 @@ def register():
             "Registration failed."
         )
 
+
         flash(
             "Registration could not be completed. "
             "Please check your information and try again.",
             "danger"
         )
+
 
         return render_template(
             "auth/register.html",
@@ -1300,6 +1342,7 @@ def register():
         "success"
     )
 
+
     return redirect(
         url_for(
             "auth.login"
@@ -1307,6 +1350,7 @@ def register():
     )
 
 
+# =========================================================
 # LOGOUT
 # =========================================================
 
@@ -1317,10 +1361,12 @@ def logout():
 
     logout_user()
 
+
     flash(
         "You have been logged out successfully.",
         "success"
     )
+
 
     return redirect(
         url_for(
@@ -1380,8 +1426,9 @@ def forgot_password():
                 "danger"
             )
 
+
             return render_template(
-                "auth/forgot_password.html",
+                "auth/forgot_password_request.html",
                 email=email,
                 dev_reset_url=None
             )
@@ -1449,7 +1496,7 @@ def forgot_password():
 
 
         return render_template(
-            "auth/forgot_password.html",
+            "auth/forgot_password_request.html",
             email=email,
             dev_reset_url=dev_reset_url
         )
@@ -1460,7 +1507,7 @@ def forgot_password():
     # -----------------------------------------------------
 
     return render_template(
-        "auth/forgot_password.html",
+        "auth/forgot_password_request.html",
         email=email,
         dev_reset_url=None
     )
@@ -1492,6 +1539,7 @@ def reset_password(token):
             "danger"
         )
 
+
         return redirect(
             url_for(
                 "auth.forgot_password"
@@ -1519,6 +1567,7 @@ def reset_password(token):
             "danger"
         )
 
+
         return redirect(
             url_for(
                 "auth.forgot_password"
@@ -1537,6 +1586,7 @@ def reset_password(token):
             ""
         )
 
+
         confirm_password = request.form.get(
             "confirm_password",
             ""
@@ -1553,6 +1603,7 @@ def reset_password(token):
                 "Password must contain at least 6 characters.",
                 "danger"
             )
+
 
             return render_template(
                 "auth/reset_password.html",
@@ -1571,6 +1622,7 @@ def reset_password(token):
                 "danger"
             )
 
+
             return render_template(
                 "auth/reset_password.html",
                 token=token
@@ -1588,6 +1640,7 @@ def reset_password(token):
                 "danger"
             )
 
+
             return render_template(
                 "auth/reset_password.html",
                 token=token
@@ -1595,7 +1648,7 @@ def reset_password(token):
 
 
         # -------------------------------------------------
-        # SAVE NEW PASSWORD   
+        # SAVE NEW PASSWORD
         # -------------------------------------------------
 
         user.set_password(
@@ -1607,15 +1660,18 @@ def reset_password(token):
 
             db.session.commit()
 
+
         except Exception:
 
             db.session.rollback()
+
 
             flash(
                 "The password could not be updated. "
                 "Please try again.",
                 "danger"
             )
+
 
             return render_template(
                 "auth/reset_password.html",
@@ -1632,6 +1688,7 @@ def reset_password(token):
             "You can now sign in using your new password.",
             "success"
         )
+
 
         return redirect(
             url_for(

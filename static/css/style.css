@@ -3173,3 +3173,1094 @@ body.dark-mode .app-footer {
         padding: 12px;
     }
 }
+
+/* =========================================================
+   LANDING PAGE PHOTO SLIDESHOW
+   ========================================================= */
+
+.landing-split {
+  position: relative;
+  min-height: calc(100vh - 70px);
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  overflow: hidden;
+}
+
+
+/* LEFT SIDE */
+.landing-hero {
+  position: relative;
+  min-height: calc(100vh - 70px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+
+/* PHOTO SLIDES */
+.hero-slideshow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+}
+
+.hero-slide.active {
+  opacity: 1;
+}
+
+
+/* DARK OVERLAY */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.48);
+
+  z-index: 1;
+}
+
+
+/* CONTENT ABOVE PHOTO */
+.hero-content {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  padding: 60px;
+}
+
+
+/* MAKE TEXT WHITE OVER PHOTO */
+.landing-hero .eyebrow {
+  color: #ffffff;
+}
+
+.landing-hero h1 {
+  color: #ffffff;
+}
+
+.landing-hero h1 span {
+  color: #f4c542;
+}
+
+.landing-hero .lede {
+  color: #ffffff;
+}
+
+
+/* FEATURE CARDS */
+.landing-hero .feature-row .card {
+  background: rgba(255, 255, 255, 0.94);
+  color: #102d61;
+  backdrop-filter: blur(4px);
+}
+
+
+/* RIGHT LOGIN AREA */
+.landing-auth {
+  position: relative;
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f6f8fc;
+
+  padding: 40px;
+}
+
+
+/* KEEP LOGIN BOX WHITE */
+.landing-auth .auth-box {
+  background: #ffffff;
+  width: 100%;
+  max-width: 430px;
+
+  border-radius: 14px;
+  padding: 40px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+
+/* MOBILE */
+@media (max-width: 900px) {
+
+  .landing-split {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-hero {
+    min-height: 650px;
+  }
+
+  .landing-auth {
+    padding: 30px 20px;
+  }
+
+  .hero-content {
+    padding: 40px 25px;
+  }
+
+}
+/* =========================================================
+   CLEAN LANDING PAGE HERO
+   ========================================================= */
+
+.landing-hero {
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.hero-content .lede {
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-hero h1 {
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.landing-hero .eyebrow {
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.52);
+}
+/* =========================================================
+   FULL LANDING PAGE PHOTO BACKGROUND
+   ========================================================= */
+
+.landing-page {
+  position: relative;
+  min-height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
+
+/* FULL PHOTO AREA */
+.landing-slideshow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+
+/* EACH PHOTO */
+.landing-slide {
+  position: absolute;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+
+  opacity: 0;
+
+  transition: opacity 0.8s ease-in-out;
+}
+
+
+/* CURRENT PHOTO */
+.landing-slide.active {
+  opacity: 1;
+}
+
+
+/* DARKEN PHOTO SLIGHTLY */
+.landing-photo-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.35);
+
+  z-index: 1;
+}
+
+
+/* LOGIN BOX */
+.landing-login {
+  position: relative;
+
+  z-index: 2;
+
+  min-height: calc(100vh - 70px);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  padding: 50px 7%;
+}
+
+
+/* WHITE LOGIN CARD */
+.landing-login .auth-box {
+  width: 100%;
+
+  max-width: 430px;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  padding: 40px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+
+/* MOBILE */
+@media (max-width: 900px) {
+
+  .landing-login {
+    justify-content: center;
+
+    padding: 30px 20px;
+  }
+
+  .landing-login .auth-box {
+    max-width: 420px;
+  }
+
+}
+
+/* =========================================================
+   CMU LANDING PAGE
+   FULL PHOTO BACKGROUND + LEFT CONTENT + LOGIN BOX
+   ========================================================= */
+
+
+/* MAIN LANDING AREA */
+.landing-page {
+  position: relative;
+
+  min-height: calc(100vh - 70px);
+
+  width: 100%;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   FULL BACKGROUND SLIDESHOW
+   ========================================================= */
+
+.landing-slideshow {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 0;
+}
+
+
+.landing-slide {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+
+  opacity: 0;
+
+  transition: opacity 1.2s ease-in-out;
+}
+
+
+.landing-slide.active {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   PHOTO DARK OVERLAY
+   ========================================================= */
+
+.landing-photo-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.42);
+
+  z-index: 1;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   LEFT SIDE TEXT
+   ========================================================= */
+
+.landing-content {
+  position: absolute;
+
+  z-index: 2;
+
+  left: 7%;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 48%;
+
+  max-width: 680px;
+
+  color: #ffffff;
+}
+
+
+.landing-content .eyebrow {
+  display: block;
+
+  margin-bottom: 14px;
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+}
+
+
+.landing-content h1 {
+  margin: 0 0 22px;
+
+  color: #ffffff;
+
+  font-size: clamp(42px, 5vw, 68px);
+
+  font-weight: 700;
+
+  line-height: 1.05;
+}
+
+
+.landing-content h1 span {
+  color: #f4c542;
+}
+
+
+.landing-content p {
+  max-width: 620px;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  line-height: 1.6;
+
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   LOGIN BOX
+   ========================================================= */
+
+.landing-login {
+  position: absolute;
+
+  z-index: 3;
+
+  top: 0;
+  right: 0;
+
+  width: 38%;
+
+  min-width: 390px;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 40px;
+}
+
+
+/* WHITE LOGIN CARD */
+.landing-login .auth-box {
+  width: 100%;
+
+  max-width: 430px;
+
+  padding: 40px;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+
+/* LOGIN TITLE */
+.landing-login .auth-box h2 {
+  color: #062b6b;
+}
+
+
+/* LOGIN DESCRIPTION */
+.landing-login .auth-box .lede {
+  color: #60708a;
+}
+
+
+/* =========================================================
+   MOBILE RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .landing-content {
+    left: 5%;
+
+    width: 52%;
+  }
+
+  .landing-login {
+    width: 42%;
+
+    min-width: 360px;
+
+    padding: 25px;
+  }
+
+}
+
+
+@media (max-width: 800px) {
+
+  .landing-page {
+    min-height: auto;
+
+    display: flex;
+
+    flex-direction: column;
+  }
+
+
+  .landing-slideshow {
+    position: absolute;
+
+    min-height: 100%;
+
+    height: 100%;
+  }
+
+
+  .landing-content {
+    position: relative;
+
+    top: auto;
+    left: auto;
+
+    transform: none;
+
+    width: 100%;
+
+    max-width: none;
+
+    padding: 80px 30px 40px;
+
+    text-align: center;
+  }
+
+
+  .landing-content p {
+    margin-left: auto;
+
+    margin-right: auto;
+  }
+
+
+  .landing-login {
+    position: relative;
+
+    top: auto;
+    right: auto;
+
+    width: 100%;
+
+    min-width: 0;
+
+    height: auto;
+
+    padding: 30px 20px 60px;
+  }
+
+
+  .landing-login .auth-box {
+    max-width: 430px;
+  }
+
+}
+
+
+/* =========================================================
+   CMU LANDING PAGE
+   FULL PHOTO BACKGROUND + LEFT CONTENT + LOGIN BOX
+   ========================================================= */
+
+
+/* =========================================================
+   MAIN LANDING AREA
+   ========================================================= */
+
+.landing-page {
+  position: relative;
+
+  min-height: calc(100vh - 70px);
+
+  width: 100%;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   FULL BACKGROUND SLIDESHOW
+   ========================================================= */
+
+.landing-slideshow {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 0;
+}
+
+
+.landing-slide {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+
+  opacity: 0;
+
+  transition: opacity 1.2s ease-in-out;
+}
+
+
+.landing-slide.active {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   PHOTO DARK OVERLAY
+   ========================================================= */
+
+.landing-photo-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.42);
+
+  z-index: 1;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   LEFT SIDE TEXT
+   ========================================================= */
+
+.landing-content {
+  position: absolute;
+
+  z-index: 2;
+
+  left: 7%;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 48%;
+
+  max-width: 680px;
+
+  color: #ffffff;
+}
+
+
+.landing-content .eyebrow {
+  display: block;
+
+  margin-bottom: 14px;
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+}
+
+
+.landing-content h1 {
+  margin: 0 0 22px;
+
+  color: #ffffff;
+
+  font-size: clamp(42px, 5vw, 68px);
+
+  font-weight: 700;
+
+  line-height: 1.05;
+}
+
+
+.landing-content h1 span {
+  color: #f4c542;
+}
+
+
+.landing-content p {
+  max-width: 620px;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  line-height: 1.6;
+
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   LOGIN BOX
+   ========================================================= */
+
+.landing-login {
+  position: absolute;
+
+  z-index: 3;
+
+  top: 0;
+  right: 0;
+
+  width: 38%;
+
+  min-width: 390px;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 40px;
+}
+
+
+/* =========================================================
+   LOGIN CARD
+   ========================================================= */
+
+.landing-login .auth-box {
+  width: 100%;
+
+  max-width: 430px;
+
+  padding: 40px;
+
+  background: rgba(255, 255, 255, 0.82);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.30);
+
+  backdrop-filter: blur(8px);
+
+  -webkit-backdrop-filter: blur(8px);
+
+  color: #000000;
+}
+
+
+/* =========================================================
+   LOGIN TITLE
+   ========================================================= */
+
+.landing-login .auth-box h2 {
+  color: #000000;
+}
+
+
+/* =========================================================
+   LOGIN DESCRIPTION
+   ========================================================= */
+
+.landing-login .auth-box .lede {
+  color: #000000 !important;
+  font-weight: 500;
+  opacity: 1;
+}
+
+
+/* =========================================================
+   FORM LABELS
+   ========================================================= */
+
+.landing-login .auth-box label {
+  color: #000000;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   INPUT TEXT
+   ========================================================= */
+
+.landing-login .auth-box input {
+  color: #000000;
+
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* =========================================================
+   INPUT PLACEHOLDER
+   ========================================================= */
+
+.landing-login .auth-box input::placeholder {
+  color: #333333;
+
+  opacity: 1;
+}
+
+
+/* =========================================================
+   INPUT ICONS
+   ========================================================= */
+
+.landing-login .auth-box .icon {
+  color: #000000;
+}
+
+
+/* =========================================================
+   PASSWORD SHOW/HIDE BUTTON
+   ========================================================= */
+
+.landing-login .auth-box .toggle-visibility {
+  color: #000000;
+}
+
+
+/* =========================================================
+   REMEMBER ME
+   ========================================================= */
+
+.landing-login .auth-box .form-footer-row {
+  color: #000000;
+}
+
+
+.landing-login .auth-box .form-footer-row label {
+  color: #000000;
+}
+
+
+/* =========================================================
+   FORGOT PASSWORD
+   ========================================================= */
+
+.landing-login .auth-box .form-footer-row a {
+  color: #000000;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   "OR"
+   ========================================================= */
+
+.landing-login .auth-box .divider {
+  color: #000000;
+}
+
+
+/* =========================================================
+   DON'T HAVE AN ACCOUNT
+   ========================================================= */
+
+.landing-login .auth-box p {
+  color: #000000;
+}
+
+
+/* =========================================================
+   REGISTER HERE
+   ========================================================= */
+
+.landing-login .auth-box p a {
+  color: #062b6b !important;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   SIGN IN BUTTON
+   ========================================================= */
+
+.landing-login .auth-box .btn-primary {
+  color: #ffffff;
+}
+/* =========================================================
+   WHITE LOGIN CARD
+   SLIGHTLY TRANSPARENT / FADED
+   ========================================================= */
+
+.landing-login .auth-box {
+  width: 100%;
+
+  max-width: 430px;
+
+  padding: 40px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.30);
+
+  backdrop-filter: blur(6px);
+
+  -webkit-backdrop-filter: blur(6px);
+}
+
+
+/* =========================================================
+   LOGIN TITLE
+   ========================================================= */
+
+.landing-login .auth-box h2 {
+  color: #062b6b;
+}
+
+
+/* =========================================================
+   LOGIN DESCRIPTION
+   ========================================================= */
+
+.landing-login .auth-box .lede {
+  color: #60708a;
+}
+
+
+/* =========================================================
+   MOBILE RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .landing-content {
+    left: 5%;
+
+    width: 52%;
+  }
+
+  .landing-login {
+    width: 42%;
+
+    min-width: 360px;
+
+    padding: 25px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET / SMALL SCREEN
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+  .landing-page {
+    min-height: auto;
+
+    display: flex;
+
+    flex-direction: column;
+  }
+
+
+  .landing-slideshow {
+    position: absolute;
+
+    min-height: 100%;
+
+    height: 100%;
+  }
+
+
+  .landing-content {
+    position: relative;
+
+    top: auto;
+    left: auto;
+
+    transform: none;
+
+    width: 100%;
+
+    max-width: none;
+
+    padding: 80px 30px 40px;
+
+    text-align: center;
+  }
+
+
+  .landing-content p {
+    margin-left: auto;
+
+    margin-right: auto;
+  }
+
+
+  .landing-login {
+    position: relative;
+
+    top: auto;
+    right: auto;
+
+    width: 100%;
+
+    min-width: 0;
+
+    height: auto;
+
+    padding: 30px 20px 60px;
+  }
+
+
+  .landing-login .auth-box {
+    max-width: 430px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 500px) {
+
+  .landing-content {
+    padding: 60px 20px 30px;
+  }
+
+
+  .landing-content h1 {
+    font-size: 40px;
+  }
+
+
+  .landing-content .eyebrow {
+    font-size: 13px;
+  }
+
+
+  .landing-content p {
+    font-size: 15px;
+  }
+
+
+  .landing-login {
+    padding: 20px 15px 40px;
+  }
+
+
+  .landing-login .auth-box {
+    padding: 30px 22px;
+  }
+
+}

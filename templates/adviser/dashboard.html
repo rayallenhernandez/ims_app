@@ -125,7 +125,9 @@
     <div class="dashboard-grid">
 
 
-        <!-- STUDENTS -->
+        <!-- =================================================
+             ASSIGNED STUDENTS
+        ================================================== -->
 
         <a
             href="{{ url_for('adviser.students') }}"
@@ -134,7 +136,7 @@
         >
 
             <h3>
-                &#128100; Assigned Students
+                <I CLASS="FA-SOLID FA-USER"></I> Assigned Students
             </h3>
 
             <p>
@@ -142,10 +144,16 @@
                 monitor their internship information.
             </p>
 
+            <span class="badge badge-info">
+                View Students
+            </span>
+
         </a>
 
 
-        <!-- INTERNSHIPS -->
+        <!-- =================================================
+             INTERNSHIP MONITORING
+        ================================================== -->
 
         <a
             href="{{ url_for('adviser.internships') }}"
@@ -162,12 +170,22 @@
                 internship status, and progress.
             </p>
 
+            <span class="badge badge-info">
+                View Internships
+            </span>
+
         </a>
 
 
-        <!-- REPORTS -->
+        <!-- =================================================
+             REPORTS
+        ================================================== -->
 
-        <div class="card">
+        <a
+            href="{{ url_for('adviser.reports') }}"
+            class="card"
+            style="text-decoration:none; color:inherit;"
+        >
 
             <h3>
                 &#128196; Reports
@@ -178,16 +196,22 @@
                 submitted by assigned students.
             </p>
 
-            <span class="badge badge-warning">
-                Coming Next
+            <span class="badge badge-info">
+                View Reports
             </span>
 
-        </div>
+        </a>
 
 
-        <!-- EVALUATIONS -->
+        <!-- =================================================
+             EVALUATIONS
+        ================================================== -->
 
-        <div class="card">
+        <a
+            href="{{ url_for('adviser.evaluations') }}"
+            class="card"
+            style="text-decoration:none; color:inherit;"
+        >
 
             <h3>
                 &#9733; Evaluations
@@ -198,16 +222,22 @@
                 and provide adviser feedback.
             </p>
 
-            <span class="badge badge-warning">
-                Coming Next
+            <span class="badge badge-info">
+                Manage Evaluations
             </span>
 
-        </div>
+        </a>
 
 
-        <!-- CERTIFICATE -->
+        <!-- =================================================
+             CERTIFICATE READINESS
+        ================================================== -->
 
-        <div class="card">
+        <a
+            href="{{ url_for('adviser.certificates') }}"
+            class="card"
+            style="text-decoration:none; color:inherit;"
+        >
 
             <h3>
                 &#127891; Certificate Readiness
@@ -218,11 +248,11 @@
                 the requirements for their internship certificate.
             </p>
 
-            <span class="badge badge-warning">
-                Coming Next
+            <span class="badge badge-info">
+                View Certificate Status
             </span>
 
-        </div>
+        </a>
 
 
     </div>
