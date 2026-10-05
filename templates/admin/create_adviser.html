@@ -1,0 +1,215 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Create Adviser{% endblock %}
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+{% block page_header %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Create OJT Adviser</h1>
+        <p>Create an Adviser account for the internship system.</p>
+    </div>
+
+    <div class="breadcrumb">
+        Home / Admin / Advisers / Create
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2 style="margin-top:0;">
+        Adviser Account Information
+    </h2>
+
+    <p style="color:var(--muted);">
+        Only administrators can create Adviser accounts.
+        The account will be active immediately after creation.
+    </p>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('admin.create_adviser') }}"
+    >
+
+        <div class="field-row">
+
+            <div class="field">
+
+                <label for="first_name">
+                    First Name
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    value="{{ form.get('first_name','') }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="middle_name">
+                    Middle Name
+                </label>
+
+                <input
+                    type="text"
+                    id="middle_name"
+                    name="middle_name"
+                    value="{{ form.get('middle_name','') }}"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="last_name">
+                    Last Name
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    value="{{ form.get('last_name','') }}"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <div class="field">
+
+                <label for="email">
+                    Email Address
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="{{ form.get('email','') }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="contact_number">
+                    Contact Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="contact_number"
+                    name="contact_number"
+                    value="{{ form.get('contact_number','') }}"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <div class="field">
+
+                <label for="password">
+                    Password
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    minlength="6"
+                    maxlength="30"
+                    required
+                >
+
+                <small style="color:var(--muted);">
+                    Password must be 6–30 characters.
+                </small>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="confirm_password">
+                    Confirm Password
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    minlength="6"
+                    maxlength="30"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div
+            style="
+                display:flex;
+                gap:10px;
+                margin-top:20px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <a
+                href="{{ url_for('admin.advisers') }}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Create Adviser Account
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

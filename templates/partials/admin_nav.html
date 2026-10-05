@@ -43,3 +43,13 @@
 >
     &#9989; Evaluations
 </a>
+
+<a
+    href="{{ url_for('admin.advisers') }}"
+    class="{{ 'active' if request.endpoint in [
+        'admin.advisers',
+        'admin.create_adviser'
+    ] else '' }}"
+>
+    &#128100; Advisers
+</a>
