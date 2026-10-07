@@ -1402,7 +1402,9 @@ def logout():
     methods=["GET", "POST"]
 )
 def forgot_password():
-
+    current_app.logger.warning(
+        "FORGOT PASSWORD ROUTE REACHED"
+    )
     # -----------------------------------------------------
     # ALREADY LOGGED IN
     # -----------------------------------------------------
