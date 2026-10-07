@@ -1465,7 +1465,10 @@ def forgot_password():
             )
             .first()
         )
-
+        current_app.logger.warning(
+    "FORGOT PASSWORD USER FOUND: %s",
+    user is not None
+        )
 
         # -------------------------------------------------
         # GENERATE TOKEN
