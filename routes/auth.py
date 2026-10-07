@@ -237,8 +237,11 @@ Internship Management System
 
     except Exception:
 
-        return False
+        current_app.logger.exception(
+            "Password reset email failed."
+        )
 
+        return False
 
 # =========================================================
 # LOGIN
