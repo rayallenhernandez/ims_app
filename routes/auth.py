@@ -136,12 +136,27 @@ def _send_reset_email(
     # SMTP NOT CONFIGURED
     # -----------------------------------------------------
 
-    if not all([
-        mail_server,
-        mail_port,
-        mail_username,
-        mail_password,
-    ]):
+    missing_settings = []
+
+    if not mail_server:
+        missing_settings.append("MAIL_SERVER")
+
+    if not mail_port:
+        missing_settings.append("MAIL_PORT")
+
+    if not mail_username:
+        missing_settings.append("MAIL_USERNAME")
+
+    if not mail_password:
+        missing_settings.append("MAIL_PASSWORD")
+
+    if missing_settings:
+
+        current_app.logger.error(
+            "Password reset email is not configured. "
+            "Missing: %s",
+            ", ".join(missing_settings)
+        )
 
         return False
 
