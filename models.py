@@ -1144,7 +1144,7 @@ class Certificate(db.Model):
     )
 
     # -----------------------------------------------------
-    # CERTIFICATE FILE
+    # CERTIFICATE FILE ray allen viado hernandez
     # -----------------------------------------------------
 
     pdf_path = db.Column(

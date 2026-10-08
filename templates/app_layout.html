@@ -47,9 +47,7 @@
       aria-label="Notifications"
     >
 
-      <span class="notification-bell">
-        &#128276;
-      </span>
+      <span class="notification-bell" aria-hidden="true"></span>
 
 
       {% if unread_notifications_count > 0 %}
@@ -242,9 +240,7 @@
         title="Switch to dark mode"
       >
 
-        <span id="theme-icon">
-          🌙
-        </span>
+        <span id="theme-icon" aria-hidden="true"></span>
 
         <span id="theme-text">
           Dark Mode
@@ -385,8 +381,7 @@
         ) {
 
 
-          icon.textContent =
-            "☀️";
+          icon.textContent = "";
 
 
           text.textContent =
@@ -408,8 +403,7 @@
         } else {
 
 
-          icon.textContent =
-            "🌙";
+          icon.textContent = "";
 
 
           text.textContent =

@@ -53,24 +53,25 @@
         }
 
         .login-seal {
-    width: 48px;
-    height: 48px;
-    border: 2px solid #d8b34a;
-    border-radius: 50%;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: white;
-}
+            width: 48px;
+            height: 48px;
+            border: 2px solid #d8b34a;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: white;
+        }
 
-.login-seal img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
+        .login-seal img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
         /* =====================================================
            MAIN LOGIN AREA
         ===================================================== */
@@ -94,9 +95,36 @@
         }
 
         .login-icon {
-            text-align: center;
-            font-size: 38px;
-            margin-bottom: 8px;
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 14px;
+            border: 2px solid #062b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .login-icon::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            border: 2px solid #062b6b;
+            border-radius: 50%;
+            position: absolute;
+            top: 9px;
+        }
+
+        .login-icon::after {
+            content: "";
+            width: 24px;
+            height: 12px;
+            border: 2px solid #062b6b;
+            border-bottom: none;
+            border-radius: 16px 16px 0 0;
+            position: absolute;
+            bottom: 9px;
         }
 
         .login-card h1 {
@@ -189,11 +217,66 @@
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
             border: none;
             background: transparent;
             cursor: pointer;
-            font-size: 17px;
-            padding: 5px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+        }
+
+        .password-toggle:hover {
+            color: #062b6b;
+        }
+
+        .password-toggle:focus {
+            outline: 2px solid #315ca8;
+            outline-offset: 2px;
+            border-radius: 6px;
+        }
+
+        .eye-icon {
+            position: relative;
+            display: block;
+            width: 18px;
+            height: 12px;
+            border: 2px solid currentColor;
+            border-radius: 50% / 60%;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .eye-icon::before {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            top: 1px;
+            left: 4px;
+            box-sizing: border-box;
+        }
+
+        .eye-icon::after {
+            content: "";
+            position: absolute;
+            width: 23px;
+            height: 2px;
+            background: currentColor;
+            top: 3px;
+            left: -4px;
+            transform: rotate(45deg);
+            transform-origin: center;
+            opacity: 0;
+        }
+
+        .password-toggle.password-visible .eye-icon::after {
+            opacity: 1;
         }
 
         .login-options {
@@ -289,6 +372,23 @@
             border-color: #475569;
         }
 
+        body.dark-mode .login-icon {
+            border-color: #f8fafc;
+        }
+
+        body.dark-mode .login-icon::before,
+        body.dark-mode .login-icon::after {
+            border-color: #f8fafc;
+        }
+
+        body.dark-mode .password-toggle {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .password-toggle:hover {
+            color: #ffffff;
+        }
+
         /* =====================================================
            MOBILE
         ===================================================== */
@@ -333,9 +433,9 @@
 
             <div class="login-seal">
                 <img
-        src="{{ url_for('static', filename='img/cmu_logo.jpg') }}"
-        alt="City of Malabon University Logo"
-    >
+                    src="{{ url_for('static', filename='img/cmu_logo.jpg') }}"
+                    alt="City of Malabon University Logo"
+                >
             </div>
 
             <span>
@@ -355,9 +455,10 @@
 
         <section class="login-card">
 
-            <div class="login-icon">
-                🎓
-            </div>
+            <div
+                class="login-icon"
+                aria-hidden="true"
+            ></div>
 
             <h1>
                 Sign In
@@ -444,9 +545,13 @@
                             type="button"
                             class="password-toggle"
                             onclick="togglePassword()"
-                            aria-label="Show or hide password"
+                            aria-label="Show password"
+                            aria-pressed="false"
                         >
-                            👁
+                            <span
+                                class="eye-icon"
+                                aria-hidden="true"
+                            ></span>
                         </button>
 
                     </div>
@@ -533,20 +638,29 @@
 function togglePassword() {
 
     const password = document.getElementById("password");
-
     const button = document.querySelector(".password-toggle");
 
-    if (password.type === "password") {
+    if (!password || !button) {
+        return;
+    }
+
+    const isHidden = password.type === "password";
+
+    if (isHidden) {
 
         password.type = "text";
 
-        button.textContent = "🙈";
+        button.classList.add("password-visible");
+        button.setAttribute("aria-label", "Hide password");
+        button.setAttribute("aria-pressed", "true");
 
     } else {
 
         password.type = "password";
 
-        button.textContent = "👁";
+        button.classList.remove("password-visible");
+        button.setAttribute("aria-label", "Show password");
+        button.setAttribute("aria-pressed", "false");
 
     }
 
