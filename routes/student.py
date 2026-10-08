@@ -107,6 +107,31 @@ def _save_upload(file_storage, subfolder):
 
 
 # =========================================================
+# STUDENT DOCUMENT CONFIGURATION
+# =========================================================
+
+STUDENT_DOCUMENTS = {
+    "resume": {
+        "field": "resume_path",
+        "folder": "resumes",
+        "label": "Resume",
+    },
+
+    "application_letter": {
+        "field": "application_letter_path",
+        "folder": "application_letters",
+        "label": "Application Letter",
+    },
+
+    "medical_certificate": {
+        "field": "medical_certificate_path",
+        "folder": "medical_certificates",
+        "label": "Medical Certificate",
+    },
+}
+
+
+# =========================================================
 # CURRENT INTERNSHIP
 # =========================================================
 
@@ -246,6 +271,220 @@ def profile():
         "student/profile.html",
         profile=profile,
         internship=internship,
+    )
+
+
+# =========================================================
+# VIEW STUDENT DOCUMENT
+# =========================================================
+
+@student_bp.route(
+    "/profile/document/<document_type>/view"
+)
+@login_required
+@role_required("student")
+def view_document(document_type):
+
+    document = STUDENT_DOCUMENTS.get(
+        document_type
+    )
+
+    if document is None:
+
+        flash(
+            "Invalid document type.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    profile = current_user.student_profile
+
+    if profile is None:
+
+        flash(
+            "Student profile not found.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.dashboard")
+        )
+
+    file_path = getattr(
+        profile,
+        document["field"],
+        None,
+    )
+
+    if not file_path:
+
+        flash(
+            f"No {document['label']} has been uploaded yet.",
+            "warning",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    full_path = os.path.join(
+        current_app.config["UPLOAD_FOLDER"],
+        file_path,
+    )
+
+    if not os.path.exists(full_path):
+
+        flash(
+            f"The uploaded {document['label']} could not be found.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    return send_from_directory(
+        current_app.config["UPLOAD_FOLDER"],
+        file_path,
+        as_attachment=False,
+    )
+
+
+# =========================================================
+# REPLACE STUDENT DOCUMENT
+# =========================================================
+
+@student_bp.route(
+    "/profile/document/<document_type>/replace",
+    methods=["POST"],
+)
+@login_required
+@role_required("student")
+def replace_document(document_type):
+
+    document = STUDENT_DOCUMENTS.get(
+        document_type
+    )
+
+    if document is None:
+
+        flash(
+            "Invalid document type.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    profile = current_user.student_profile
+
+    if profile is None:
+
+        flash(
+            "Student profile not found.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.dashboard")
+        )
+
+    uploaded_file = request.files.get(
+        "file"
+    )
+
+    if not uploaded_file or uploaded_file.filename == "":
+
+        flash(
+            f"Please select a new {document['label'].lower()} file.",
+            "warning",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    # -----------------------------------------------------
+    # KEEP THE OLD FILE PATH
+    # -----------------------------------------------------
+
+    old_file_path = getattr(
+        profile,
+        document["field"],
+        None,
+    )
+
+    # -----------------------------------------------------
+    # SAVE THE NEW FILE FIRST
+    # -----------------------------------------------------
+
+    new_file_path = _save_upload(
+        uploaded_file,
+        document["folder"],
+    )
+
+    # If validation failed, _save_upload already showed
+    # the appropriate message.
+    if not new_file_path:
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    # -----------------------------------------------------
+    # UPDATE THE DATABASE
+    # -----------------------------------------------------
+
+    setattr(
+        profile,
+        document["field"],
+        new_file_path,
+    )
+
+    db.session.commit()
+
+    # -----------------------------------------------------
+    # DELETE THE OLD FILE ONLY AFTER THE NEW FILE
+    # HAS BEEN SUCCESSFULLY SAVED AND THE DATABASE
+    # HAS BEEN UPDATED
+    # -----------------------------------------------------
+
+    if old_file_path:
+
+        old_full_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            old_file_path,
+        )
+
+        try:
+
+            if os.path.exists(old_full_path):
+
+                os.remove(
+                    old_full_path
+                )
+
+        except OSError:
+
+            # The new file is already active in the database,
+            # so an old-file cleanup failure should not undo
+            # the successful replacement.
+            current_app.logger.warning(
+                "Could not remove old student document: %s",
+                old_full_path,
+            )
+
+    flash(
+        f"{document['label']} replaced successfully.",
+        "success",
+    )
+
+    return redirect(
+        url_for("student.profile")
     )
 
 
@@ -903,10 +1142,6 @@ def _get_certificate_status(internship):
 
     # -----------------------------------------------------
     # CERTIFICATE UPLOAD
-    #
-    # The existing Certificate model uses pdf_path.
-    # We use this existing field to store the path
-    # of the uploaded JPG/JPEG/PNG certificate image.
     # -----------------------------------------------------
 
     cert.endorsement_met = bool(
@@ -1022,10 +1257,6 @@ def view_certificate():
         internship_id=internship.id
     ).first()
 
-    # -----------------------------------------------------
-    # CHECK CERTIFICATE
-    # -----------------------------------------------------
-
     if not cert or not cert.pdf_path:
 
         flash(
@@ -1036,10 +1267,6 @@ def view_certificate():
         return redirect(
             url_for("student.certificate")
         )
-
-    # -----------------------------------------------------
-    # BUILD FILE PATH
-    # -----------------------------------------------------
 
     full_path = os.path.join(
         current_app.config["UPLOAD_FOLDER"],
@@ -1056,10 +1283,6 @@ def view_certificate():
         return redirect(
             url_for("student.certificate")
         )
-
-    # -----------------------------------------------------
-    # DETERMINE IMAGE TYPE
-    # -----------------------------------------------------
 
     extension = (
         cert.pdf_path
@@ -1124,10 +1347,6 @@ def download_certificate():
             url_for("student.certificate")
         )
 
-    # -----------------------------------------------------
-    # CERTIFICATE MUST BE READY
-    # -----------------------------------------------------
-
     if not cert.is_ready:
 
         flash(
@@ -1141,10 +1360,6 @@ def download_certificate():
             url_for("student.certificate")
         )
 
-    # -----------------------------------------------------
-    # CHECK UPLOADED CERTIFICATE
-    # -----------------------------------------------------
-
     if not cert.pdf_path:
 
         flash(
@@ -1155,10 +1370,6 @@ def download_certificate():
         return redirect(
             url_for("student.certificate")
         )
-
-    # -----------------------------------------------------
-    # BUILD FILE PATH
-    # -----------------------------------------------------
 
     full_path = os.path.join(
         current_app.config["UPLOAD_FOLDER"],
@@ -1175,10 +1386,6 @@ def download_certificate():
         return redirect(
             url_for("student.certificate")
         )
-
-    # -----------------------------------------------------
-    # DETERMINE FILE TYPE
-    # -----------------------------------------------------
 
     extension = (
         cert.pdf_path
@@ -1197,10 +1404,6 @@ def download_certificate():
         "application/octet-stream",
     )
 
-    # -----------------------------------------------------
-    # DOWNLOAD
-    # -----------------------------------------------------
-
     return send_file(
         full_path,
         as_attachment=True,
@@ -1209,6 +1412,8 @@ def download_certificate():
         ),
         mimetype=mimetype,
     )
+
+
 # =========================================================
 # STUDENT HOURS TRACKING
 # =========================================================
@@ -1428,10 +1633,9 @@ def time_out():
 
     attendance.status = Attendance.STATUS_COMPLETED
 
-    # completed_hours is currently an Integer column, so attendance
-    # hours are rounded to the nearest whole hour when added to the
-    # internship total. The attendance record itself keeps decimals.
-    rendered_hours = int(round(float(hours or 0)))
+    rendered_hours = int(
+        round(float(hours or 0))
+    )
 
     current_completed = (
         internship.completed_hours or 0

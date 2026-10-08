@@ -4,13 +4,23 @@
 {% block body %}
 
 <header class="topbar">
-  <a class="brand" href="{{ url_for('main.landing') }}">
+
+  <a
+    class="brand"
+    href="{{ url_for('main.landing') }}"
+  >
+
     <img
       src="{{ url_for('static', filename='img/cmu_logo.jpg') }}"
       alt="City of Malabon University Logo"
     >
-    <span>Internship Management System</span>
+
+    <span>
+      Internship Management System
+    </span>
+
   </a>
+
 </header>
 
 
@@ -24,17 +34,20 @@
 
     <div
       class="landing-slide active"
-      data-image="{{ url_for('static', filename='img/cmu-school-1.jpg') }}">
+      data-image="{{ url_for('static', filename='img/cmu-school-1.jpg') }}"
+    >
     </div>
 
     <div
       class="landing-slide"
-      data-image="{{ url_for('static', filename='img/cmu-school-2.jpg') }}">
+      data-image="{{ url_for('static', filename='img/cmu-school-2.jpg') }}"
+    >
     </div>
 
     <div
       class="landing-slide"
-      data-image="{{ url_for('static', filename='img/cmu-school-3.jpg') }}">
+      data-image="{{ url_for('static', filename='img/cmu-school-3.jpg') }}"
+    >
     </div>
 
   </div>
@@ -78,16 +91,24 @@
 
     <div class="auth-box">
 
-      <h2>Welcome!</h2>
+      <h2>
+        Welcome!
+      </h2>
 
       <p class="lede">
         Sign in to your account
       </p>
 
 
-      <form method="POST" action="{{ url_for('auth.login') }}">
+      <form
+        method="POST"
+        action="{{ url_for('auth.login') }}"
+      >
 
-        <!-- EMAIL -->
+        <!-- =================================================
+             EMAIL
+             ================================================= -->
+
         <div class="field">
 
           <label for="email">
@@ -96,7 +117,12 @@
 
           <div class="input-icon-wrap">
 
-            <span class="icon">&#9993;</span>
+            <span
+              class="icon"
+              aria-hidden="true"
+            >
+              &#9993;
+            </span>
 
             <input
               type="email"
@@ -111,16 +137,26 @@
         </div>
 
 
-        <!-- PASSWORD -->
+        <!-- =================================================
+             PASSWORD
+             ================================================= -->
+
         <div class="field">
 
           <label for="password">
             Password
           </label>
 
-          <div class="input-icon-wrap">
 
-            <span class="icon">&#128274;</span>
+          <div
+            class="input-icon-wrap"
+            style="
+              position:relative;
+              width:100%;
+              display:flex;
+              align-items:center;
+            "
+          >
 
             <input
               type="password"
@@ -128,15 +164,59 @@
               name="password"
               placeholder="Enter your password"
               required
+              style="
+                width:100%;
+                padding-right:55px;
+                box-sizing:border-box;
+              "
             >
+
+
+            <!-- PASSWORD SHOW / HIDE BUTTON -->
 
             <button
               type="button"
               class="toggle-visibility"
               data-target="password"
-              aria-label="Show or hide password"
+              aria-label="Show password"
+              title="Show password"
+              style="
+                position:absolute;
+                top:50%;
+                right:8px;
+                transform:translateY(-50%);
+                width:40px;
+                height:40px;
+                padding:0;
+                margin:0;
+                border:0;
+                border-radius:6px;
+                background:transparent;
+                color:#102d61;
+                cursor:pointer;
+                z-index:9999;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                pointer-events:auto;
+              "
             >
-              &#128065;
+
+              <span
+                class="eye-icon"
+                aria-hidden="true"
+                style="
+                  position:relative;
+                  display:block;
+                  width:18px;
+                  height:12px;
+                  border:2px solid currentColor;
+                  border-radius:50% / 60%;
+                  box-sizing:border-box;
+                  pointer-events:none;
+                "
+              ></span>
+
             </button>
 
           </div>
@@ -144,11 +224,19 @@
         </div>
 
 
-        <!-- REMEMBER / FORGOT PASSWORD -->
+        <!-- =================================================
+             REMEMBER / FORGOT PASSWORD
+             ================================================= -->
+
         <div class="form-footer-row">
 
           <label
-            style="display:flex; align-items:center; gap:6px; font-weight:400;"
+            style="
+              display:flex;
+              align-items:center;
+              gap:6px;
+              font-weight:400;
+            "
           >
 
             <input
@@ -162,14 +250,19 @@
           </label>
 
 
-          <a href="{{ url_for('auth.forgot_password') }}">
+          <a
+            href="{{ url_for('auth.forgot_password') }}"
+          >
             Forgot password?
           </a>
 
         </div>
 
 
-        <!-- SIGN IN -->
+        <!-- =================================================
+             SIGN IN
+             ================================================= -->
+
         <button
           type="submit"
           class="btn btn-primary btn-block"
@@ -180,20 +273,34 @@
       </form>
 
 
-      <!-- DIVIDER -->
+      <!-- =================================================
+           DIVIDER
+           ================================================= -->
+
       <div class="divider">
         OR
       </div>
 
 
-      <!-- REGISTER -->
-      <p style="text-align:center; font-size:13px;">
+      <!-- =================================================
+           REGISTER
+           ================================================= -->
+
+      <p
+        style="
+          text-align:center;
+          font-size:13px;
+        "
+      >
 
         Don't have an account?
 
         <a
           href="{{ url_for('auth.register') }}"
-          style="color: var(--navy); font-weight:600;"
+          style="
+            color:var(--navy);
+            font-weight:600;
+          "
         >
           Register here
         </a>
@@ -212,46 +319,175 @@
      ===================================================== -->
 
 <footer class="app-footer">
-  &copy; {{ now_year }} City of Malabon University<br>
+
+  &copy; {{ now_year }}
+  City of Malabon University
+  <br>
   Internship Management System
+
 </footer>
 
 
 <!-- =====================================================
-     PHOTO SLIDESHOW
-     CHANGES EVERY 4 SECONDS
+     PASSWORD VISIBILITY + PHOTO SLIDESHOW
      ===================================================== -->
 
 <script>
+
 document.addEventListener("DOMContentLoaded", function () {
 
-  const slides = document.querySelectorAll(".landing-slide");
+
+  /* =====================================================
+     PASSWORD SHOW / HIDE
+     ===================================================== */
+
+  document.addEventListener(
+    "click",
+    function (event) {
+
+      const button =
+        event.target.closest(
+          ".toggle-visibility"
+        );
+
+
+      if (!button) {
+        return;
+      }
+
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      const targetId =
+        button.getAttribute(
+          "data-target"
+        );
+
+
+      const passwordInput =
+        document.getElementById(
+          targetId
+        );
+
+
+      if (!passwordInput) {
+        return;
+      }
+
+
+      if (
+        passwordInput.type === "password"
+      ) {
+
+        passwordInput.type = "text";
+
+
+        button.classList.add(
+          "password-visible"
+        );
+
+
+        button.setAttribute(
+          "aria-label",
+          "Hide password"
+        );
+
+
+        button.setAttribute(
+          "title",
+          "Hide password"
+        );
+
+      }
+
+      else {
+
+        passwordInput.type = "password";
+
+
+        button.classList.remove(
+          "password-visible"
+        );
+
+
+        button.setAttribute(
+          "aria-label",
+          "Show password"
+        );
+
+
+        button.setAttribute(
+          "title",
+          "Show password"
+        );
+
+      }
+
+    },
+    true
+  );
+
+
+  /* =====================================================
+     PHOTO SLIDESHOW
+     CHANGES EVERY 4 SECONDS
+     ===================================================== */
+
+  const slides =
+    document.querySelectorAll(
+      ".landing-slide"
+    );
+
 
   let currentSlide = 0;
 
 
   /* Load the background images */
-  slides.forEach(function (slide) {
 
-    slide.style.backgroundImage =
-      "url('" + slide.dataset.image + "')";
+  slides.forEach(
+    function (slide) {
 
-  });
+      slide.style.backgroundImage =
+        "url('" +
+        slide.dataset.image +
+        "')";
+
+    }
+  );
 
 
   /* Change photo every 4 seconds */
-  setInterval(function () {
 
-    slides[currentSlide].classList.remove("active");
+  if (slides.length > 1) {
 
-    currentSlide =
-      (currentSlide + 1) % slides.length;
+    setInterval(
+      function () {
 
-    slides[currentSlide].classList.add("active");
+        slides[currentSlide]
+          .classList
+          .remove("active");
 
-  }, 4000);
+
+        currentSlide =
+          (currentSlide + 1) %
+          slides.length;
+
+
+        slides[currentSlide]
+          .classList
+          .add("active");
+
+      },
+      4000
+    );
+
+  }
 
 });
+
 </script>
 
 {% endblock %}

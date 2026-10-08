@@ -1,13 +1,9 @@
 import os
-
 import re
-
 import smtplib
-
 import uuid
 
 from datetime import datetime
-
 from email.message import EmailMessage
 
 from flask import (
@@ -56,14 +52,12 @@ auth_bp = Blueprint(
 # =========================================================
 
 def _get_serializer():
-
     return URLSafeTimedSerializer(
         current_app.config["SECRET_KEY"]
     )
 
 
 def _generate_reset_token(email):
-
     serializer = _get_serializer()
 
     return serializer.dumps(
@@ -73,11 +67,9 @@ def _generate_reset_token(email):
 
 
 def _verify_reset_token(token):
-
     serializer = _get_serializer()
 
     try:
-
         email = serializer.loads(
             token,
             salt="password-reset",
@@ -90,7 +82,6 @@ def _verify_reset_token(token):
         SignatureExpired,
         BadSignature,
     ):
-
         return None
 
 
@@ -139,16 +130,24 @@ def _send_reset_email(
     missing_settings = []
 
     if not mail_server:
-        missing_settings.append("MAIL_SERVER")
+        missing_settings.append(
+            "MAIL_SERVER"
+        )
 
     if not mail_port:
-        missing_settings.append("MAIL_PORT")
+        missing_settings.append(
+            "MAIL_PORT"
+        )
 
     if not mail_username:
-        missing_settings.append("MAIL_USERNAME")
+        missing_settings.append(
+            "MAIL_USERNAME"
+        )
 
     if not mail_password:
-        missing_settings.append("MAIL_PASSWORD")
+        missing_settings.append(
+            "MAIL_PASSWORD"
+        )
 
     if missing_settings:
 
@@ -174,7 +173,6 @@ def _send_reset_email(
 
         message["To"] = email
 
-
         message.set_content(
             f"""
 Hello,
@@ -193,10 +191,10 @@ If you did not request a password reset,
 you can safely ignore this email.
 
 City of Malabon University
+
 Internship Management System
 """.strip()
         )
-
 
         port = int(
             mail_port
@@ -246,7 +244,6 @@ Internship Management System
                     message
                 )
 
-
         return True
 
 
@@ -257,6 +254,7 @@ Internship Management System
         )
 
         return False
+
 
 # =========================================================
 # LOGIN
@@ -366,8 +364,13 @@ def login():
                 remember=remember
             )
 
+            welcome_name = (
+                user.first_name
+                or "Administrator"
+            )
+
             flash(
-                f"Welcome back, {user.first_name}!",
+                f"Welcome back, {welcome_name}!",
                 "success"
             )
 
@@ -414,7 +417,7 @@ def login():
 
         # -------------------------------------------------
         # ACTIVE ACCOUNT
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         if not user.is_active_account:
 
@@ -431,15 +434,41 @@ def login():
 
         # -------------------------------------------------
         # LOGIN
-        # -------------------------------------------------
+        # -----------------------------------------------------
 
         login_user(
             user,
             remember=remember
         )
 
+
+        # Use company name for Industry Partners.
+        if user.role == User.ROLE_PARTNER:
+
+            partner_profile = (
+                IndustryPartner.query
+                .filter_by(
+                    user_id=user.id
+                )
+                .first()
+            )
+
+            welcome_name = (
+                partner_profile.company_name
+                if partner_profile
+                else "Industry Partner"
+            )
+
+        else:
+
+            welcome_name = (
+                user.first_name
+                or "User"
+            )
+
+
         flash(
-            f"Welcome back, {user.first_name}!",
+            f"Welcome back, {welcome_name}!",
             "success"
         )
 
@@ -488,17 +517,24 @@ def register():
 
     form = {
         "role": "student",
+
         "full_name": "",
+
         "first_name": "",
         "middle_name": "",
         "last_name": "",
+
         "student_id": "",
         "student_id_number": "",
+
         "program": "",
         "course": "",
+
         "year_level": "4th Year",
+
         "email": "",
         "contact_number": "",
+
         "company_name": "",
     }
 
@@ -519,10 +555,6 @@ def register():
     # POST
     # =====================================================
 
-    # The current registration page uses separate name fields,
-    # student_id_number, course, and role. Older versions used
-    # full_name, student_id, and program. Support both layouts.
-
     role = (
         request.form.get(
             "role",
@@ -532,6 +564,7 @@ def register():
         .lower()
     )
 
+
     first_name = (
         request.form.get(
             "first_name",
@@ -539,6 +572,7 @@ def register():
         )
         .strip()
     )
+
 
     middle_name = (
         request.form.get(
@@ -548,6 +582,7 @@ def register():
         .strip()
     )
 
+
     last_name = (
         request.form.get(
             "last_name",
@@ -555,6 +590,7 @@ def register():
         )
         .strip()
     )
+
 
     full_name = (
         request.form.get(
@@ -564,6 +600,7 @@ def register():
         .strip()
     )
 
+
     student_id_number = (
         request.form.get(
             "student_id_number",
@@ -572,6 +609,7 @@ def register():
         .strip()
     )
 
+
     legacy_student_id = (
         request.form.get(
             "student_id",
@@ -579,6 +617,7 @@ def register():
         )
         .strip()
     )
+
 
     if not student_id_number:
 
@@ -593,6 +632,7 @@ def register():
         .strip()
     )
 
+
     legacy_program = (
         request.form.get(
             "program",
@@ -600,6 +640,7 @@ def register():
         )
         .strip()
     )
+
 
     if not course:
 
@@ -614,6 +655,7 @@ def register():
         .strip()
     )
 
+
     email = (
         request.form.get(
             "email",
@@ -623,6 +665,7 @@ def register():
         .lower()
     )
 
+
     contact_number = (
         request.form.get(
             "contact_number",
@@ -631,15 +674,22 @@ def register():
         .strip()
     )
 
+
     password = request.form.get(
         "password",
         ""
     )
 
+
     confirm_password = request.form.get(
         "confirm_password",
         ""
     )
+
+
+    # -----------------------------------------------------
+    # COMPANY NAME
+    # -----------------------------------------------------
 
     company_name = (
         request.form.get(
@@ -649,26 +699,42 @@ def register():
         .strip()
     )
 
+
     verification_document = request.files.get(
         "verification_document"
     )
 
 
     # -----------------------------------------------------
-    # BUILD FULL NAME FROM SEPARATE FIELDS
+    # BUILD FULL NAME ONLY FOR STUDENTS
     # -----------------------------------------------------
 
-    if not full_name:
+    if role == User.ROLE_STUDENT:
 
-        full_name = " ".join(
-            part
-            for part in [
-                first_name,
-                middle_name,
-                last_name
-            ]
-            if part
-        ).strip()
+        if not full_name:
+
+            full_name = " ".join(
+                part
+                for part in [
+                    first_name,
+                    middle_name,
+                    last_name
+                ]
+                if part
+            ).strip()
+
+
+    # -----------------------------------------------------
+    # INDUSTRY PARTNER
+    # -----------------------------------------------------
+
+    elif role == User.ROLE_PARTNER:
+
+        # Industry Partners do not use personal names.
+        first_name = ""
+        middle_name = ""
+        last_name = ""
+        full_name = ""
 
 
     # -----------------------------------------------------
@@ -677,17 +743,24 @@ def register():
 
     form = {
         "role": role,
+
         "full_name": full_name,
+
         "first_name": first_name,
         "middle_name": middle_name,
         "last_name": last_name,
+
         "student_id": student_id_number,
         "student_id_number": student_id_number,
+
         "program": course,
         "course": course,
+
         "year_level": year_level or "4th Year",
+
         "email": email,
         "contact_number": contact_number,
+
         "company_name": company_name,
     }
 
@@ -712,18 +785,130 @@ def register():
         )
 
 
-    # -----------------------------------------------------
-    # NAME REQUIRED
-    # -----------------------------------------------------
+    # =====================================================
+    # STUDENT NAME VALIDATION
+    # =====================================================
 
-    if not first_name or not last_name:
+    if role == User.ROLE_STUDENT:
 
-        # Legacy one-field layout may still be used.
+        # -------------------------------------------------
+        # NAME REQUIRED
+        # -------------------------------------------------
 
-        if not full_name:
+        if not first_name or not last_name:
+
+            if not full_name:
+
+                flash(
+                    "Please enter your first name and last name.",
+                    "danger"
+                )
+
+                return render_template(
+                    "auth/register.html",
+                    form=form
+                )
+
+
+            # Legacy one-field layout support.
+            name_parts = full_name.split()
+
+
+            if len(name_parts) < 2:
+
+                flash(
+                    "Please enter your first name and last name.",
+                    "danger"
+                )
+
+                return render_template(
+                    "auth/register.html",
+                    form=form
+                )
+
+
+            first_name = name_parts[0]
+
+            last_name = name_parts[-1]
+
+
+            if len(name_parts) > 2:
+
+                middle_name = " ".join(
+                    name_parts[1:-1]
+                )
+
+
+        # -------------------------------------------------
+        # NAME FORMAT VALIDATION
+        # -------------------------------------------------
+
+        name_pattern = (
+            r"[A-Za-zÀ-ÖØ-öø-ÿ]+"
+            r"(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*"
+        )
+
+
+        for label, value in [
+            ("First Name", first_name),
+            ("Middle Name", middle_name),
+            ("Last Name", last_name)
+        ]:
+
+            if value and not re.fullmatch(
+                name_pattern,
+                value
+            ):
+
+                flash(
+                    f"{label} must contain letters and spaces only.",
+                    "danger"
+                )
+
+                return render_template(
+                    "auth/register.html",
+                    form=form
+                )
+
+
+        # -------------------------------------------------
+        # REBUILD CANONICAL FULL NAME
+        # -------------------------------------------------
+
+        full_name = " ".join(
+            part
+            for part in [
+                first_name,
+                middle_name,
+                last_name
+            ]
+            if part
+        ).strip()
+
+
+        form["full_name"] = full_name
+
+        form["first_name"] = first_name
+
+        form["middle_name"] = middle_name
+
+        form["last_name"] = last_name
+
+
+    # =====================================================
+    # INDUSTRY PARTNER
+    # =====================================================
+
+    elif role == User.ROLE_PARTNER:
+
+        # -------------------------------------------------
+        # COMPANY NAME REQUIRED
+        # -------------------------------------------------
+
+        if not company_name:
 
             flash(
-                "Please enter your full name.",
+                "Please enter your company name.",
                 "danger"
             )
 
@@ -731,80 +916,6 @@ def register():
                 "auth/register.html",
                 form=form
             )
-
-
-        # Convert legacy full_name into the name fields.
-
-        name_parts = full_name.split()
-
-        if len(name_parts) < 2:
-
-            flash(
-                "Please enter your first name and last name.",
-                "danger"
-            )
-
-            return render_template(
-                "auth/register.html",
-                form=form
-            )
-
-        first_name = name_parts[0]
-
-        last_name = name_parts[-1]
-
-        if len(name_parts) > 2:
-
-            middle_name = " ".join(
-                name_parts[1:-1]
-            )
-
-
-    # -----------------------------------------------------
-    # FULL NAME / NAME VALIDATION
-    # -----------------------------------------------------
-
-    for label, value in [
-        ("First Name", first_name),
-        ("Middle Name", middle_name),
-        ("Last Name", last_name)
-    ]:
-
-        if value and not re.fullmatch(
-            r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*",
-            value
-        ):
-
-            flash(
-                f"{label} must contain letters and spaces only.",
-                "danger"
-            )
-
-            return render_template(
-                "auth/register.html",
-                form=form
-            )
-
-
-    # Rebuild the canonical full name after validation.
-
-    full_name = " ".join(
-        part
-        for part in [
-            first_name,
-            middle_name,
-            last_name
-        ]
-        if part
-    ).strip()
-
-    form["full_name"] = full_name
-
-    form["first_name"] = first_name
-
-    form["middle_name"] = middle_name
-
-    form["last_name"] = last_name
 
 
     # -----------------------------------------------------
@@ -854,8 +965,13 @@ def register():
         )
 
 
+    email_pattern = (
+        r"[^@\s]+@[^@\s]+\.[^@\s]+"
+    )
+
+
     if not re.fullmatch(
-        r"[^@\s]+@[^@\s]+\.[^@\s]+",
+        email_pattern,
         email
     ):
 
@@ -917,9 +1033,9 @@ def register():
         )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # ROLE-SPECIFIC REQUIRED FIELDS
-    # -----------------------------------------------------
+    # =====================================================
 
     if role == User.ROLE_STUDENT:
 
@@ -977,9 +1093,9 @@ def register():
             )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # VERIFICATION DOCUMENT
-    # -----------------------------------------------------
+    # =====================================================
 
     if (
         verification_document is None
@@ -988,11 +1104,15 @@ def register():
 
         if role == User.ROLE_STUDENT:
 
-            message = "Please upload your Student ID."
+            message = (
+                "Please upload your Student ID."
+            )
 
         else:
 
-            message = "Please upload your Business Permit."
+            message = (
+                "Please upload your Business Permit."
+            )
 
 
         flash(
@@ -1010,6 +1130,7 @@ def register():
         verification_document.filename
         or ""
     )
+
 
     safe_original_filename = (
         os.path.basename(
@@ -1033,6 +1154,7 @@ def register():
 
 
     extension = ""
+
 
     if "." in safe_original_filename:
 
@@ -1068,12 +1190,9 @@ def register():
 
 
     # Flask/Werkzeug enforces MAX_CONTENT_LENGTH globally.
-
-    max_file_size = (
-        current_app.config.get(
-            "MAX_CONTENT_LENGTH",
-            10 * 1024 * 1024
-        )
+    max_file_size = current_app.config.get(
+        "MAX_CONTENT_LENGTH",
+        10 * 1024 * 1024
     )
 
 
@@ -1131,9 +1250,9 @@ def register():
             )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # PREPARE UPLOAD DIRECTORY
-    # -----------------------------------------------------
+    # =====================================================
 
     upload_root = current_app.config.get(
         "UPLOAD_FOLDER"
@@ -1155,11 +1274,15 @@ def register():
 
     if role == User.ROLE_STUDENT:
 
-        verification_subfolder = "verification/student"
+        verification_subfolder = (
+            "verification/student"
+        )
 
     else:
 
-        verification_subfolder = "verification/partner"
+        verification_subfolder = (
+            "verification/partner"
+        )
 
 
     verification_folder = os.path.join(
@@ -1194,7 +1317,6 @@ def register():
 
 
     # secure_filename is imported locally.
-
     from werkzeug.utils import secure_filename
 
 
@@ -1227,14 +1349,40 @@ def register():
     )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # CREATE ACCOUNT
-    # -----------------------------------------------------
+    # =====================================================
+
+    # Industry Partner accounts do not require a personal
+    # first/middle/last name.
+    #
+    # The User model may still contain name columns.
+    # To remain compatible with the existing database,
+    # the company name is stored in first_name for the
+    # partner User record, while the actual company name
+    # is stored in IndustryPartner.company_name.
+
+    if role == User.ROLE_PARTNER:
+
+        user_first_name = company_name
+
+        user_middle_name = None
+
+        user_last_name = ""
+
+    else:
+
+        user_first_name = first_name
+
+        user_middle_name = middle_name or None
+
+        user_last_name = last_name
+
 
     user = User(
-        first_name=first_name,
-        middle_name=middle_name or None,
-        last_name=last_name,
+        first_name=user_first_name,
+        middle_name=user_middle_name,
+        last_name=user_last_name,
         email=email,
         contact_number=contact_number,
         role=role,
@@ -1258,7 +1406,6 @@ def register():
     try:
 
         # Save uploaded verification document first.
-
         verification_document.save(
             verification_path
         )
@@ -1285,6 +1432,7 @@ def register():
                 year_level="4th Year",
             )
 
+
             db.session.add(
                 student_profile
             )
@@ -1301,6 +1449,7 @@ def register():
                 company_name=company_name,
                 status="Active",
             )
+
 
             db.session.add(
                 partner_profile
@@ -1402,9 +1551,12 @@ def logout():
     methods=["GET", "POST"]
 )
 def forgot_password():
+
     current_app.logger.warning(
         "FORGOT PASSWORD ROUTE REACHED"
     )
+
+
     # -----------------------------------------------------
     # ALREADY LOGGED IN
     # -----------------------------------------------------
@@ -1435,17 +1587,12 @@ def forgot_password():
         ).strip().lower()
 
 
-        # -------------------------------------------------
-        # VALIDATION
-        # -------------------------------------------------
-
         if not email:
 
             flash(
                 "Please enter your email address.",
                 "danger"
             )
-
 
             return render_template(
                 "auth/forgot_password_request.html",
@@ -1465,10 +1612,13 @@ def forgot_password():
             )
             .first()
         )
+
+
         current_app.logger.warning(
-    "FORGOT PASSWORD USER FOUND: %s",
-    user is not None
+            "FORGOT PASSWORD USER FOUND: %s",
+            user is not None
         )
+
 
         # -------------------------------------------------
         # GENERATE TOKEN
@@ -1682,7 +1832,6 @@ def reset_password(token):
         try:
 
             db.session.commit()
-
 
         except Exception:
 

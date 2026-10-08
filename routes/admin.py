@@ -1,5 +1,6 @@
 import os
 import re
+
 from datetime import datetime
 
 from flask import (
@@ -14,7 +15,11 @@ from flask import (
 )
 
 from flask_login import login_required, current_user
+
+from werkzeug.utils import secure_filename
+
 from extensions import db
+
 from decorators import role_required
 
 from models import (
@@ -53,6 +58,7 @@ def dashboard():
         StudentProfile.query.count()
     )
 
+
     # -----------------------------------------------------
     # ACTIVE INTERNS
     # -----------------------------------------------------
@@ -65,6 +71,7 @@ def dashboard():
         .count()
     )
 
+
     # -----------------------------------------------------
     # PARTNER COMPANIES
     # -----------------------------------------------------
@@ -76,6 +83,7 @@ def dashboard():
         )
         .count()
     )
+
 
     # -----------------------------------------------------
     # PENDING WEEKLY REPORTS
@@ -91,6 +99,7 @@ def dashboard():
         )
         .count()
     )
+
 
     # -----------------------------------------------------
     # PENDING ACCOUNTS
@@ -108,6 +117,7 @@ def dashboard():
         .count()
     )
 
+
     # -----------------------------------------------------
     # STUDENTS OVERVIEW
     # -----------------------------------------------------
@@ -120,6 +130,7 @@ def dashboard():
         .limit(10)
         .all()
     )
+
 
     # -----------------------------------------------------
     # COMPANIES OVERVIEW
@@ -134,6 +145,7 @@ def dashboard():
         .all()
     )
 
+
     # -----------------------------------------------------
     # RECENT WEEKLY REPORTS
     # -----------------------------------------------------
@@ -146,6 +158,7 @@ def dashboard():
         .limit(10)
         .all()
     )
+
 
     # -----------------------------------------------------
     # RECENT EVALUATIONS
@@ -160,16 +173,26 @@ def dashboard():
         .all()
     )
 
+
     return render_template(
         "admin/dashboard.html",
+
         total_students=total_students,
+
         active_interns=active_interns,
+
         partner_companies=partner_companies,
+
         pending_reports=pending_reports,
+
         pending_accounts=pending_accounts,
+
         students_overview=students_overview,
+
         companies_overview=companies_overview,
+
         recent_weekly_reports=recent_weekly_reports,
+
         recent_evaluations=recent_evaluations,
     )
 
@@ -178,7 +201,9 @@ def dashboard():
 # ACCOUNT APPROVALS
 # =========================================================
 
-@admin_bp.route("/account-approvals")
+@admin_bp.route(
+    "/account-approvals"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def account_approvals():
@@ -218,6 +243,7 @@ def view_verification_document(user_id):
         user_id
     )
 
+
     if not user.verification_document_path:
 
         flash(
@@ -231,10 +257,12 @@ def view_verification_document(user_id):
             )
         )
 
+
     file_path = os.path.join(
         current_app.config["UPLOAD_FOLDER"],
         user.verification_document_path
     )
+
 
     if not os.path.exists(file_path):
 
@@ -248,6 +276,7 @@ def view_verification_document(user_id):
                 "admin.account_approvals"
             )
         )
+
 
     return send_from_directory(
         current_app.config["UPLOAD_FOLDER"],
@@ -272,6 +301,7 @@ def approve_account(user_id):
         user_id
     )
 
+
     # -----------------------------------------------------
     # ADMIN ACCOUNT CHECK
     # -----------------------------------------------------
@@ -288,6 +318,7 @@ def approve_account(user_id):
                 "admin.account_approvals"
             )
         )
+
 
     # -----------------------------------------------------
     # VERIFICATION DOCUMENT CHECK
@@ -306,6 +337,7 @@ def approve_account(user_id):
             )
         )
 
+
     # -----------------------------------------------------
     # APPROVE ACCOUNT
     # -----------------------------------------------------
@@ -318,10 +350,12 @@ def approve_account(user_id):
 
     db.session.commit()
 
+
     flash(
         f"{user.full_name}'s account has been approved.",
         "success"
     )
+
 
     return redirect(
         url_for(
@@ -346,6 +380,7 @@ def reject_account(user_id):
         user_id
     )
 
+
     # -----------------------------------------------------
     # ADMIN ACCOUNT CHECK
     # -----------------------------------------------------
@@ -363,6 +398,7 @@ def reject_account(user_id):
             )
         )
 
+
     # -----------------------------------------------------
     # REJECT ACCOUNT
     # -----------------------------------------------------
@@ -375,10 +411,12 @@ def reject_account(user_id):
 
     db.session.commit()
 
+
     flash(
         f"{user.full_name}'s account has been rejected.",
         "warning"
     )
+
 
     return redirect(
         url_for(
@@ -391,7 +429,9 @@ def reject_account(user_id):
 # ADVISER MANAGEMENT
 # =========================================================
 
-@admin_bp.route("/advisers")
+@admin_bp.route(
+    "/advisers"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def advisers():
@@ -412,6 +452,7 @@ def advisers():
         .all()
     )
 
+
     # -----------------------------------------------------
     # COUNT ASSIGNED STUDENTS
     # -----------------------------------------------------
@@ -428,6 +469,7 @@ def advisers():
             .count()
         )
 
+
     # -----------------------------------------------------
     # EMPTY FORM FOR THE ADVISER PAGE
     # -----------------------------------------------------
@@ -439,6 +481,7 @@ def advisers():
         "email": "",
         "contact_number": "",
     }
+
 
     # -----------------------------------------------------
     # DISPLAY PAGE
@@ -517,6 +560,7 @@ def create_adviser():
             "contact_number": contact_number,
         }
 
+
         # -------------------------------------------------
         # REQUIRED NAME FIELDS
         # -------------------------------------------------
@@ -532,6 +576,7 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
+
 
         # -------------------------------------------------
         # NAME VALIDATION
@@ -563,13 +608,12 @@ def create_adviser():
                     form=form
                 )
 
+
         # -------------------------------------------------
         # EMAIL VALIDATION
         # -------------------------------------------------
 
-        email_pattern = (
-            r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
-        )
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
         if not re.fullmatch(
             email_pattern,
@@ -585,6 +629,7 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
+
 
         # -------------------------------------------------
         # PASSWORD VALIDATION
@@ -602,6 +647,7 @@ def create_adviser():
                 form=form
             )
 
+
         if len(password) > 30:
 
             flash(
@@ -614,6 +660,7 @@ def create_adviser():
                 form=form
             )
 
+
         if password != confirm_password:
 
             flash(
@@ -625,6 +672,7 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
+
 
         # -------------------------------------------------
         # EMAIL DUPLICATE CHECK
@@ -649,6 +697,7 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
+
 
         # -------------------------------------------------
         # CREATE APPROVED ACTIVE ADVISER
@@ -714,19 +763,20 @@ def create_adviser():
 # =========================================================
 
 @admin_bp.route(
-    "/advisers/<int:adviser_id>/delete",
+    "/advisers/<int:user_id>/delete",
     methods=["POST"]
 )
 @login_required
 @role_required(User.ROLE_ADMIN)
-def delete_adviser(adviser_id):
+def delete_adviser(user_id):
 
     adviser = User.query.get_or_404(
-        adviser_id
+        user_id
     )
 
+
     # -----------------------------------------------------
-    # SAFETY CHECK
+    # SAFETY CHECKS
     # -----------------------------------------------------
 
     if adviser.role != User.ROLE_ADVISER:
@@ -742,9 +792,6 @@ def delete_adviser(adviser_id):
             )
         )
 
-    # -----------------------------------------------------
-    # PREVENT CURRENT USER FROM BEING DELETED
-    # -----------------------------------------------------
 
     if adviser.id == current_user.id:
 
@@ -759,6 +806,7 @@ def delete_adviser(adviser_id):
             )
         )
 
+
     # -----------------------------------------------------
     # UNASSIGN STUDENTS FIRST
     # -----------------------------------------------------
@@ -772,6 +820,7 @@ def delete_adviser(adviser_id):
         synchronize_session=False
     )
 
+
     # -----------------------------------------------------
     # REMOVE NOTIFICATIONS FOR THE ADVISER
     # -----------------------------------------------------
@@ -782,11 +831,8 @@ def delete_adviser(adviser_id):
         synchronize_session=False
     )
 
-    adviser_name = adviser.full_name
 
-    # -----------------------------------------------------
-    # DELETE ADVISER ACCOUNT
-    # -----------------------------------------------------
+    adviser_name = adviser.full_name
 
     db.session.delete(
         adviser
@@ -810,6 +856,7 @@ def delete_adviser(adviser_id):
                 "admin.advisers"
             )
         )
+
 
     flash(
         f"Adviser account for {adviser_name} was deleted successfully.",
@@ -847,6 +894,7 @@ def assign_adviser():
             ""
         ).strip()
 
+
         # -------------------------------------------------
         # STUDENT ID VALIDATION
         # -------------------------------------------------
@@ -869,6 +917,7 @@ def assign_adviser():
                     "admin.assign_adviser"
                 )
             )
+
 
         # -------------------------------------------------
         # ADVISER ID VALIDATION
@@ -893,6 +942,7 @@ def assign_adviser():
                 )
             )
 
+
         # -------------------------------------------------
         # FIND APPROVED ACTIVE STUDENT
         # -------------------------------------------------
@@ -907,10 +957,11 @@ def assign_adviser():
                 StudentProfile.id == student_id,
                 User.role == User.ROLE_STUDENT,
                 User.approval_status == User.APPROVAL_APPROVED,
-                User.is_active_account.is_(True)
+                User.is_active_account == True
             )
             .first()
         )
+
 
         if student is None:
 
@@ -924,6 +975,7 @@ def assign_adviser():
                     "admin.assign_adviser"
                 )
             )
+
 
         # -------------------------------------------------
         # FIND APPROVED ACTIVE ADVISER
@@ -940,6 +992,7 @@ def assign_adviser():
             .first()
         )
 
+
         if adviser is None:
 
             flash(
@@ -952,6 +1005,7 @@ def assign_adviser():
                     "admin.assign_adviser"
                 )
             )
+
 
         # -------------------------------------------------
         # CHECK CURRENT ADVISER
@@ -970,6 +1024,7 @@ def assign_adviser():
                 )
             )
 
+
         # -------------------------------------------------
         # ASSIGN ADVISER
         # -------------------------------------------------
@@ -979,6 +1034,7 @@ def assign_adviser():
         student.adviser_id = adviser.id
 
         db.session.commit()
+
 
         if old_adviser_id:
 
@@ -994,11 +1050,13 @@ def assign_adviser():
                 "success"
             )
 
+
         return redirect(
             url_for(
                 "admin.assign_adviser"
             )
         )
+
 
     # -----------------------------------------------------
     # GET APPROVED ACTIVE STUDENTS
@@ -1013,7 +1071,7 @@ def assign_adviser():
         .filter(
             User.role == User.ROLE_STUDENT,
             User.approval_status == User.APPROVAL_APPROVED,
-            User.is_active_account.is_(True)
+            User.is_active_account == True
         )
         .order_by(
             User.last_name.asc(),
@@ -1021,6 +1079,7 @@ def assign_adviser():
         )
         .all()
     )
+
 
     # -----------------------------------------------------
     # GET APPROVED ACTIVE ADVISERS
@@ -1040,6 +1099,7 @@ def assign_adviser():
         .all()
     )
 
+
     return render_template(
         "admin/assign_adviser.html",
         students=students,
@@ -1051,7 +1111,9 @@ def assign_adviser():
 # STUDENTS
 # =========================================================
 
-@admin_bp.route("/students")
+@admin_bp.route(
+    "/students"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def students():
@@ -1079,7 +1141,9 @@ def students():
 # PARTNER COMPANIES
 # =========================================================
 
-@admin_bp.route("/partner-companies")
+@admin_bp.route(
+    "/partner-companies"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def partner_companies():
@@ -1112,30 +1176,9 @@ def add_partner_company():
 
     if request.method == "POST":
 
-        first_name = request.form.get(
-            "first_name",
-            ""
-        ).strip()
-
-        middle_name = request.form.get(
-            "middle_name",
-            ""
-        ).strip()
-
-        last_name = request.form.get(
-            "last_name",
-            ""
-        ).strip()
-
-        email = request.form.get(
-            "email",
-            ""
-        ).strip().lower()
-
-        contact_number = request.form.get(
-            "contact_number",
-            ""
-        ).strip()
+        # -------------------------------------------------
+        # PARTNER COMPANY INFORMATION
+        # -------------------------------------------------
 
         company_name = request.form.get(
             "company_name",
@@ -1157,53 +1200,34 @@ def add_partner_company():
             type=int
         )
 
+        # -------------------------------------------------
+        # PARTNER LOGIN INFORMATION
+        # -------------------------------------------------
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        contact_number = request.form.get(
+            "contact_number",
+            ""
+        ).strip()
+
         password = request.form.get(
             "password",
             ""
         )
 
+        confirm_password = request.form.get(
+            "confirm_password",
+            ""
+        )
+
+
         # -------------------------------------------------
-        # VALIDATION
+        # REQUIRED COMPANY NAME
         # -------------------------------------------------
-
-        if not first_name:
-
-            flash(
-                "Please enter the partner's first name.",
-                "danger"
-            )
-
-            return redirect(
-                url_for(
-                    "admin.add_partner_company"
-                )
-            )
-
-        if not last_name:
-
-            flash(
-                "Please enter the partner's last name.",
-                "danger"
-            )
-
-            return redirect(
-                url_for(
-                    "admin.add_partner_company"
-                )
-            )
-
-        if not email:
-
-            flash(
-                "Please enter an email address.",
-                "danger"
-            )
-
-            return redirect(
-                url_for(
-                    "admin.add_partner_company"
-                )
-            )
 
         if not company_name:
 
@@ -1218,10 +1242,15 @@ def add_partner_company():
                 )
             )
 
-        if not password or len(password) < 6:
+
+        # -------------------------------------------------
+        # EMAIL VALIDATION
+        # -------------------------------------------------
+
+        if not email:
 
             flash(
-                "The password must contain at least 6 characters.",
+                "Please enter an email address.",
                 "danger"
             )
 
@@ -1230,11 +1259,67 @@ def add_partner_company():
                     "admin.add_partner_company"
                 )
             )
+
+
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+        if not re.fullmatch(
+            email_pattern,
+            email
+        ):
+
+            flash(
+                "Please enter a valid email address.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "admin.add_partner_company"
+                )
+            )
+
+
+        # -------------------------------------------------
+        # CONTACT NUMBER VALIDATION
+        # -------------------------------------------------
+
+        if len(contact_number) > 20:
+
+            flash(
+                "Contact number must not exceed 20 characters.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "admin.add_partner_company"
+                )
+            )
+
+
+        # -------------------------------------------------
+        # PASSWORD VALIDATION
+        # -------------------------------------------------
+
+        if len(password) < 6:
+
+            flash(
+                "Password must contain at least 6 characters.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "admin.add_partner_company"
+                )
+            )
+
 
         if len(password) > 30:
 
             flash(
-                "The password must not exceed 30 characters.",
+                "Password must not exceed 30 characters.",
                 "danger"
             )
 
@@ -1244,9 +1329,29 @@ def add_partner_company():
                 )
             )
 
+
+        if password != confirm_password:
+
+            flash(
+                "Passwords do not match.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "admin.add_partner_company"
+                )
+            )
+
+
+        # -------------------------------------------------
+        # AVAILABLE SLOTS
+        # -------------------------------------------------
+
         if available_slots is None:
 
             available_slots = 0
+
 
         if available_slots < 0:
 
@@ -1261,8 +1366,9 @@ def add_partner_company():
                 )
             )
 
+
         # -------------------------------------------------
-        # EMAIL CHECK
+        # EMAIL DUPLICATE CHECK
         # -------------------------------------------------
 
         existing_user = (
@@ -1272,6 +1378,7 @@ def add_partner_company():
             )
             .first()
         )
+
 
         if existing_user:
 
@@ -1286,49 +1393,67 @@ def add_partner_company():
                 )
             )
 
+
         # -------------------------------------------------
         # CREATE PARTNER USER
         # -------------------------------------------------
+        #
+        # Partner accounts do not use a personal
+        # first/middle/last name.
+        #
+        # The company name is placed in first_name
+        # only for compatibility with the existing
+        # User model.
+        #
+        # The actual company record is stored in
+        # IndustryPartner.company_name.
+        # -------------------------------------------------
 
         partner_user = User(
-            first_name=first_name,
-            middle_name=middle_name or None,
-            last_name=last_name,
+            first_name=company_name,
+            middle_name=None,
+            last_name="",
             email=email,
             contact_number=contact_number or None,
             role=User.ROLE_PARTNER,
             approval_status=User.APPROVAL_APPROVED,
             is_active_account=True,
+            created_at=datetime.utcnow(),
         )
+
 
         partner_user.set_password(
             password
         )
 
+
         db.session.add(
             partner_user
         )
 
+        db.session.flush()
+
+
+        # -------------------------------------------------
+        # CREATE INDUSTRY PARTNER
+        # -------------------------------------------------
+
+        company = IndustryPartner(
+            user_id=partner_user.id,
+            company_name=company_name,
+            industry=industry or None,
+            address=address or None,
+            available_slots=available_slots,
+            status="Active",
+        )
+
+
+        db.session.add(
+            company
+        )
+
+
         try:
-
-            db.session.flush()
-
-            # -------------------------------------------------
-            # CREATE COMPANY
-            # -------------------------------------------------
-
-            company = IndustryPartner(
-                user_id=partner_user.id,
-                company_name=company_name,
-                industry=industry or None,
-                address=address or None,
-                available_slots=available_slots,
-                status="Active",
-            )
-
-            db.session.add(
-                company
-            )
 
             db.session.commit()
 
@@ -1336,8 +1461,12 @@ def add_partner_company():
 
             db.session.rollback()
 
+            current_app.logger.exception(
+                "Failed to create partner company."
+            )
+
             flash(
-                "The partner company could not be added. Please check the information and try again.",
+                "The partner company could not be created. Please try again.",
                 "danger"
             )
 
@@ -1347,16 +1476,23 @@ def add_partner_company():
                 )
             )
 
+
         flash(
             f"{company_name} was added successfully.",
             "success"
         )
+
 
         return redirect(
             url_for(
                 "admin.partner_companies"
             )
         )
+
+
+    # -----------------------------------------------------
+    # GET
+    # -----------------------------------------------------
 
     return render_template(
         "admin/add_partner_company.html"
@@ -1367,7 +1503,9 @@ def add_partner_company():
 # REPORTS & MONITORING
 # =========================================================
 
-@admin_bp.route("/reports-monitoring")
+@admin_bp.route(
+    "/reports-monitoring"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def reports_monitoring():
@@ -1388,6 +1526,7 @@ def reports_monitoring():
         .all()
     )
 
+
     narrative_reports = (
         NarrativeReport.query
         .join(
@@ -1404,6 +1543,7 @@ def reports_monitoring():
         .all()
     )
 
+
     return render_template(
         "admin/reports_monitoring.html",
         weekly_reports=weekly_reports,
@@ -1415,7 +1555,9 @@ def reports_monitoring():
 # EVALUATIONS
 # =========================================================
 
-@admin_bp.route("/evaluations")
+@admin_bp.route(
+    "/evaluations"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def evaluations():
@@ -1436,6 +1578,7 @@ def evaluations():
         .all()
     )
 
+
     return render_template(
         "admin/evaluations.html",
         evaluations=evaluations
@@ -1446,7 +1589,9 @@ def evaluations():
 # GENERATE REPORT
 # =========================================================
 
-@admin_bp.route("/generate-report")
+@admin_bp.route(
+    "/generate-report"
+)
 @login_required
 @role_required(User.ROLE_ADMIN)
 def generate_report():
@@ -1459,6 +1604,7 @@ def generate_report():
         StudentProfile.query.count()
     )
 
+
     # -----------------------------------------------------
     # PARTNER COMPANIES
     # -----------------------------------------------------
@@ -1466,6 +1612,7 @@ def generate_report():
     total_partner_companies = (
         IndustryPartner.query.count()
     )
+
 
     active_partner_companies = (
         IndustryPartner.query
@@ -1475,6 +1622,7 @@ def generate_report():
         .count()
     )
 
+
     # -----------------------------------------------------
     # INTERNSHIPS
     # -----------------------------------------------------
@@ -1482,6 +1630,7 @@ def generate_report():
     total_internships = (
         Internship.query.count()
     )
+
 
     active_internships = (
         Internship.query
@@ -1491,6 +1640,7 @@ def generate_report():
         .count()
     )
 
+
     completed_internships = (
         Internship.query
         .filter_by(
@@ -1498,6 +1648,7 @@ def generate_report():
         )
         .count()
     )
+
 
     # -----------------------------------------------------
     # WEEKLY REPORTS
@@ -1507,6 +1658,7 @@ def generate_report():
         WeeklyReport.query.count()
     )
 
+
     submitted_weekly_reports = (
         WeeklyReport.query
         .filter_by(
@@ -1514,6 +1666,7 @@ def generate_report():
         )
         .count()
     )
+
 
     approved_weekly_reports = (
         WeeklyReport.query
@@ -1523,6 +1676,7 @@ def generate_report():
         .count()
     )
 
+
     pending_weekly_reports = (
         WeeklyReport.query
         .filter_by(
@@ -1530,6 +1684,7 @@ def generate_report():
         )
         .count()
     )
+
 
     # -----------------------------------------------------
     # NARRATIVE REPORTS
@@ -1539,6 +1694,7 @@ def generate_report():
         NarrativeReport.query.count()
     )
 
+
     # -----------------------------------------------------
     # EVALUATIONS
     # -----------------------------------------------------
@@ -1546,6 +1702,7 @@ def generate_report():
     total_evaluations = (
         Evaluation.query.count()
     )
+
 
     submitted_evaluations = (
         Evaluation.query
@@ -1555,19 +1712,33 @@ def generate_report():
         .count()
     )
 
+
     return render_template(
         "admin/generate_report.html",
+
         total_students=total_students,
+
         total_partner_companies=total_partner_companies,
+
         active_partner_companies=active_partner_companies,
+
         total_internships=total_internships,
+
         active_internships=active_internships,
+
         completed_internships=completed_internships,
+
         total_weekly_reports=total_weekly_reports,
+
         submitted_weekly_reports=submitted_weekly_reports,
+
         approved_weekly_reports=approved_weekly_reports,
+
         pending_weekly_reports=pending_weekly_reports,
+
         total_narrative_reports=total_narrative_reports,
+
         total_evaluations=total_evaluations,
+
         submitted_evaluations=submitted_evaluations,
     )

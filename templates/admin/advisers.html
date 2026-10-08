@@ -1,42 +1,61 @@
-
 {% extends "app_layout.html" %}
 
 {% block title %}
 Adviser Management
 {% endblock %}
 
+
 {% block sidebar_nav %}
 {% include "partials/admin_nav.html" %}
 {% endblock %}
 
+
 {% block page_header %}
+
 <div class="page-header">
+
     <div>
-        <h1>OJT Adviser Management</h1>
-        <p>Create and manage OJT Adviser accounts.</p>
+
+        <h1>
+            OJT Adviser Management
+        </h1>
+
+        <p>
+            Create and manage OJT Adviser accounts.
+        </p>
+
     </div>
 
     <div class="breadcrumb">
         Home / Admin / Advisers
     </div>
+
 </div>
+
 {% endblock %}
+
 
 {% block content %}
 
 <div class="grid grid-2">
 
-    <!-- CREATE ADVISER -->
+    <!-- =================================================
+         CREATE ADVISER
+    ================================================== -->
+
     <div class="card">
 
         <h3 class="card-title">
-            <I CLASS="FA-SOLID FA-USER"></I> Create OJT Adviser
+            &#128100; Create OJT Adviser
         </h3>
 
         <p style="color:var(--muted); margin-bottom:18px;">
             Adviser accounts are created directly by the
             administrator and are automatically approved.
         </p>
+
+
+        <!-- CREATE ADVISER FORM -->
 
         <form
             method="POST"
@@ -46,6 +65,7 @@ Adviser Management
             <div class="field-row">
 
                 <div class="field">
+
                     <label for="first_name">
                         First Name
                         <span class="required">*</span>
@@ -59,9 +79,12 @@ Adviser Management
                         required
                         autocomplete="given-name"
                     >
+
                 </div>
 
+
                 <div class="field">
+
                     <label for="middle_name">
                         Middle Name
                     </label>
@@ -73,11 +96,14 @@ Adviser Management
                         value="{{ form.get('middle_name', '') }}"
                         autocomplete="additional-name"
                     >
+
                 </div>
 
             </div>
 
+
             <div class="field">
+
                 <label for="last_name">
                     Last Name
                     <span class="required">*</span>
@@ -91,9 +117,12 @@ Adviser Management
                     required
                     autocomplete="family-name"
                 >
+
             </div>
 
+
             <div class="field">
+
                 <label for="email">
                     Email Address
                     <span class="required">*</span>
@@ -107,9 +136,12 @@ Adviser Management
                     required
                     autocomplete="email"
                 >
+
             </div>
 
+
             <div class="field">
+
                 <label for="contact_number">
                     Contact Number
                 </label>
@@ -121,15 +153,31 @@ Adviser Management
                     value="{{ form.get('contact_number', '') }}"
                     autocomplete="tel"
                 >
+
             </div>
 
+
+            <!-- =================================================
+                 PASSWORD
+            ================================================== -->
+
             <div class="field">
+
                 <label for="password">
                     Password
                     <span class="required">*</span>
                 </label>
 
-                <div class="input-icon-wrap">
+                <div
+                    class="input-icon-wrap"
+                    style="
+                        position:relative;
+                        width:100%;
+                        display:flex;
+                        align-items:center;
+                    "
+                >
+
                     <input
                         type="password"
                         id="password"
@@ -138,7 +186,13 @@ Adviser Management
                         maxlength="30"
                         required
                         autocomplete="new-password"
+                        style="
+                            width:100%;
+                            padding-right:55px;
+                            box-sizing:border-box;
+                        "
                     >
+
 
                     <button
                         type="button"
@@ -146,23 +200,75 @@ Adviser Management
                         data-target="password"
                         aria-label="Show password"
                         title="Show password"
+                        style="
+                            position:absolute;
+                            top:50%;
+                            right:8px;
+                            transform:translateY(-50%);
+                            width:40px;
+                            height:40px;
+                            padding:0;
+                            margin:0;
+                            border:0;
+                            border-radius:6px;
+                            background:transparent;
+                            color:#102d61;
+                            cursor:pointer;
+                            z-index:9999;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            pointer-events:auto;
+                        "
                     >
-                        &#128065;
+
+                        <span
+                            class="eye-icon"
+                            aria-hidden="true"
+                            style="
+                                position:relative;
+                                display:block;
+                                width:18px;
+                                height:12px;
+                                border:2px solid currentColor;
+                                border-radius:50% / 60%;
+                                box-sizing:border-box;
+                                pointer-events:none;
+                            "
+                        ></span>
+
                     </button>
+
                 </div>
 
                 <small style="color:var(--muted);">
                     Password must be 6–30 characters.
                 </small>
+
             </div>
 
+
+            <!-- =================================================
+                 CONFIRM PASSWORD
+            ================================================== -->
+
             <div class="field">
+
                 <label for="confirm_password">
                     Confirm Password
                     <span class="required">*</span>
                 </label>
 
-                <div class="input-icon-wrap">
+                <div
+                    class="input-icon-wrap"
+                    style="
+                        position:relative;
+                        width:100%;
+                        display:flex;
+                        align-items:center;
+                    "
+                >
+
                     <input
                         type="password"
                         id="confirm_password"
@@ -171,7 +277,13 @@ Adviser Management
                         maxlength="30"
                         required
                         autocomplete="new-password"
+                        style="
+                            width:100%;
+                            padding-right:55px;
+                            box-sizing:border-box;
+                        "
                     >
+
 
                     <button
                         type="button"
@@ -179,22 +291,73 @@ Adviser Management
                         data-target="confirm_password"
                         aria-label="Show password"
                         title="Show password"
+                        style="
+                            position:absolute;
+                            top:50%;
+                            right:8px;
+                            transform:translateY(-50%);
+                            width:40px;
+                            height:40px;
+                            padding:0;
+                            margin:0;
+                            border:0;
+                            border-radius:6px;
+                            background:transparent;
+                            color:#102d61;
+                            cursor:pointer;
+                            z-index:9999;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            pointer-events:auto;
+                        "
                     >
-                        &#128065;
+
+                        <span
+                            class="eye-icon"
+                            aria-hidden="true"
+                            style="
+                                position:relative;
+                                display:block;
+                                width:18px;
+                                height:12px;
+                                border:2px solid currentColor;
+                                border-radius:50% / 60%;
+                                box-sizing:border-box;
+                                pointer-events:none;
+                            "
+                        ></span>
+
                     </button>
+
                 </div>
+
             </div>
+
+
+            <!-- =================================================
+                 ADVISER NOTICE
+            ================================================== -->
 
             <div
                 class="verification-notice"
                 style="margin-bottom:18px;"
             >
-                <strong>Adviser Account:</strong>
+
+                <strong>
+                    Adviser Account:
+                </strong>
 
                 This account is created by the administrator,
                 so no public registration or account approval
                 is required.
+
             </div>
+
+
+            <!-- =================================================
+                 FORM ACTIONS
+            ================================================== -->
 
             <div class="form-actions">
 
@@ -204,6 +367,7 @@ Adviser Management
                 >
                     &#8635; Reset
                 </button>
+
 
                 <button
                     type="submit"
@@ -219,12 +383,16 @@ Adviser Management
     </div>
 
 
-    <!-- ADVISER LIST -->
+    <!-- =================================================
+         ADVISER LIST
+    ================================================== -->
+
     <div class="card">
 
         <h3 class="card-title">
             &#128101; Adviser Accounts
         </h3>
+
 
         {% if advisers %}
 
@@ -233,14 +401,33 @@ Adviser Management
             <table>
 
                 <thead>
+
                     <tr>
-                        <th>Adviser</th>
-                        <th>Email</th>
-                        <th>Assigned Students</th>
-                        <th>Status</th>
-                        <th>Action</th>
+
+                        <th>
+                            Adviser
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Assigned Students
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
                     </tr>
+
                 </thead>
+
 
                 <tbody>
 
@@ -249,6 +436,7 @@ Adviser Management
                     <tr>
 
                         <td>
+
                             <strong>
                                 {{ adviser.full_name }}
                             </strong>
@@ -258,17 +446,22 @@ Adviser Management
                             <small style="color:var(--muted);">
                                 OJT Adviser
                             </small>
+
                         </td>
+
 
                         <td>
                             {{ adviser.email }}
                         </td>
 
+
                         <td>
                             {{ assigned_counts.get(adviser.id, 0) }}
                         </td>
 
+
                         <td>
+
                             {% if adviser.is_active_account
                                   and adviser.approval_status == 'Approved' %}
 
@@ -283,15 +476,23 @@ Adviser Management
                                 </span>
 
                             {% endif %}
+
                         </td>
 
+
                         <td>
+
+                            <!-- =================================================
+                                 DELETE ADVISER
+
+                                 delete_adviser() expects user_id.
+                            ================================================== -->
 
                             <form
                                 method="POST"
                                 action="{{ url_for(
                                     'admin.delete_adviser',
-                                    adviser_id=adviser.id
+                                    user_id=adviser.id
                                 ) }}"
                                 onsubmit="return confirm(
                                     'Delete this Adviser account? Assigned students will be unassigned.'
@@ -324,10 +525,12 @@ Adviser Management
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                <I CLASS="FA-SOLID FA-USER"></I>
+                &#128100;
             </div>
 
-            <h3>No Adviser Accounts</h3>
+            <h3>
+                No Adviser Accounts
+            </h3>
 
             <p>
                 Create your first OJT Adviser account
@@ -343,44 +546,93 @@ Adviser Management
 </div>
 
 
-<!-- PASSWORD SHOW / HIDE -->
+<!-- =====================================================
+     PASSWORD SHOW / HIDE
+====================================================== -->
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll(".toggle-visibility").forEach(
-        function (button) {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-            button.addEventListener("click", function () {
+        document.addEventListener(
+            "click",
+            function (event) {
 
-                const targetId = button.dataset.target;
-                const input = document.getElementById(targetId);
+                const button =
+                    event.target.closest(
+                        ".toggle-visibility"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                const targetId =
+                    button.getAttribute(
+                        "data-target"
+                    );
+
+
+                const input =
+                    document.getElementById(
+                        targetId
+                    );
+
 
                 if (!input) {
                     return;
                 }
 
-                if (input.type === "password") {
+
+                if (
+                    input.type === "password"
+                ) {
 
                     input.type = "text";
+
+
+                    button.classList.add(
+                        "password-visible"
+                    );
+
 
                     button.setAttribute(
                         "aria-label",
                         "Hide password"
                     );
+
 
                     button.setAttribute(
                         "title",
                         "Hide password"
                     );
 
-                } else {
+                }
+
+                else {
 
                     input.type = "password";
+
+
+                    button.classList.remove(
+                        "password-visible"
+                    );
+
 
                     button.setAttribute(
                         "aria-label",
                         "Show password"
                     );
+
 
                     button.setAttribute(
                         "title",
@@ -389,12 +641,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 }
 
-            });
+            },
+            true
+        );
 
-        }
-    );
+    }
+);
 
-});
 </script>
 
 {% endblock %}
