@@ -1,0 +1,176 @@
+{% extends "app_layout.html" %}
+
+{% block title %}Profile Pictures{% endblock %}
+
+{% block sidebar_nav %}
+{% include "partials/admin_nav.html" %}
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="page-header">
+
+  <div>
+
+    <h1>Profile Picture Approvals</h1>
+
+    <p>
+      Review new profile pictures submitted by students.
+    </p>
+
+  </div>
+
+  <div class="breadcrumb">
+    Home / Admin / Profile Pictures
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+  <h3 class="card-title">
+    Pending Pictures ({{ pending_profiles|length }})
+  </h3>
+
+
+  {% if pending_profiles %}
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th style="text-align:center;">Current</th>
+          <th style="text-align:center;">New (Pending)</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for p in pending_profiles %}
+
+        <tr>
+
+          <td>
+            <div style="font-weight:600;">
+              {{ p.user.full_name }}
+            </div>
+            <div style="font-size:12px; color:var(--muted);">
+              {{ p.student_id_number }}
+            </div>
+          </td>
+
+
+          <td style="text-align:center;">
+
+            {% if p.profile_picture_path %}
+
+              <img
+                src="{{ url_for('admin.current_profile_picture', profile_id=p.id) }}?v={{ p.profile_picture_path.split('/')[-1] }}"
+                alt="Current picture"
+                style="
+                  width:84px;
+                  height:84px;
+                  border-radius:50%;
+                  object-fit:cover;
+                "
+              >
+
+            {% else %}
+
+              <span style="font-size:12px; color:var(--muted);">
+                None
+              </span>
+
+            {% endif %}
+
+          </td>
+
+
+          <td style="text-align:center;">
+
+            <a
+              href="{{ url_for('admin.pending_profile_picture', profile_id=p.id) }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <img
+                src="{{ url_for('admin.pending_profile_picture', profile_id=p.id) }}?v={{ p.pending_profile_picture_path.split('/')[-1] }}"
+                alt="Pending picture"
+                style="
+                  width:84px;
+                  height:84px;
+                  border-radius:50%;
+                  object-fit:cover;
+                "
+              >
+
+            </a>
+
+          </td>
+
+
+          <td>
+
+            <form
+              method="POST"
+              action="{{ url_for('admin.approve_profile_picture', profile_id=p.id) }}"
+              style="margin:0 0 8px;"
+            >
+
+              <button type="submit" class="btn btn-primary btn-sm">
+                Approve
+              </button>
+
+            </form>
+
+
+            <form
+              method="POST"
+              action="{{ url_for('admin.reject_profile_picture', profile_id=p.id) }}"
+              style="margin:0; display:flex; gap:6px; align-items:center;"
+            >
+
+              <input
+                type="text"
+                name="reason"
+                maxlength="200"
+                placeholder="Rejection reason (optional)"
+                style="min-width:200px;"
+              >
+
+              <button type="submit" class="btn btn-secondary btn-sm">
+                Reject
+              </button>
+
+            </form>
+
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  {% else %}
+
+    <p style="font-size:13px; color:var(--muted);">
+      There are no profile pictures waiting for review.
+    </p>
+
+  {% endif %}
+
+</div>
+
+{% endblock %}

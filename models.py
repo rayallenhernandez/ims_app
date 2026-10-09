@@ -336,7 +336,31 @@ class StudentProfile(db.Model):
     medical_certificate_path = db.Column(
         db.String(255)
     )
+    # -----------------------------------------------------
+    # PROFILE PICTURE (ADMIN-APPROVED)
+    # -----------------------------------------------------
 
+    profile_picture_path = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    pending_profile_picture_path = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    profile_picture_status = db.Column(
+        db.String(20),
+        nullable=True,
+        default=None
+    )
+
+    profile_picture_rejection_reason = db.Column(
+        db.String(255),
+        nullable=True
+    )
+    
     # -----------------------------------------------------
     # INTERNSHIPS
     # -----------------------------------------------------

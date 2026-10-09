@@ -12,6 +12,7 @@ from flask import (
     flash,
     current_app,
     send_from_directory,
+    abort,
 )
 
 from flask_login import login_required, current_user
@@ -58,7 +59,6 @@ def dashboard():
         StudentProfile.query.count()
     )
 
-
     # -----------------------------------------------------
     # ACTIVE INTERNS
     # -----------------------------------------------------
@@ -71,7 +71,6 @@ def dashboard():
         .count()
     )
 
-
     # -----------------------------------------------------
     # PARTNER COMPANIES
     # -----------------------------------------------------
@@ -83,7 +82,6 @@ def dashboard():
         )
         .count()
     )
-
 
     # -----------------------------------------------------
     # PENDING WEEKLY REPORTS
@@ -99,7 +97,6 @@ def dashboard():
         )
         .count()
     )
-
 
     # -----------------------------------------------------
     # PENDING ACCOUNTS
@@ -117,7 +114,6 @@ def dashboard():
         .count()
     )
 
-
     # -----------------------------------------------------
     # STUDENTS OVERVIEW
     # -----------------------------------------------------
@@ -130,7 +126,6 @@ def dashboard():
         .limit(10)
         .all()
     )
-
 
     # -----------------------------------------------------
     # COMPANIES OVERVIEW
@@ -145,7 +140,6 @@ def dashboard():
         .all()
     )
 
-
     # -----------------------------------------------------
     # RECENT WEEKLY REPORTS
     # -----------------------------------------------------
@@ -159,7 +153,6 @@ def dashboard():
         .all()
     )
 
-
     # -----------------------------------------------------
     # RECENT EVALUATIONS
     # -----------------------------------------------------
@@ -172,7 +165,6 @@ def dashboard():
         .limit(10)
         .all()
     )
-
 
     return render_template(
         "admin/dashboard.html",
@@ -243,7 +235,6 @@ def view_verification_document(user_id):
         user_id
     )
 
-
     if not user.verification_document_path:
 
         flash(
@@ -257,12 +248,10 @@ def view_verification_document(user_id):
             )
         )
 
-
     file_path = os.path.join(
         current_app.config["UPLOAD_FOLDER"],
         user.verification_document_path
     )
-
 
     if not os.path.exists(file_path):
 
@@ -276,7 +265,6 @@ def view_verification_document(user_id):
                 "admin.account_approvals"
             )
         )
-
 
     return send_from_directory(
         current_app.config["UPLOAD_FOLDER"],
@@ -301,7 +289,6 @@ def approve_account(user_id):
         user_id
     )
 
-
     # -----------------------------------------------------
     # ADMIN ACCOUNT CHECK
     # -----------------------------------------------------
@@ -318,7 +305,6 @@ def approve_account(user_id):
                 "admin.account_approvals"
             )
         )
-
 
     # -----------------------------------------------------
     # VERIFICATION DOCUMENT CHECK
@@ -337,7 +323,6 @@ def approve_account(user_id):
             )
         )
 
-
     # -----------------------------------------------------
     # APPROVE ACCOUNT
     # -----------------------------------------------------
@@ -350,12 +335,10 @@ def approve_account(user_id):
 
     db.session.commit()
 
-
     flash(
         f"{user.full_name}'s account has been approved.",
         "success"
     )
-
 
     return redirect(
         url_for(
@@ -380,7 +363,6 @@ def reject_account(user_id):
         user_id
     )
 
-
     # -----------------------------------------------------
     # ADMIN ACCOUNT CHECK
     # -----------------------------------------------------
@@ -398,7 +380,6 @@ def reject_account(user_id):
             )
         )
 
-
     # -----------------------------------------------------
     # REJECT ACCOUNT
     # -----------------------------------------------------
@@ -411,16 +392,337 @@ def reject_account(user_id):
 
     db.session.commit()
 
-
     flash(
         f"{user.full_name}'s account has been rejected.",
         "warning"
     )
 
-
     return redirect(
         url_for(
             "admin.account_approvals"
+        )
+    )
+
+
+# =========================================================
+# PROFILE PICTURE HELPERS
+# =========================================================
+
+def _remove_upload(relative_path):
+
+    """
+    Safely delete a file under UPLOAD_FOLDER.
+    Never raises; failures are only logged.
+    """
+
+    if not relative_path:
+        return
+
+    base = os.path.realpath(
+        current_app.config["UPLOAD_FOLDER"]
+    )
+
+    full_path = os.path.realpath(
+        os.path.join(base, relative_path)
+    )
+
+    if not full_path.startswith(base + os.sep):
+        return
+
+    try:
+
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+
+    except OSError:
+
+        current_app.logger.warning(
+            "Could not remove file: %s",
+            full_path,
+        )
+
+
+def _send_private_image(relative_path):
+
+    if not relative_path:
+        abort(404)
+
+    full_path = os.path.join(
+        current_app.config["UPLOAD_FOLDER"],
+        relative_path,
+    )
+
+    if not os.path.isfile(full_path):
+        abort(404)
+
+    response = send_from_directory(
+        current_app.config["UPLOAD_FOLDER"],
+        relative_path,
+        as_attachment=False,
+    )
+
+    response.headers["Cache-Control"] = "private, no-store"
+
+    return response
+
+
+# =========================================================
+# PROFILE PICTURE REVIEW LIST
+# =========================================================
+
+@admin_bp.route(
+    "/profile-pictures"
+)
+@login_required
+@role_required(User.ROLE_ADMIN)
+def profile_pictures():
+
+    pending_profiles = (
+        StudentProfile.query
+        .join(
+            User,
+            StudentProfile.user_id == User.id
+        )
+        .filter(
+            StudentProfile.profile_picture_status == "Pending",
+            StudentProfile.pending_profile_picture_path.isnot(None),
+        )
+        .order_by(
+            User.last_name.asc(),
+            User.first_name.asc()
+        )
+        .all()
+    )
+
+    return render_template(
+        "admin/profile_pictures.html",
+        pending_profiles=pending_profiles
+    )
+
+
+# =========================================================
+# VIEW PENDING PROFILE PICTURE (ADMIN ONLY)
+# =========================================================
+
+@admin_bp.route(
+    "/profile-pictures/<int:profile_id>/pending"
+)
+@login_required
+@role_required(User.ROLE_ADMIN)
+def pending_profile_picture(profile_id):
+
+    profile = StudentProfile.query.get_or_404(
+        profile_id
+    )
+
+    return _send_private_image(
+        profile.pending_profile_picture_path
+    )
+
+
+# =========================================================
+# VIEW CURRENT APPROVED PROFILE PICTURE (ADMIN ONLY)
+# =========================================================
+
+@admin_bp.route(
+    "/profile-pictures/<int:profile_id>/current"
+)
+@login_required
+@role_required(User.ROLE_ADMIN)
+def current_profile_picture(profile_id):
+
+    profile = StudentProfile.query.get_or_404(
+        profile_id
+    )
+
+    return _send_private_image(
+        profile.profile_picture_path
+    )
+
+
+# =========================================================
+# APPROVE PROFILE PICTURE
+# =========================================================
+
+@admin_bp.route(
+    "/profile-pictures/<int:profile_id>/approve",
+    methods=["POST"]
+)
+@login_required
+@role_required(User.ROLE_ADMIN)
+def approve_profile_picture(profile_id):
+
+    profile = StudentProfile.query.get_or_404(
+        profile_id
+    )
+
+    if (
+        profile.profile_picture_status != "Pending"
+        or not profile.pending_profile_picture_path
+    ):
+
+        flash(
+            "This student has no pending profile picture.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "admin.profile_pictures"
+            )
+        )
+
+    old_approved_path = profile.profile_picture_path
+
+    profile.profile_picture_path = (
+        profile.pending_profile_picture_path
+    )
+
+    profile.pending_profile_picture_path = None
+
+    profile.profile_picture_status = "Approved"
+
+    profile.profile_picture_rejection_reason = None
+
+    db.session.add(
+        Notification(
+            user_id=profile.user_id,
+            message="Your new profile picture was approved.",
+        )
+    )
+
+    try:
+
+        db.session.commit()
+
+    except Exception:
+
+        db.session.rollback()
+
+        current_app.logger.exception(
+            "Failed to approve profile picture."
+        )
+
+        flash(
+            "The profile picture could not be approved. Please try again.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "admin.profile_pictures"
+            )
+        )
+
+    # Remove the replaced picture only after the database
+    # change has succeeded.
+    _remove_upload(old_approved_path)
+
+    flash(
+        f"{profile.user.full_name}'s profile picture was approved.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "admin.profile_pictures"
+        )
+    )
+
+
+# =========================================================
+# REJECT PROFILE PICTURE
+# =========================================================
+
+@admin_bp.route(
+    "/profile-pictures/<int:profile_id>/reject",
+    methods=["POST"]
+)
+@login_required
+@role_required(User.ROLE_ADMIN)
+def reject_profile_picture(profile_id):
+
+    profile = StudentProfile.query.get_or_404(
+        profile_id
+    )
+
+    if (
+        profile.profile_picture_status != "Pending"
+        or not profile.pending_profile_picture_path
+    ):
+
+        flash(
+            "This student has no pending profile picture.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "admin.profile_pictures"
+            )
+        )
+
+    reason = request.form.get(
+        "reason",
+        ""
+    ).strip()[:200]
+
+    rejected_path = profile.pending_profile_picture_path
+
+    # The existing approved picture is left untouched.
+    profile.pending_profile_picture_path = None
+
+    profile.profile_picture_status = "Rejected"
+
+    profile.profile_picture_rejection_reason = (
+        reason or None
+    )
+
+    message = "Your new profile picture was rejected."
+
+    if reason:
+        message = f"{message} Reason: {reason}"
+
+    db.session.add(
+        Notification(
+            user_id=profile.user_id,
+            message=message[:255],
+        )
+    )
+
+    try:
+
+        db.session.commit()
+
+    except Exception:
+
+        db.session.rollback()
+
+        current_app.logger.exception(
+            "Failed to reject profile picture."
+        )
+
+        flash(
+            "The profile picture could not be rejected. Please try again.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "admin.profile_pictures"
+            )
+        )
+
+    _remove_upload(rejected_path)
+
+    flash(
+        f"{profile.user.full_name}'s profile picture was rejected.",
+        "warning"
+    )
+
+    return redirect(
+        url_for(
+            "admin.profile_pictures"
         )
     )
 
@@ -452,7 +754,6 @@ def advisers():
         .all()
     )
 
-
     # -----------------------------------------------------
     # COUNT ASSIGNED STUDENTS
     # -----------------------------------------------------
@@ -469,7 +770,6 @@ def advisers():
             .count()
         )
 
-
     # -----------------------------------------------------
     # EMPTY FORM FOR THE ADVISER PAGE
     # -----------------------------------------------------
@@ -481,7 +781,6 @@ def advisers():
         "email": "",
         "contact_number": "",
     }
-
 
     # -----------------------------------------------------
     # DISPLAY PAGE
@@ -560,7 +859,6 @@ def create_adviser():
             "contact_number": contact_number,
         }
 
-
         # -------------------------------------------------
         # REQUIRED NAME FIELDS
         # -------------------------------------------------
@@ -576,7 +874,6 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
-
 
         # -------------------------------------------------
         # NAME VALIDATION
@@ -608,7 +905,6 @@ def create_adviser():
                     form=form
                 )
 
-
         # -------------------------------------------------
         # EMAIL VALIDATION
         # -------------------------------------------------
@@ -630,7 +926,6 @@ def create_adviser():
                 form=form
             )
 
-
         # -------------------------------------------------
         # PASSWORD VALIDATION
         # -------------------------------------------------
@@ -647,7 +942,6 @@ def create_adviser():
                 form=form
             )
 
-
         if len(password) > 30:
 
             flash(
@@ -660,7 +954,6 @@ def create_adviser():
                 form=form
             )
 
-
         if password != confirm_password:
 
             flash(
@@ -672,7 +965,6 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
-
 
         # -------------------------------------------------
         # EMAIL DUPLICATE CHECK
@@ -697,7 +989,6 @@ def create_adviser():
                 "admin/create_adviser.html",
                 form=form
             )
-
 
         # -------------------------------------------------
         # CREATE APPROVED ACTIVE ADVISER
@@ -774,7 +1065,6 @@ def delete_adviser(user_id):
         user_id
     )
 
-
     # -----------------------------------------------------
     # SAFETY CHECKS
     # -----------------------------------------------------
@@ -792,7 +1082,6 @@ def delete_adviser(user_id):
             )
         )
 
-
     if adviser.id == current_user.id:
 
         flash(
@@ -805,7 +1094,6 @@ def delete_adviser(user_id):
                 "admin.advisers"
             )
         )
-
 
     # -----------------------------------------------------
     # UNASSIGN STUDENTS FIRST
@@ -820,7 +1108,6 @@ def delete_adviser(user_id):
         synchronize_session=False
     )
 
-
     # -----------------------------------------------------
     # REMOVE NOTIFICATIONS FOR THE ADVISER
     # -----------------------------------------------------
@@ -830,7 +1117,6 @@ def delete_adviser(user_id):
     ).delete(
         synchronize_session=False
     )
-
 
     adviser_name = adviser.full_name
 
@@ -856,7 +1142,6 @@ def delete_adviser(user_id):
                 "admin.advisers"
             )
         )
-
 
     flash(
         f"Adviser account for {adviser_name} was deleted successfully.",
@@ -894,7 +1179,6 @@ def assign_adviser():
             ""
         ).strip()
 
-
         # -------------------------------------------------
         # STUDENT ID VALIDATION
         # -------------------------------------------------
@@ -917,7 +1201,6 @@ def assign_adviser():
                     "admin.assign_adviser"
                 )
             )
-
 
         # -------------------------------------------------
         # ADVISER ID VALIDATION
@@ -942,7 +1225,6 @@ def assign_adviser():
                 )
             )
 
-
         # -------------------------------------------------
         # FIND APPROVED ACTIVE STUDENT
         # -------------------------------------------------
@@ -962,7 +1244,6 @@ def assign_adviser():
             .first()
         )
 
-
         if student is None:
 
             flash(
@@ -975,7 +1256,6 @@ def assign_adviser():
                     "admin.assign_adviser"
                 )
             )
-
 
         # -------------------------------------------------
         # FIND APPROVED ACTIVE ADVISER
@@ -992,7 +1272,6 @@ def assign_adviser():
             .first()
         )
 
-
         if adviser is None:
 
             flash(
@@ -1005,7 +1284,6 @@ def assign_adviser():
                     "admin.assign_adviser"
                 )
             )
-
 
         # -------------------------------------------------
         # CHECK CURRENT ADVISER
@@ -1024,7 +1302,6 @@ def assign_adviser():
                 )
             )
 
-
         # -------------------------------------------------
         # ASSIGN ADVISER
         # -------------------------------------------------
@@ -1034,7 +1311,6 @@ def assign_adviser():
         student.adviser_id = adviser.id
 
         db.session.commit()
-
 
         if old_adviser_id:
 
@@ -1050,13 +1326,11 @@ def assign_adviser():
                 "success"
             )
 
-
         return redirect(
             url_for(
                 "admin.assign_adviser"
             )
         )
-
 
     # -----------------------------------------------------
     # GET APPROVED ACTIVE STUDENTS
@@ -1080,7 +1354,6 @@ def assign_adviser():
         .all()
     )
 
-
     # -----------------------------------------------------
     # GET APPROVED ACTIVE ADVISERS
     # -----------------------------------------------------
@@ -1098,7 +1371,6 @@ def assign_adviser():
         )
         .all()
     )
-
 
     return render_template(
         "admin/assign_adviser.html",
@@ -1224,7 +1496,6 @@ def add_partner_company():
             ""
         )
 
-
         # -------------------------------------------------
         # REQUIRED COMPANY NAME
         # -------------------------------------------------
@@ -1242,7 +1513,6 @@ def add_partner_company():
                 )
             )
 
-
         # -------------------------------------------------
         # EMAIL VALIDATION
         # -------------------------------------------------
@@ -1259,7 +1529,6 @@ def add_partner_company():
                     "admin.add_partner_company"
                 )
             )
-
 
         email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
@@ -1279,7 +1548,6 @@ def add_partner_company():
                 )
             )
 
-
         # -------------------------------------------------
         # CONTACT NUMBER VALIDATION
         # -------------------------------------------------
@@ -1296,7 +1564,6 @@ def add_partner_company():
                     "admin.add_partner_company"
                 )
             )
-
 
         # -------------------------------------------------
         # PASSWORD VALIDATION
@@ -1315,7 +1582,6 @@ def add_partner_company():
                 )
             )
 
-
         if len(password) > 30:
 
             flash(
@@ -1328,7 +1594,6 @@ def add_partner_company():
                     "admin.add_partner_company"
                 )
             )
-
 
         if password != confirm_password:
 
@@ -1343,7 +1608,6 @@ def add_partner_company():
                 )
             )
 
-
         # -------------------------------------------------
         # AVAILABLE SLOTS
         # -------------------------------------------------
@@ -1351,7 +1615,6 @@ def add_partner_company():
         if available_slots is None:
 
             available_slots = 0
-
 
         if available_slots < 0:
 
@@ -1366,7 +1629,6 @@ def add_partner_company():
                 )
             )
 
-
         # -------------------------------------------------
         # EMAIL DUPLICATE CHECK
         # -------------------------------------------------
@@ -1378,7 +1640,6 @@ def add_partner_company():
             )
             .first()
         )
-
 
         if existing_user:
 
@@ -1392,7 +1653,6 @@ def add_partner_company():
                     "admin.add_partner_company"
                 )
             )
-
 
         # -------------------------------------------------
         # CREATE PARTNER USER
@@ -1421,18 +1681,15 @@ def add_partner_company():
             created_at=datetime.utcnow(),
         )
 
-
         partner_user.set_password(
             password
         )
-
 
         db.session.add(
             partner_user
         )
 
         db.session.flush()
-
 
         # -------------------------------------------------
         # CREATE INDUSTRY PARTNER
@@ -1447,11 +1704,9 @@ def add_partner_company():
             status="Active",
         )
 
-
         db.session.add(
             company
         )
-
 
         try:
 
@@ -1476,19 +1731,16 @@ def add_partner_company():
                 )
             )
 
-
         flash(
             f"{company_name} was added successfully.",
             "success"
         )
-
 
         return redirect(
             url_for(
                 "admin.partner_companies"
             )
         )
-
 
     # -----------------------------------------------------
     # GET
@@ -1526,7 +1778,6 @@ def reports_monitoring():
         .all()
     )
 
-
     narrative_reports = (
         NarrativeReport.query
         .join(
@@ -1542,7 +1793,6 @@ def reports_monitoring():
         )
         .all()
     )
-
 
     return render_template(
         "admin/reports_monitoring.html",
@@ -1578,7 +1828,6 @@ def evaluations():
         .all()
     )
 
-
     return render_template(
         "admin/evaluations.html",
         evaluations=evaluations
@@ -1604,7 +1853,6 @@ def generate_report():
         StudentProfile.query.count()
     )
 
-
     # -----------------------------------------------------
     # PARTNER COMPANIES
     # -----------------------------------------------------
@@ -1612,7 +1860,6 @@ def generate_report():
     total_partner_companies = (
         IndustryPartner.query.count()
     )
-
 
     active_partner_companies = (
         IndustryPartner.query
@@ -1622,7 +1869,6 @@ def generate_report():
         .count()
     )
 
-
     # -----------------------------------------------------
     # INTERNSHIPS
     # -----------------------------------------------------
@@ -1630,7 +1876,6 @@ def generate_report():
     total_internships = (
         Internship.query.count()
     )
-
 
     active_internships = (
         Internship.query
@@ -1640,7 +1885,6 @@ def generate_report():
         .count()
     )
 
-
     completed_internships = (
         Internship.query
         .filter_by(
@@ -1648,7 +1892,6 @@ def generate_report():
         )
         .count()
     )
-
 
     # -----------------------------------------------------
     # WEEKLY REPORTS
@@ -1658,7 +1901,6 @@ def generate_report():
         WeeklyReport.query.count()
     )
 
-
     submitted_weekly_reports = (
         WeeklyReport.query
         .filter_by(
@@ -1666,7 +1908,6 @@ def generate_report():
         )
         .count()
     )
-
 
     approved_weekly_reports = (
         WeeklyReport.query
@@ -1676,7 +1917,6 @@ def generate_report():
         .count()
     )
 
-
     pending_weekly_reports = (
         WeeklyReport.query
         .filter_by(
@@ -1684,7 +1924,6 @@ def generate_report():
         )
         .count()
     )
-
 
     # -----------------------------------------------------
     # NARRATIVE REPORTS
@@ -1694,7 +1933,6 @@ def generate_report():
         NarrativeReport.query.count()
     )
 
-
     # -----------------------------------------------------
     # EVALUATIONS
     # -----------------------------------------------------
@@ -1703,7 +1941,6 @@ def generate_report():
         Evaluation.query.count()
     )
 
-
     submitted_evaluations = (
         Evaluation.query
         .filter_by(
@@ -1711,7 +1948,6 @@ def generate_report():
         )
         .count()
     )
-
 
     return render_template(
         "admin/generate_report.html",

@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from datetime import datetime, date
 
@@ -12,6 +13,7 @@ from flask import (
     current_app,
     send_from_directory,
     send_file,
+    abort,
 )
 
 from flask_login import login_required, current_user
@@ -104,6 +106,169 @@ def _save_upload(file_storage, subfolder):
     )
 
     return f"{subfolder}/{stored_name}"
+
+
+# =========================================================
+# PROFILE PICTURE CONFIGURATION AND HELPERS
+# =========================================================
+
+PROFILE_PICTURE_FOLDER = "profile_pictures"
+PROFILE_PICTURE_PENDING_FOLDER = "profile_pictures_pending"
+
+# These folders must never be served by the generic
+# /student/uploads/<path> route.
+PRIVATE_UPLOAD_FOLDERS = {
+    PROFILE_PICTURE_FOLDER,
+    PROFILE_PICTURE_PENDING_FOLDER,
+}
+
+PROFILE_PICTURE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+
+PROFILE_PICTURE_MAX_BYTES = 2 * 1024 * 1024  # 2 MB
+
+PROFILE_PICTURE_STATUS_PENDING = "Pending"
+PROFILE_PICTURE_STATUS_APPROVED = "Approved"
+PROFILE_PICTURE_STATUS_REJECTED = "Rejected"
+
+
+def _detect_image_type(header):
+
+    """
+    Identify the real image type from the first bytes of
+    the file, so a renamed non-image file is rejected.
+    Returns "jpg", "png", "webp" or None.
+    """
+
+    if header[:3] == b"\xff\xd8\xff":
+        return "jpg"
+
+    if header[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+
+    if header[:4] == b"RIFF" and header[8:12] == b"WEBP":
+        return "webp"
+
+    return None
+
+
+def _remove_upload(relative_path):
+
+    """
+    Safely delete a file under UPLOAD_FOLDER.
+    Never raises; failures are only logged.
+    """
+
+    if not relative_path:
+        return
+
+    base = os.path.realpath(
+        current_app.config["UPLOAD_FOLDER"]
+    )
+
+    full_path = os.path.realpath(
+        os.path.join(base, relative_path)
+    )
+
+    if not full_path.startswith(base + os.sep):
+        return
+
+    try:
+
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+
+    except OSError:
+
+        current_app.logger.warning(
+            "Could not remove file: %s",
+            full_path,
+        )
+
+
+def _save_pending_profile_picture(file_storage):
+
+    """
+    Validate and save a new profile picture into the private
+    pending folder. Returns (relative_path, error_message).
+    """
+
+    if not file_storage or file_storage.filename == "":
+        return None, "Please choose an image to upload."
+
+    filename = file_storage.filename
+
+    extension = (
+        filename.rsplit(".", 1)[-1].lower()
+        if "." in filename
+        else ""
+    )
+
+    if extension not in PROFILE_PICTURE_EXTENSIONS:
+        return None, "Profile picture must be a JPG, PNG, or WEBP image."
+
+    stream = file_storage.stream
+
+    stream.seek(0, os.SEEK_END)
+    size = stream.tell()
+    stream.seek(0)
+
+    if size == 0:
+        return None, "The selected file is empty."
+
+    if size > PROFILE_PICTURE_MAX_BYTES:
+        return None, "Profile picture must not be larger than 2 MB."
+
+    header = stream.read(16)
+    stream.seek(0)
+
+    detected = _detect_image_type(header)
+
+    if detected is None:
+        return None, "The selected file is not a valid JPG, PNG, or WEBP image."
+
+    folder = os.path.join(
+        current_app.config["UPLOAD_FOLDER"],
+        PROFILE_PICTURE_PENDING_FOLDER,
+    )
+
+    os.makedirs(folder, exist_ok=True)
+
+    stored_name = f"{uuid.uuid4().hex}.{detected}"
+
+    file_storage.save(
+        os.path.join(folder, stored_name)
+    )
+
+    return f"{PROFILE_PICTURE_PENDING_FOLDER}/{stored_name}", None
+
+
+def _send_private_image(relative_path):
+
+    """
+    Send an image from UPLOAD_FOLDER with no-store caching.
+    Callers must check authorization first.
+    """
+
+    if not relative_path:
+        abort(404)
+
+    full_path = os.path.join(
+        current_app.config["UPLOAD_FOLDER"],
+        relative_path,
+    )
+
+    if not os.path.isfile(full_path):
+        abort(404)
+
+    response = send_from_directory(
+        current_app.config["UPLOAD_FOLDER"],
+        relative_path,
+        as_attachment=False,
+    )
+
+    response.headers["Cache-Control"] = "private, no-store"
+
+    return response
 
 
 # =========================================================
@@ -234,6 +399,84 @@ def profile():
 
     if request.method == "POST":
 
+        # -------------------------------------------------
+        # READ AND VALIDATE ACADEMIC INFORMATION FIRST
+        # -------------------------------------------------
+
+        course = request.form.get(
+            "course",
+            profile.course or "",
+        ).strip()
+
+        year_level = request.form.get(
+            "year_level",
+            profile.year_level or "",
+        ).strip()
+
+        section = request.form.get(
+            "section",
+            profile.section or "",
+        ).strip()
+
+        if not course:
+
+            flash(
+                "Course is required.",
+                "danger",
+            )
+
+            return redirect(
+                url_for("student.profile")
+            )
+
+        if len(course) > 120:
+
+            flash(
+                "Course must not exceed 120 characters.",
+                "danger",
+            )
+
+            return redirect(
+                url_for("student.profile")
+            )
+
+        if not year_level:
+
+            flash(
+                "Year level is required.",
+                "danger",
+            )
+
+            return redirect(
+                url_for("student.profile")
+            )
+
+        if len(year_level) > 20:
+
+            flash(
+                "Year level must not exceed 20 characters.",
+                "danger",
+            )
+
+            return redirect(
+                url_for("student.profile")
+            )
+
+        if len(section) > 20:
+
+            flash(
+                "Section must not exceed 20 characters.",
+                "danger",
+            )
+
+            return redirect(
+                url_for("student.profile")
+            )
+
+        # -------------------------------------------------
+        # EXISTING PROFILE FIELDS
+        # -------------------------------------------------
+
         current_user.first_name = request.form.get(
             "first_name",
             current_user.first_name,
@@ -254,6 +497,14 @@ def profile():
             profile.address,
         ).strip()
 
+        # -------------------------------------------------
+        # ACADEMIC INFORMATION
+        # -------------------------------------------------
+
+        profile.course = course
+        profile.year_level = year_level
+        profile.section = section or None
+
         db.session.commit()
 
         flash(
@@ -271,6 +522,128 @@ def profile():
         "student/profile.html",
         profile=profile,
         internship=internship,
+    )
+
+
+# =========================================================
+# UPLOAD PROFILE PICTURE (PENDING ADMIN APPROVAL)
+# =========================================================
+
+@student_bp.route(
+    "/profile/picture/upload",
+    methods=["POST"],
+)
+@login_required
+@role_required("student")
+def upload_profile_picture():
+
+    profile = current_user.student_profile
+
+    if profile is None:
+
+        flash(
+            "Student profile not found.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.dashboard")
+        )
+
+    new_path, error = _save_pending_profile_picture(
+        request.files.get("picture")
+    )
+
+    if error:
+
+        flash(
+            error,
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    old_pending_path = profile.pending_profile_picture_path
+
+    profile.pending_profile_picture_path = new_path
+    profile.profile_picture_status = PROFILE_PICTURE_STATUS_PENDING
+    profile.profile_picture_rejection_reason = None
+
+    try:
+
+        db.session.commit()
+
+    except Exception:
+
+        db.session.rollback()
+
+        _remove_upload(new_path)
+
+        current_app.logger.exception(
+            "Failed to save pending profile picture."
+        )
+
+        flash(
+            "Your profile picture could not be saved. Please try again.",
+            "danger",
+        )
+
+        return redirect(
+            url_for("student.profile")
+        )
+
+    # The previous pending file (if any) is now obsolete.
+    # The currently approved picture is never touched here.
+    _remove_upload(old_pending_path)
+
+    flash(
+        "Your new profile picture was submitted and is waiting "
+        "for administrator approval.",
+        "success",
+    )
+
+    return redirect(
+        url_for("student.profile")
+    )
+
+
+# =========================================================
+# VIEW OWN APPROVED PROFILE PICTURE
+# =========================================================
+
+@student_bp.route("/profile/picture")
+@login_required
+@role_required("student")
+def profile_picture_file():
+
+    profile = current_user.student_profile
+
+    if profile is None:
+        abort(404)
+
+    return _send_private_image(
+        profile.profile_picture_path
+    )
+
+
+# =========================================================
+# VIEW OWN PENDING PROFILE PICTURE (PREVIEW)
+# =========================================================
+
+@student_bp.route("/profile/picture/pending")
+@login_required
+@role_required("student")
+def pending_profile_picture_file():
+
+    profile = current_user.student_profile
+
+    if profile is None:
+        abort(404)
+
+    return _send_private_image(
+        profile.pending_profile_picture_path
     )
 
 
@@ -1065,6 +1438,15 @@ def reports():
 )
 @login_required
 def uploaded_file(filepath):
+
+    # Profile pictures (approved and pending) are served only
+    # by their own protected routes, never by this generic one.
+    normalized = filepath.replace("\\", "/").lstrip("/")
+
+    first_segment = normalized.split("/", 1)[0].lower()
+
+    if first_segment in PRIVATE_UPLOAD_FOLDERS:
+        abort(404)
 
     return send_from_directory(
         current_app.config["UPLOAD_FOLDER"],

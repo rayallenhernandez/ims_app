@@ -53,3 +53,11 @@
 >
     &#128100; Advisers
 </a>
+
+
+<a
+    href="{{ url_for('admin.profile_pictures') }}"
+    class="{{ 'active' if request.endpoint == 'admin.profile_pictures' else '' }}"
+>
+    &#128247; Profile Pictures
+</a>

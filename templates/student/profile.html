@@ -51,66 +51,62 @@
     </h3>
 
 
-    <div
-      style="
-        text-align:center;
-        padding:10px 0 16px;
-      "
-    >
+    <div style="text-align:center; padding:10px 0 16px;">
 
-      <div
-        style="
-          width:72px;
-          height:72px;
-          border-radius:50%;
-          background:var(--navy);
-          color:#fff;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-size:22px;
-          font-weight:700;
-          margin:0 auto 10px;
-        "
-      >
+      {% if profile.profile_picture_path %}
 
-        {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+        <img
+          src="{{ url_for('student.profile_picture_file') }}?v={{ profile.profile_picture_path.split('/')[-1] }}"
+          alt="Profile picture"
+          style="
+            width:72px;
+            height:72px;
+            border-radius:50%;
+            object-fit:cover;
+            display:block;
+            margin:0 auto 10px;
+            border:2px solid var(--navy);
+          "
+        >
 
-      </div>
+      {% else %}
+
+        <div
+          style="
+            width:72px;
+            height:72px;
+            border-radius:50%;
+            background:var(--navy);
+            color:#fff;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            font-weight:700;
+            margin:0 auto 10px;
+          "
+        >
+          {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+        </div>
+
+      {% endif %}
 
 
-      <div
-        style="
-          font-weight:700;
-          color:var(--navy);
-        "
-      >
-
+      <div style="font-weight:700; color:var(--navy);">
         {{ current_user.full_name }}
-
       </div>
 
 
       <span class="badge badge-info">
-
         Student ID:
         {{ profile.student_id_number }}
-
       </span>
 
 
-      <div
-        style="
-          font-size:13px;
-          color:var(--muted);
-          margin-top:4px;
-        "
-      >
-
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">
         {{ profile.course }}
         —
         {{ profile.year_level }}
-
       </div>
 
 
@@ -119,10 +115,110 @@
         class="btn btn-secondary btn-sm"
         style="margin-top:10px;"
       >
-
          Edit Profile
-
       </a>
+
+    </div>
+
+
+    <!-- PROFILE PICTURE UPLOAD -->
+
+    <div
+      style="
+        border-top:1px solid #e3e8f2;
+        padding-top:14px;
+        text-align:center;
+      "
+    >
+
+      <div style="font-size:12px; font-weight:600; margin-bottom:6px;">
+        Profile Picture
+      </div>
+
+
+      {% if profile.profile_picture_status == 'Pending' and profile.pending_profile_picture_path %}
+
+        <img
+          src="{{ url_for('student.pending_profile_picture_file') }}?v={{ profile.pending_profile_picture_path.split('/')[-1] }}"
+          alt="Pending profile picture"
+          style="
+            width:72px;
+            height:72px;
+            border-radius:50%;
+            object-fit:cover;
+            display:block;
+            margin:0 auto 6px;
+            opacity:.85;
+          "
+        >
+
+        <span class="badge badge-warning">
+          Pending administrator approval
+        </span>
+
+        <div style="font-size:11px; color:var(--muted); margin:6px 0;">
+          {% if profile.profile_picture_path %}
+            Your current approved picture stays visible until this is approved.
+          {% else %}
+            Your initials are shown until this picture is approved.
+          {% endif %}
+        </div>
+
+      {% elif profile.profile_picture_status == 'Rejected' %}
+
+        <span class="badge badge-danger">
+          Last upload was rejected
+        </span>
+
+        {% if profile.profile_picture_rejection_reason %}
+          <div style="font-size:12px; color:var(--muted); margin:6px 0;">
+            Reason: {{ profile.profile_picture_rejection_reason }}
+          </div>
+        {% endif %}
+
+      {% elif profile.profile_picture_status == 'Approved' %}
+
+        <span class="badge badge-success">
+          Approved
+        </span>
+
+      {% endif %}
+
+
+      <form
+        method="POST"
+        action="{{ url_for('student.upload_profile_picture') }}"
+        enctype="multipart/form-data"
+        style="margin:8px 0 0;"
+      >
+
+        <input
+          type="file"
+          name="picture"
+          id="profile-picture-file"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          hidden
+          required
+          onchange="this.form.submit();"
+        >
+
+        <label
+          for="profile-picture-file"
+          class="btn btn-secondary btn-sm"
+          style="display:inline-block; cursor:pointer;"
+        >
+          {% if profile.profile_picture_path or profile.pending_profile_picture_path %}
+            Upload New Picture
+          {% else %}
+            Upload Picture
+          {% endif %}
+        </label>
+
+      </form>
+
+      <div style="font-size:11px; color:var(--muted); margin-top:6px;">
+        JPG, PNG or WEBP, up to 2 MB. New pictures are reviewed by the administrator.
+      </div>
 
     </div>
 
@@ -137,39 +233,22 @@
   <div class="card">
 
     <h3 class="card-title">
-
-      
       Resume / Document Submission
-
     </h3>
 
 
     <div class="grid grid-3">
 
 
-      <!-- =================================================
-           RESUME
-      ================================================== -->
+      <!-- RESUME -->
 
       <div style="text-align:center;">
 
-        <div style="font-size:26px;">
-          
-        </div>
+        <div style="font-size:26px;"></div>
 
-
-        <div
-          style="
-            font-size:12px;
-            font-weight:600;
-            margin:6px 0;
-          "
-        >
-
+        <div style="font-size:12px; font-weight:600; margin:6px 0;">
           Resume
-
         </div>
-
 
         {% if profile.resume_path %}
 
@@ -181,11 +260,8 @@
               word-break:break-word;
             "
           >
-
             {{ profile.resume_path.split('/')[-1] }}
-
           </div>
-
 
           <div
             style="
@@ -197,27 +273,18 @@
           >
 
             <a
-              href="{{ url_for(
-                'student.view_document',
-                document_type='resume'
-              ) }}"
+              href="{{ url_for('student.view_document', document_type='resume') }}"
               target="_blank"
               rel="noopener noreferrer"
               class="btn btn-secondary btn-sm"
               style="width:130px;"
             >
-
               View
-
             </a>
-
 
             <form
               method="POST"
-              action="{{ url_for(
-                'student.replace_document',
-                document_type='resume'
-              ) }}"
+              action="{{ url_for('student.replace_document', document_type='resume') }}"
               enctype="multipart/form-data"
               style="margin:0;"
             >
@@ -231,7 +298,6 @@
                 onchange="this.form.submit();"
               >
 
-
               <label
                 for="resume-file"
                 class="btn btn-secondary btn-sm"
@@ -242,9 +308,7 @@
                   cursor:pointer;
                 "
               >
-
                 View / Replace
-
               </label>
 
             </form>
@@ -255,10 +319,7 @@
 
           <form
             method="POST"
-            action="{{ url_for(
-              'student.replace_document',
-              document_type='resume'
-            ) }}"
+            action="{{ url_for('student.replace_document', document_type='resume') }}"
             enctype="multipart/form-data"
             style="margin:0;"
           >
@@ -272,18 +333,12 @@
               onchange="this.form.submit();"
             >
 
-
             <label
               for="resume-file-new"
               class="btn btn-secondary btn-sm"
-              style="
-                display:inline-block;
-                cursor:pointer;
-              "
+              style="display:inline-block; cursor:pointer;"
             >
-
               Upload
-
             </label>
 
           </form>
@@ -294,29 +349,15 @@
 
 
 
-      <!-- =================================================
-           APPLICATION LETTER
-      ================================================== -->
+      <!-- APPLICATION LETTER -->
 
       <div style="text-align:center;">
 
-        <div style="font-size:26px;">
-          
-        </div>
+        <div style="font-size:26px;"></div>
 
-
-        <div
-          style="
-            font-size:12px;
-            font-weight:600;
-            margin:6px 0;
-          "
-        >
-
+        <div style="font-size:12px; font-weight:600; margin:6px 0;">
           Application Letter
-
         </div>
-
 
         {% if profile.application_letter_path %}
 
@@ -328,11 +369,8 @@
               word-break:break-word;
             "
           >
-
             {{ profile.application_letter_path.split('/')[-1] }}
-
           </div>
-
 
           <div
             style="
@@ -344,27 +382,18 @@
           >
 
             <a
-              href="{{ url_for(
-                'student.view_document',
-                document_type='application_letter'
-              ) }}"
+              href="{{ url_for('student.view_document', document_type='application_letter') }}"
               target="_blank"
               rel="noopener noreferrer"
               class="btn btn-secondary btn-sm"
               style="width:130px;"
             >
-
               View
-
             </a>
-
 
             <form
               method="POST"
-              action="{{ url_for(
-                'student.replace_document',
-                document_type='application_letter'
-              ) }}"
+              action="{{ url_for('student.replace_document', document_type='application_letter') }}"
               enctype="multipart/form-data"
               style="margin:0;"
             >
@@ -378,7 +407,6 @@
                 onchange="this.form.submit();"
               >
 
-
               <label
                 for="application-letter-file"
                 class="btn btn-secondary btn-sm"
@@ -389,9 +417,7 @@
                   cursor:pointer;
                 "
               >
-
                 View / Replace
-
               </label>
 
             </form>
@@ -402,10 +428,7 @@
 
           <form
             method="POST"
-            action="{{ url_for(
-              'student.replace_document',
-              document_type='application_letter'
-            ) }}"
+            action="{{ url_for('student.replace_document', document_type='application_letter') }}"
             enctype="multipart/form-data"
             style="margin:0;"
           >
@@ -419,18 +442,12 @@
               onchange="this.form.submit();"
             >
 
-
             <label
               for="application-letter-file-new"
               class="btn btn-secondary btn-sm"
-              style="
-                display:inline-block;
-                cursor:pointer;
-              "
+              style="display:inline-block; cursor:pointer;"
             >
-
               Upload
-
             </label>
 
           </form>
@@ -441,29 +458,15 @@
 
 
 
-      <!-- =================================================
-           MEDICAL CERTIFICATE
-      ================================================== -->
+      <!-- MEDICAL CERTIFICATE -->
 
       <div style="text-align:center;">
 
-        <div style="font-size:26px;">
-          
-        </div>
+        <div style="font-size:26px;"></div>
 
-
-        <div
-          style="
-            font-size:12px;
-            font-weight:600;
-            margin:6px 0;
-          "
-        >
-
+        <div style="font-size:12px; font-weight:600; margin:6px 0;">
           Medical Certificate
-
         </div>
-
 
         {% if profile.medical_certificate_path %}
 
@@ -475,11 +478,8 @@
               word-break:break-word;
             "
           >
-
             {{ profile.medical_certificate_path.split('/')[-1] }}
-
           </div>
-
 
           <div
             style="
@@ -491,27 +491,18 @@
           >
 
             <a
-              href="{{ url_for(
-                'student.view_document',
-                document_type='medical_certificate'
-              ) }}"
+              href="{{ url_for('student.view_document', document_type='medical_certificate') }}"
               target="_blank"
               rel="noopener noreferrer"
               class="btn btn-secondary btn-sm"
               style="width:130px;"
             >
-
               View
-
             </a>
-
 
             <form
               method="POST"
-              action="{{ url_for(
-                'student.replace_document',
-                document_type='medical_certificate'
-              ) }}"
+              action="{{ url_for('student.replace_document', document_type='medical_certificate') }}"
               enctype="multipart/form-data"
               style="margin:0;"
             >
@@ -525,7 +516,6 @@
                 onchange="this.form.submit();"
               >
 
-
               <label
                 for="medical-certificate-file"
                 class="btn btn-secondary btn-sm"
@@ -536,9 +526,7 @@
                   cursor:pointer;
                 "
               >
-
                 View / Replace
-
               </label>
 
             </form>
@@ -549,10 +537,7 @@
 
           <form
             method="POST"
-            action="{{ url_for(
-              'student.replace_document',
-              document_type='medical_certificate'
-            ) }}"
+            action="{{ url_for('student.replace_document', document_type='medical_certificate') }}"
             enctype="multipart/form-data"
             style="margin:0;"
           >
@@ -566,18 +551,12 @@
               onchange="this.form.submit();"
             >
 
-
             <label
               for="medical-certificate-file-new"
               class="btn btn-secondary btn-sm"
-              style="
-                display:inline-block;
-                cursor:pointer;
-              "
+              style="display:inline-block; cursor:pointer;"
             >
-
               Upload
-
             </label>
 
           </form>
@@ -599,10 +578,7 @@
      COURSE / SKILLS
 ====================================================== -->
 
-<div
-  class="grid grid-2"
-  style="margin-top:18px;"
->
+<div class="grid grid-2" style="margin-top:18px;">
 
 
   <!-- COURSE -->
@@ -613,58 +589,26 @@
        Course / Year / Section
     </h3>
 
-
     <table>
 
       <tr>
-
-        <td>
-          Course
-        </td>
-
-        <td style="text-align:right;">
-          {{ profile.course }}
-        </td>
-
+        <td>Course</td>
+        <td style="text-align:right;">{{ profile.course }}</td>
       </tr>
 
-
       <tr>
-
-        <td>
-          Year Level
-        </td>
-
-        <td style="text-align:right;">
-          {{ profile.year_level }}
-        </td>
-
+        <td>Year Level</td>
+        <td style="text-align:right;">{{ profile.year_level }}</td>
       </tr>
 
-
       <tr>
-
-        <td>
-          Section
-        </td>
-
-        <td style="text-align:right;">
-          {{ profile.section or '—' }}
-        </td>
-
+        <td>Section</td>
+        <td style="text-align:right;">{{ profile.section or '—' }}</td>
       </tr>
 
-
       <tr>
-
-        <td>
-          School Year
-        </td>
-
-        <td style="text-align:right;">
-          {{ profile.school_year or '—' }}
-        </td>
-
+        <td>School Year</td>
+        <td style="text-align:right;">{{ profile.school_year or '—' }}</td>
       </tr>
 
     </table>
@@ -681,11 +625,7 @@
        Skills
     </h3>
 
-
-    <div
-      class="chip-list"
-      id="skills-chip-list"
-    >
+    <div class="chip-list" id="skills-chip-list">
 
       {% for skill in profile.skills_list %}
 
@@ -695,12 +635,7 @@
 
       {% else %}
 
-        <span
-          style="
-            font-size:13px;
-            color:var(--muted);
-          "
-        >
+        <span style="font-size:13px; color:var(--muted);">
           No skills added yet.
         </span>
 
@@ -708,14 +643,10 @@
 
     </div>
 
-
     <form
       method="POST"
       action="{{ url_for('student.add_skill') }}"
-      style="
-        display:flex;
-        gap:8px;
-      "
+      style="display:flex; gap:8px;"
     >
 
       <input
@@ -725,14 +656,8 @@
         style="flex:1;"
       >
 
-
-      <button
-        type="submit"
-        class="btn btn-secondary btn-sm"
-      >
-
+      <button type="submit" class="btn btn-secondary btn-sm">
          Add Skill
-
       </button>
 
     </form>
@@ -747,10 +672,7 @@
      CONTACT + EDIT PROFILE
 ====================================================== -->
 
-<div
-  class="grid grid-2"
-  style="margin-top:18px;"
->
+<div class="grid grid-2" style="margin-top:18px;">
 
 
   <!-- CONTACT -->
@@ -761,45 +683,21 @@
        Contact Details
     </h3>
 
-
     <table>
 
       <tr>
-
-        <td>
-          Email
-        </td>
-
-        <td style="text-align:right;">
-          {{ current_user.email }}
-        </td>
-
+        <td>Email</td>
+        <td style="text-align:right;">{{ current_user.email }}</td>
       </tr>
 
-
       <tr>
-
-        <td>
-          Phone Number
-        </td>
-
-        <td style="text-align:right;">
-          {{ current_user.contact_number or '—' }}
-        </td>
-
+        <td>Phone Number</td>
+        <td style="text-align:right;">{{ current_user.contact_number or '—' }}</td>
       </tr>
 
-
       <tr>
-
-        <td>
-          Address
-        </td>
-
-        <td style="text-align:right;">
-          {{ profile.address or '—' }}
-        </td>
-
+        <td>Address</td>
+        <td style="text-align:right;">{{ profile.address or '—' }}</td>
       </tr>
 
     </table>
@@ -810,118 +708,113 @@
 
   <!-- EDIT PROFILE -->
 
-  <div
-    class="card"
-    id="profile-editor"
-  >
+  <div class="card" id="profile-editor">
 
     <h3 class="card-title">
        Edit Profile
     </h3>
 
-
     <form method="POST">
-
 
       <div class="field-row">
 
-
         <div class="field">
-
-          <label>
-            Full Name
-          </label>
-
+          <label>First Name</label>
           <input
             type="text"
             name="first_name"
             value="{{ current_user.first_name }}"
           >
-
         </div>
 
-
         <div class="field">
-
-          <label>
-            Last Name
-          </label>
-
+          <label>Last Name</label>
           <input
             type="text"
             name="last_name"
             value="{{ current_user.last_name }}"
           >
-
         </div>
-
 
       </div>
 
 
-
       <div class="field-row">
 
-
         <div class="field">
-
-          <label>
-            Phone Number
-          </label>
-
+          <label>Phone Number</label>
           <input
             type="tel"
             name="contact_number"
             value="{{ current_user.contact_number or '' }}"
           >
-
         </div>
 
-
         <div class="field">
-
-          <label>
-            Address
-          </label>
-
+          <label>Address</label>
           <input
             type="text"
             name="address"
             value="{{ profile.address or '' }}"
           >
-
         </div>
-
 
       </div>
 
 
+      <div class="field-row">
 
-      <div
-        style="
-          display:flex;
-          justify-content:flex-end;
-          gap:10px;
-        "
-      >
+        <div class="field">
+          <label>Course</label>
+          <input
+            type="text"
+            name="course"
+            value="{{ profile.course }}"
+            maxlength="120"
+            required
+          >
+        </div>
 
-        <button
-          type="reset"
-          class="btn btn-secondary"
-        >
+        <div class="field">
+          <label>Year Level</label>
+          <input
+            type="text"
+            name="year_level"
+            value="{{ profile.year_level }}"
+            maxlength="20"
+            required
+          >
+        </div>
+
+      </div>
+
+
+      <div class="field-row">
+
+        <div class="field">
+          <label>Section</label>
+          <input
+            type="text"
+            name="section"
+            value="{{ profile.section or '' }}"
+            maxlength="20"
+          >
+        </div>
+
+      </div>
+
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+
+        <button type="reset" class="btn btn-secondary">
           Cancel
         </button>
 
-
-        <button
-          type="submit"
-          class="btn btn-primary"
-        >
+        <button type="submit" class="btn btn-primary">
            Save Changes
         </button>
 
       </div>
-
 
     </form>
 
