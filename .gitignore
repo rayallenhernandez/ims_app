@@ -9,3 +9,4 @@ instance/
 .vscode/
 .DS_Store
 Thumbs.db
+ims_db_backup.sql

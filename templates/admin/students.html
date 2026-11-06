@@ -1,153 +1,141 @@
 {% extends "app_layout.html" %}
 
-{% block title %}
-Students
-{% endblock %}
-
+{% block title %}Students{% endblock %}
 
 {% block sidebar_nav %}
 {% include "partials/admin_nav.html" %}
 {% endblock %}
 
-
 {% block page_header %}
-
 <div class="page-header">
-
     <div>
-
         <h1>Students</h1>
-
-        <p>
-            View registered students and their internship information.
-        </p>
-
+        <p>View registered students and their internship information.</p>
     </div>
-
-    <div class="breadcrumb">
-        Home / Admin / Students
-    </div>
-
+    <div class="breadcrumb">Home / Admin / Students</div>
 </div>
-
 {% endblock %}
 
-
 {% block content %}
-
 <div class="card">
+    <h3 class="card-title">&#128101; Registered Students</h3>
 
-    <h3 class="card-title">
-        &#128101; Registered Students
-    </h3>
+    <form method="GET" action="{{ url_for('admin.students') }}"
+          style="display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin:18px 0 20px;">
+        <div style="min-width:190px; flex:1;">
+            <label for="department">Department</label>
+            <select id="department" name="department" class="form-control">
+                <option value="">All Departments</option>
+                {% for department in department_programs.keys() %}
+                <option value="{{ department }}" {% if selected_department == department %}selected{% endif %}>{{ department }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="min-width:220px; flex:1;">
+            <label for="program">Program</label>
+            <select id="program" name="program" class="form-control">
+                <option value="">All Programs</option>
+                {% if selected_department %}
+                    {% for program in department_programs[selected_department] %}
+                    <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ program }}</option>
+                    {% endfor %}
+                {% else %}
+                    {% for department, programs in department_programs.items() %}
+                        {% for program in programs %}
+                        <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ department }} - {{ program }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('admin.students') }}" class="btn btn-outline">Reset</a>
+    </form>
 
+    <p style="color:var(--muted); margin-bottom:16px;">Showing <strong>{{ total_students }}</strong> student(s).</p>
 
     {% if students %}
-
     <div class="table-responsive">
-
         <table>
-
             <thead>
-
                 <tr>
-                    <th>Student</th>
-                    <th>Student ID</th>
-                    <th>Course</th>
-                    <th>Year Level</th>
-                    <th>Section</th>
-                    <th>School Year</th>
+                    <th>Student</th><th>Student ID</th><th>Department</th>
+                    <th>Course / Program</th><th>Year Level</th><th>Section</th><th>School Year</th>
                 </tr>
-
             </thead>
-
-
             <tbody>
-
                 {% for student in students %}
-
                 <tr>
-
+                    <td><strong>{{ student.user.full_name }}</strong></td>
+                    <td>{{ student.student_id_number or '—' }}</td>
                     <td>
-
-                        <strong>
-                            {{ student.user.full_name }}
-                        </strong>
-
+                        {% set ns = namespace(value='—') %}
+                        {% for dept, aliases in department_aliases.items() %}
+                            {% if student.course and student.course|lower in aliases|map('lower')|list %}
+                                {% set ns.value = dept %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ ns.value }}
                     </td>
-
-
-                    <td>
-                        {{ student.student_id_number or '—' }}
-                    </td>
-
-
-                    <td>
-                        {{ student.course or '—' }}
-                    </td>
-
-
-                    <td>
-                        {{ student.year_level or '—' }}
-                    </td>
-
-
-                    <td>
-                        {{ student.section or '—' }}
-                    </td>
-
-
-                    <td>
-                        {{ student.school_year or '—' }}
-                    </td>
-
+                    <td>{{ student.course or '—' }}</td>
+                    <td>{{ student.year_level or '—' }}</td>
+                    <td>{{ student.section or '—' }}</td>
+                    <td>{{ student.school_year or '—' }}</td>
                 </tr>
-
                 {% endfor %}
-
             </tbody>
-
         </table>
-
     </div>
-
-
     {% else %}
-
     <div class="empty-state">
-
-        <div class="empty-icon">
-            &#128101;
-        </div>
-
-        <h3>
-            No Students
-        </h3>
-
-        <p>
-            No student profiles have been registered yet.
-        </p>
-
+        <div class="empty-icon">&#128101;</div>
+        <h3>No Students Found</h3>
+        <p>No student records match the selected department or program.</p>
     </div>
-
     {% endif %}
-
 </div>
-
 
 <div class="card" style="margin-top:20px;">
-
     <div class="action-buttons">
-
-        <a
-            href="{{ url_for('admin.dashboard') }}"
-            class="btn btn-outline"
-        >
-            &#8592; Back to Admin Dashboard
-        </a>
-
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">&#8592; Back to Admin Dashboard</a>
     </div>
-
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const departmentSelect = document.getElementById("department");
+    const programSelect = document.getElementById("program");
+    const programMap = {{ department_programs|tojson }};
+
+    function rebuildPrograms() {
+        const selectedProgram = programSelect.value;
+        programSelect.innerHTML = "";
+        const all = document.createElement("option");
+        all.value = "";
+        all.textContent = "All Programs";
+        programSelect.appendChild(all);
+
+        const department = departmentSelect.value;
+        const entries = department
+            ? [[department, programMap[department] || []]]
+            : Object.entries(programMap);
+
+        entries.forEach(([dept, programs]) => programs.forEach(program => {
+            const option = document.createElement("option");
+            option.value = program;
+            option.textContent = department ? program : dept + " - " + program;
+            programSelect.appendChild(option);
+        }));
+
+        if ([...programSelect.options].some(option => option.value === selectedProgram)) {
+            programSelect.value = selectedProgram;
+        }
+    }
+
+    departmentSelect.addEventListener("change", function () {
+        programSelect.value = "";
+        rebuildPrograms();
+    });
+});
+</script>
 {% endblock %}

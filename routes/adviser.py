@@ -101,29 +101,135 @@ def dashboard():
 # ASSIGNED STUDENTS
 # =========================================================
 
+# =========================================================
+# STUDENT DEPARTMENT / PROGRAM FILTER HELPERS
+# =========================================================
+
+STUDENT_PROGRAMS = {
+    "CCS": {
+        "BSIT": ["BSIT", "BS Information Technology",
+                 "Bachelor of Science in Information Technology",
+                 "CCS - BSIT", "CCS-BSIT"],
+    },
+    "CTE": {
+        "BEED": ["BEED", "Bachelor of Elementary Education", "CTE - BEED"],
+        "BSE Major in English": ["BSE Major in English", "BSE English",
+            "Bachelor of Secondary Education Major in English",
+            "CTE - BSE Major in English"],
+        "BSE Major in Mathematics": ["BSE Major in Mathematics", "BSE Mathematics",
+            "Bachelor of Secondary Education Major in Mathematics",
+            "CTE - BSE Major in Mathematics"],
+        "BSE Major in Social Studies": ["BSE Major in Social Studies",
+            "BSE Social Studies",
+            "Bachelor of Secondary Education Major in Social Studies",
+            "CTE - BSE Major in Social Studies"],
+        "BECED": ["BECED", "Bachelor of Early Childhood Education", "CTE - BECED"],
+    },
+    "CAS": {
+        "BAJ": ["BAJ", "Bachelor of Arts in Journalism", "CAS - BAJ"],
+        "BAPS": ["BAPS", "Bachelor of Arts in Political Science", "CAS - BAPS"],
+        "BPA": ["BPA", "Bachelor of Public Administration", "CAS - BPA"],
+        "BSSW": ["BSSW", "Bachelor of Science in Social Work", "CAS - BSSW"],
+    },
+    "CCJE": {
+        "BS Crim": ["BS Crim", "BS Criminology",
+                    "Bachelor of Science in Criminology", "CCJE - BS Crim"],
+    },
+    "CBA": {
+        "BSBA Major in FM": ["BSBA Major in FM", "BSBA Financial Management",
+            "Bachelor of Science in Business Administration Major in Financial Management",
+            "CBA - BSBA Major in FM"],
+        "BSBA Major in HRM": ["BSBA Major in HRM", "BSBA Human Resource Management",
+            "Bachelor of Science in Business Administration Major in Human Resource Management",
+            "CBA - BSBA Major in HRM"],
+        "BSBA Major in MM": ["BSBA Major in MM", "BSBA Marketing Management",
+            "Bachelor of Science in Business Administration Major in Marketing Management",
+            "CBA - BSBA Major in MM"],
+    },
+    "COA": {
+        "BSMA": ["BSMA", "Bachelor of Science in Management Accounting", "COA - BSMA"],
+        "BSA": ["BSA", "Bachelor of Science in Accountancy", "COA - BSA"],
+    },
+}
+
+
+def _student_course_aliases(department="", program=""):
+    """Return known course-name variants for a selected department/program."""
+    if department and department not in STUDENT_PROGRAMS:
+        return []
+    if program:
+        if department:
+            return STUDENT_PROGRAMS.get(department, {}).get(program, [])
+        for programs in STUDENT_PROGRAMS.values():
+            if program in programs:
+                return programs[program]
+        return []
+    if department:
+        return [
+            alias
+            for aliases in STUDENT_PROGRAMS[department].values()
+            for alias in aliases
+        ]
+    return []
+
+
+def _student_filter_options():
+    return {
+        department: list(programs.keys())
+        for department, programs in STUDENT_PROGRAMS.items()
+    }
+
+
 @adviser_bp.route("/students")
 @login_required
 @role_required(User.ROLE_ADVISER)
 def students():
 
-    students = (
+    selected_department = request.args.get("department", "").strip()
+    selected_program = request.args.get("program", "").strip()
+
+    if selected_department not in STUDENT_PROGRAMS:
+        selected_department = ""
+
+    valid_programs = STUDENT_PROGRAMS.get(selected_department, {})
+    all_programs = {
+        program
+        for programs in STUDENT_PROGRAMS.values()
+        for program in programs
+    }
+    if selected_program and selected_program not in (
+        valid_programs if selected_department else all_programs
+    ):
+        selected_program = ""
+
+    # Limit results to students assigned to the currently logged-in adviser.
+    query = (
         StudentProfile.query
         .filter_by(adviser_id=current_user.id)
-        .join(
-            User,
-            StudentProfile.user_id == User.id
-        )
-        .order_by(
-            User.last_name.asc()
-        )
-        .all()
+        .join(User, StudentProfile.user_id == User.id)
     )
+
+    aliases = _student_course_aliases(selected_department, selected_program)
+    if aliases:
+        query = query.filter(
+            db.func.lower(db.func.trim(StudentProfile.course)).in_(
+                [value.lower() for value in aliases]
+            )
+        )
+
+    students = query.order_by(
+        User.last_name.asc(),
+        User.first_name.asc()
+    ).all()
 
     return render_template(
         "adviser/students.html",
-        students=students
+        students=students,
+        department_programs=_student_filter_options(),
+        selected_department=selected_department,
+        selected_program=selected_program,
+        total_students=len(students)
     )
-
 
 # =========================================================
 # STUDENT DETAILS

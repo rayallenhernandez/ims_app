@@ -6,203 +6,129 @@
     {% include "partials/adviser_nav.html" %}
 {% endblock %}
 
-
 {% block page_header %}
-
 <div class="page-header">
-
     <div>
         <h1>My Students</h1>
-
-        <p>
-            Students currently assigned to you as their OJT Adviser.
-        </p>
+        <p>Students currently assigned to you as their OJT Adviser.</p>
     </div>
-
-    <div class="breadcrumb">
-        Home / Adviser / Students
-    </div>
-
+    <div class="breadcrumb">Home / Adviser / Students</div>
 </div>
-
 {% endblock %}
 
-
 {% block content %}
-
 <div class="card">
+    <h3 class="card-title"><i class="fa-solid fa-user"></i> Assigned Students</h3>
 
-    <h3 class="card-title">
-        <I CLASS="FA-SOLID FA-USER"></I> Assigned Students
-    </h3>
+    <form method="GET" action="{{ url_for('adviser.students') }}"
+          style="display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin:18px 0 20px;">
+        <div style="min-width:190px; flex:1;">
+            <label for="department">Department</label>
+            <select id="department" name="department" class="form-control">
+                <option value="">All Departments</option>
+                {% for department in department_programs.keys() %}
+                <option value="{{ department }}" {% if selected_department == department %}selected{% endif %}>{{ department }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="min-width:220px; flex:1;">
+            <label for="program">Program</label>
+            <select id="program" name="program" class="form-control">
+                <option value="">All Programs</option>
+                {% if selected_department %}
+                    {% for program in department_programs[selected_department] %}
+                    <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ program }}</option>
+                    {% endfor %}
+                {% else %}
+                    {% for department, programs in department_programs.items() %}
+                        {% for program in programs %}
+                        <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ department }} - {{ program }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('adviser.students') }}" class="btn btn-outline">Reset</a>
+    </form>
 
+    <p style="color:var(--muted); margin-bottom:20px;">Showing <strong>{{ total_students }}</strong> assigned student(s).</p>
 
     {% if students %}
-
-        <p style="color:var(--muted); margin-bottom:20px;">
-
-            You currently have
-            <strong>{{ students|length }}</strong>
-            assigned student(s).
-
-        </p>
-
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>#</th>
-
-                        <th>Student Name</th>
-
-                        <th>Email</th>
-
-                        <th>Student ID</th>
-
-                        <th>Program</th>
-
-                        <th>Year Level</th>
-
-                        <th>Section</th>
-
-                        <th>School Year</th>
-
-                        <th>Action</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for student in students %}
-
-                    <tr>
-
-                        <td>
-                            {{ loop.index }}
-                        </td>
-
-
-                        <td>
-
-                            <strong>
-
-                                {{ student.user.last_name }},
-
-                                {{ student.user.first_name }}
-
-                                {% if student.user.middle_name %}
-                                    {{ student.user.middle_name }}
-                                {% endif %}
-
-                            </strong>
-
-                        </td>
-
-
-                        <td>
-                            {{ student.user.email }}
-                        </td>
-
-
-                        <td>
-                            {{ student.student_id_number or 'N/A' }}
-                        </td>
-
-
-                        <td>
-                            {{ student.course or 'N/A' }}
-                        </td>
-
-
-                        <td>
-                            {{ student.year_level or 'N/A' }}
-                        </td>
-
-
-                        <td>
-                            {{ student.section or 'N/A' }}
-                        </td>
-
-
-                        <td>
-                            {{ student.school_year or 'N/A' }}
-                        </td>
-
-
-                        <td>
-
-                            <div
-                                style="
-                                    display:flex;
-                                    flex-direction:column;
-                                    gap:6px;
-                                "
-                            >
-
-                                <!-- VIEW STUDENT DETAILS -->
-                                <a
-                                    href="{{ url_for(
-                                        'adviser.student_details',
-                                        student_id=student.id
-                                    ) }}"
-                                    class="btn btn-sm btn-primary"
-                                >
-                                    View Details
-                                </a>
-
-
-                                <!-- VIEW OJT HOURS -->
-                                <a
-                                    href="{{ url_for(
-                                        'adviser.hours',
-                                        student_id=student.id
-                                    ) }}"
-                                    class="btn btn-sm btn-secondary"
-                                >
-                                    &#9201; OJT Hours
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th><th>Student Name</th><th>Email</th><th>Student ID</th>
+                    <th>Program</th><th>Year Level</th><th>Section</th><th>School Year</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ student.user.last_name }}, {{ student.user.first_name }}{% if student.user.middle_name %} {{ student.user.middle_name }}{% endif %}</strong></td>
+                    <td>{{ student.user.email }}</td>
+                    <td>{{ student.student_id_number or 'N/A' }}</td>
+                    <td>{{ student.course or 'N/A' }}</td>
+                    <td>{{ student.year_level or 'N/A' }}</td>
+                    <td>{{ student.section or 'N/A' }}</td>
+                    <td>{{ student.school_year or 'N/A' }}</td>
+                    <td>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <a href="{{ url_for('adviser.student_details', student_id=student.id) }}" class="btn btn-sm btn-primary">View Details</a>
+                            <a href="{{ url_for('adviser.hours', student_id=student.id) }}" class="btn btn-sm btn-secondary">&#9201; OJT Hours</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
-
-        <div class="empty-state">
-
-            <div class="empty-icon">
-                <I CLASS="FA-SOLID FA-USER"></I>
-            </div>
-
-            <h3>No Assigned Students</h3>
-
-            <p>
-                No students have been assigned to you yet.
-            </p>
-
-        </div>
-
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fa-solid fa-user"></i></div>
+        <h3>No Assigned Students Found</h3>
+        <p>No assigned students match the selected department or program.</p>
+    </div>
     {% endif %}
-
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const departmentSelect = document.getElementById("department");
+    const programSelect = document.getElementById("program");
+    const programMap = {{ department_programs|tojson }};
+
+    function rebuildPrograms() {
+        const selectedProgram = programSelect.value;
+        programSelect.innerHTML = "";
+        const all = document.createElement("option");
+        all.value = "";
+        all.textContent = "All Programs";
+        programSelect.appendChild(all);
+
+        const department = departmentSelect.value;
+        const entries = department
+            ? [[department, programMap[department] || []]]
+            : Object.entries(programMap);
+
+        entries.forEach(([dept, programs]) => programs.forEach(program => {
+            const option = document.createElement("option");
+            option.value = program;
+            option.textContent = department ? program : dept + " - " + program;
+            programSelect.appendChild(option);
+        }));
+
+        if ([...programSelect.options].some(option => option.value === selectedProgram)) {
+            programSelect.value = selectedProgram;
+        }
+    }
+
+    departmentSelect.addEventListener("change", function () {
+        programSelect.value = "";
+        rebuildPrograms();
+    });
+});
+</script>
 {% endblock %}
