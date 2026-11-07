@@ -1,58 +1,22 @@
+
 {% extends "app_layout.html" %}
 
 
+{# =========================================================
+   SIDEBAR NAVIGATION
+   Uses the shared student navigation for consistency.
+========================================================= #}
+
 {% block sidebar_nav %}
 
-<a
-    href="{{ url_for('student.dashboard') }}"
-    class="sidebar-link"
->
-    <span></span>
-    Dashboard
-</a>
-
-<a
-    href="{{ url_for('student.profile') }}"
-    class="sidebar-link"
->
-    <span></span>
-    Profile
-</a>
-
-<a
-    href="{{ url_for('student.companies') }}"
-    class="sidebar-link"
->
-    <span></span>
-    Find Internship
-</a>
-
-<a
-    href="{{ url_for('student.applications') }}"
-    class="sidebar-link"
->
-    <span></span>
-    My Applications
-</a>
-
-<a
-    href="{{ url_for('student.reports') }}"
-    class="sidebar-link"
->
-    <span></span>
-    Reports
-</a>
-
-<a
-    href="{{ url_for('student.certificate') }}"
-    class="sidebar-link active"
->
-    <span></span>
-    Certificate
-</a>
+    {% include "partials/student_nav.html" %}
 
 {% endblock %}
 
+
+{# =========================================================
+   PAGE CONTENT
+========================================================= #}
 
 {% block content %}
 
@@ -212,9 +176,7 @@
     <div class="requirements-list">
 
 
-        <!-- =================================================
-             HOURS
-        ================================================== -->
+        <!-- REQUIRED HOURS -->
 
         <div class="requirement-row">
 
@@ -251,9 +213,7 @@
         </div>
 
 
-        <!-- =================================================
-             WEEKLY REPORTS
-        ================================================== -->
+        <!-- WEEKLY REPORTS -->
 
         <div class="requirement-row">
 
@@ -287,9 +247,7 @@
         </div>
 
 
-        <!-- =================================================
-             EVALUATION
-        ================================================== -->
+        <!-- EVALUATION -->
 
         <div class="requirement-row">
 
@@ -323,9 +281,7 @@
         </div>
 
 
-        <!-- =================================================
-             CERTIFICATE UPLOAD
-        ================================================== -->
+        <!-- CERTIFICATE UPLOAD -->
 
         <div class="requirement-row">
 
@@ -396,9 +352,7 @@
     {% if cert and cert.pdf_path %}
 
 
-        <!-- =================================================
-             UPLOAD SUCCESS MESSAGE
-        ================================================== -->
+        <!-- UPLOAD SUCCESS MESSAGE -->
 
         <div class="success-box">
 
@@ -427,9 +381,7 @@
         </div>
 
 
-        <!-- =================================================
-             CERTIFICATE IMAGE
-        ================================================== -->
+        <!-- CERTIFICATE IMAGE -->
 
         <div class="certificate-preview">
 
@@ -442,9 +394,7 @@
         </div>
 
 
-        <!-- =================================================
-             BUTTONS
-        ================================================== -->
+        <!-- CERTIFICATE BUTTONS -->
 
         <div class="button-group">
 
@@ -484,9 +434,7 @@
     {% else %}
 
 
-        <!-- =================================================
-             NOT YET UPLOADED
-        ================================================== -->
+        <!-- CERTIFICATE NOT YET UPLOADED -->
 
         <div class="empty-state">
 
